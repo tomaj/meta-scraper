@@ -2,11 +2,19 @@
 
 namespace Tomaj\Scraper;
 
+use GuzzleHttp\Client;
+
 class Scraper
 {
+    /**
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
     public function parseUrl($url)
     {
-        //
+        $client = new Client();
+        $res = $client->get($url);
+
+        return $this->parse($res->getBody());
     }
 
     public function parse($content)
