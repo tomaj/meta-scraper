@@ -14,6 +14,8 @@ class Meta
 
     private $ogType;
 
+    private $ogTitle;
+
     private $ogDescription;
 
     private $ogUrl;
@@ -75,6 +77,17 @@ class Meta
     public function getOgType()
     {
         return $this->ogType;
+    }
+
+    public function setOgTitle($ogTitle)
+    {
+        $this->ogTitle = $ogTitle;
+        return $this;
+    }
+
+    public function getOgTitle()
+    {
+        return $this->ogTitle;
     }
 
     public function setOgDescription($ogDescription)
