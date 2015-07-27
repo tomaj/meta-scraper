@@ -29,53 +29,53 @@ class Scraper
 
         preg_match('/<title>(.+)<\/title\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setTitle($matches[1]);
+            $meta->setTitle(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*name=\"description\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setDescription($matches[1]);
+            $meta->setDescription(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*name=\"keywords\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setKeywords($matches[1]);
+            $meta->setKeywords(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*name=\"author\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setAuthor($matches[1]);
+            $meta->setAuthor(htmlspecialchars_decode($matches[1]));
         }
 
         // todo - optimalize to one preg_match for all og:*
         preg_match('/<meta\s*property=\"og:title\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgTitle($matches[1]);
+            $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*property=\"og:description\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgDescription($matches[1]);
+            $meta->setOgDescription(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*property=\"og:type\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgType($matches[1]);
+            $meta->setOgType(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*property=\"og:url\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgUrl($matches[1]);
+            $meta->setOgUrl(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*property=\"og:site_name\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgSiteName($matches[1]);
+            $meta->setOgSiteName(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta\s*property=\"og:image\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setOgImage($matches[1]);
+            $meta->setOgImage(htmlspecialchars_decode($matches[1]));
         }
 
         return $meta;
