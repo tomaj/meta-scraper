@@ -6,13 +6,15 @@ use GuzzleHttp\Client;
 
 class Scraper
 {
+    protected $userAgent = 'Tomaj\Scraper';
+
     /**
      * @throws \GuzzleHttp\Exception\RequestException
      */
-    public function parseUrl($url)
+    public function parseUrl($url, $timeout = 5)
     {
         $client = new Client();
-        $res = $client->get($url);
+        $res = $client->get($url, ['connect_timeout' => $timeout]);
 
         return $this->parse($res->getBody());
     }
