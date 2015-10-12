@@ -154,7 +154,7 @@ class Meta
     }
 
     public function setPublishedTime($publishedTime)
-      {
+    {
         if ($publishedTime instanceof DateTime) {
             $this->publishedTime = $publishedTime;
         } else {
