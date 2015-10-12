@@ -2,6 +2,14 @@
 
 Page meta scraper parse meta information from page.
 
+## Instalation
+
+via composer:
+
+```
+composer require tomaj/meta-scraper
+```
+
 ## How to use
 
 Example:
