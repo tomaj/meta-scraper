@@ -19,7 +19,10 @@ class TestScraper extends PHPUnit_Framework_TestCase
           <meta property="og:description" content="Silny popis" />
           <meta property="og:url" content="https://web.sk/stranka.html"/>
           <meta property="og:site_name" content="Mega site name" />
+          <meta property="article:section" content="Ekonomika" />
           <meta property="og:image" content="https://obrazok.jpg">
+          <meta property="article:published_time" content="2015-10-12T12:40:27+00:00" />
+          <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
 EOT;
 
       $scraper = new Scraper();
@@ -34,6 +37,9 @@ EOT;
       $this->assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
       $this->assertEquals('Mega site name', $meta->getOgSiteName());
       $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
+      $this->assertEquals('Ekonomika', $meta->getSection());
+      $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
+      $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
     }
 
     public function testEmpty()
@@ -48,6 +54,6 @@ EOT;
         $this->assertNull($meta->getOgUrl());
         $this->assertNull($meta->getOgSiteName());
         $this->assertNull($meta->getOgImage());
-
+        $this->assertNull($meta->getSection());
     }
 }

@@ -55,6 +55,22 @@ class Scraper
             $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
         }
 
+        preg_match('/<meta\s*property=\"article:section\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
+        if ($matches) {
+            $meta->setSection(htmlspecialchars_decode($matches[1]));
+        }
+
+        preg_match('/<meta\s*property=\"article:published_time\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
+        if ($matches) {
+            $meta->setPublishedTime(htmlspecialchars_decode($matches[1]));
+        }
+
+        preg_match('/<meta\s*property=\"article:modified_time\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
+        if ($matches) {
+          // var_dump($matches);
+            $meta->setModifiedTime(htmlspecialchars_decode($matches[1]));
+        }
+
         preg_match('/<meta\s*property=\"og:description\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
             $meta->setOgDescription(htmlspecialchars_decode($matches[1]));

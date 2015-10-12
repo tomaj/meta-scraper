@@ -2,6 +2,8 @@
 
 namespace Tomaj\Scraper;
 
+use DateTime;
+
 class Meta
 {
     private $title;
@@ -23,6 +25,12 @@ class Meta
     private $ogSiteName;
 
     private $ogImage;
+
+    private $section;
+
+    private $publishedTime;
+
+    private $modifiedTime;
 
     public function setTitle($title)
     {
@@ -132,5 +140,46 @@ class Meta
     public function getOgImage()
     {
         return $this->ogImage;
+    }
+
+    public function setSection($section)
+    {
+        $this->section = $section;
+        return $this;
+    }
+
+    public function getSection()
+    {
+        return $this->section;
+    }
+
+    public function setPublishedTime($publishedTime)
+      {
+        if ($publishedTime instanceof DateTime) {
+            $this->publishedTime = $publishedTime;
+        } else {
+            $this->publishedTime = new DateTime('@' . strtotime($publishedTime));
+        }
+        return $this;
+    }
+
+    public function getPublishedTime()
+    {
+        return $this->publishedTime;
+    }
+
+    public function setModifiedTime($modifiedTime)
+    {
+        if ($modifiedTime instanceof DateTime) {
+            $this->modifiedTime = $modifiedTime;
+        } else {
+            $this->modifiedTime = new DateTime('@' . strtotime($modifiedTime));
+        }
+        return $this;
+    }
+
+    public function getModifiedTime()
+    {
+        return $this->modifiedTime;
     }
 }
