@@ -1,5 +1,11 @@
 # Meta Scraper
 
+[![Build Status](https://travis-ci.org/tomaj/meta-scraper.svg?branch=master)](https://travis-ci.org/tomaj/meta-scraper)
+[![Dependency Status](https://www.versioneye.com/user/projects/5623500236d0ab0016000bdd/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5623500236d0ab0016000bdd)
+[![Code Climate](https://codeclimate.com/github/tomaj/meta-scraper/badges/gpa.svg)](https://codeclimate.com/github/tomaj/meta-scraper)
+[![Test Coverage](https://codeclimate.com/github/tomaj/meta-scraper/badges/coverage.svg)](https://codeclimate.com/github/tomaj/meta-scraper/coverage)
+
+
 Page meta scraper parse meta information from page.
 
 ## Instalation
