@@ -42,6 +42,7 @@ EOT;
         $this->assertEquals('Ekonomika', $meta->getSection());
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
+        $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
     }
 
     public function testEmpty()
