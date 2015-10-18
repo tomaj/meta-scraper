@@ -2,9 +2,9 @@
 
 namespace Tomaj\Scraper;
 
-require dirname(__FILE__). '/../vendor/autoload.php';
-
 use PHPUnit_Framework_TestCase;
+
+require dirname(__FILE__). '/../vendor/autoload.php';
 
 class TestScraper extends PHPUnit_Framework_TestCase
 {
@@ -17,6 +17,7 @@ class TestScraper extends PHPUnit_Framework_TestCase
             <META NAME="author" CONTENT="Jozko Pucik"  >
             <meta property="og:type" content="article" />
             <meta property="og:description" content="Silny popis" />
+            <meta property="og:title" content="Og title nadpis"/>
             <meta property="og:url" content="https://web.sk/stranka.html"/>
             <meta property="og:site_name" content="Mega site name" />
             <meta property="article:section" content="Ekonomika" />
@@ -36,6 +37,7 @@ EOT;
         $this->assertEquals('Silny popis', $meta->getOgDescription());
         $this->assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
         $this->assertEquals('Mega site name', $meta->getOgSiteName());
+        $this->assertEquals('Og title nadpis', $meta->getOgTitle());
         $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
         $this->assertEquals('Ekonomika', $meta->getSection());
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
