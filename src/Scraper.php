@@ -68,7 +68,6 @@ class Scraper
 
         preg_match('/<meta\s*property=\"article:modified_time\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-          // var_dump($matches);
             $meta->setModifiedTime(htmlspecialchars_decode($matches[1]));
         }
 
