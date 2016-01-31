@@ -49,7 +49,8 @@ class Scraper
             $meta->setAuthor(htmlspecialchars_decode($matches[1]));
         }
 
-        // todo - optimalize to one preg_match for all og:*
+        // maybe in future - optimalize to one preg_match for all og:*
+
         preg_match('/<meta\s*property=\"og:title\"\s*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
             $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
