@@ -1,7 +1,7 @@
 {
     "name": "tomaj/meta-scraper",
     "description": "Page meta scraper library",
-    "license": "LGPL",
+    "license": "MIT",
     "keywords": ["page", "sraper", "meta"],
     "authors": [
         {
