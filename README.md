@@ -5,6 +5,7 @@
 [![Code Climate](https://codeclimate.com/github/tomaj/meta-scraper/badges/gpa.svg)](https://codeclimate.com/github/tomaj/meta-scraper)
 [![Test Coverage](https://codeclimate.com/github/tomaj/meta-scraper/badges/coverage.svg)](https://codeclimate.com/github/tomaj/meta-scraper/coverage)
 
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/abee19ff-2c5b-443d-ae84-04537b155287/big.png)](https://insight.sensiolabs.com/projects/abee19ff-2c5b-443d-ae84-04537b155287)
 
 Page meta scraper parse meta information from page.
 
