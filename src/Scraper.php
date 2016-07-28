@@ -8,6 +8,8 @@ class Scraper
 {
     protected $userAgent = 'Tomaj\Scraper';
 
+    private $body;
+
     /**
      * @throws \GuzzleHttp\Exception\RequestException
      */
@@ -16,7 +18,9 @@ class Scraper
         $client = new Client();
         $res = $client->get($url, ['connect_timeout' => $timeout]);
 
-        return $this->parse($res->getBody());
+        $this->body = $res->getBody()
+
+        return $this->parse($this->body);
     }
 
     public function parse($content)
@@ -97,5 +101,10 @@ class Scraper
         }
 
         return $meta;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
     }
 }
