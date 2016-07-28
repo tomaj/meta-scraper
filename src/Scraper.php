@@ -18,7 +18,7 @@ class Scraper
         $client = new Client();
         $res = $client->get($url, ['connect_timeout' => $timeout]);
 
-        $this->body = $res->getBody()
+        $this->body = $res->getBody();
 
         return $this->parse($this->body);
     }
