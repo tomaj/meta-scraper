@@ -158,7 +158,7 @@ class Meta
         if ($publishedTime instanceof DateTime) {
             $this->publishedTime = $publishedTime;
         } else {
-            $time = strtotime($modifiedTime);
+            $time = strtotime($publishedTime);
             if ($time) {
                 $this->publishedTime = new DateTime('@' . $time);
             }
