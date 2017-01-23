@@ -158,7 +158,10 @@ class Meta
         if ($publishedTime instanceof DateTime) {
             $this->publishedTime = $publishedTime;
         } else {
-            $this->publishedTime = new DateTime('@' . strtotime($publishedTime));
+            $time = strtotime($modifiedTime);
+            if ($time) {
+                $this->publishedTime = new DateTime('@' . $time);
+            }
         }
         return $this;
     }
@@ -173,7 +176,10 @@ class Meta
         if ($modifiedTime instanceof DateTime) {
             $this->modifiedTime = $modifiedTime;
         } else {
-            $this->modifiedTime = new DateTime('@' . strtotime($modifiedTime));
+            $time = strtotime($modifiedTime);
+            if ($time) {
+                $this->modifiedTime = new DateTime('@' . $time);
+            }
         }
         return $this;
     }
