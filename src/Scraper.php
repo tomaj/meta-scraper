@@ -15,7 +15,7 @@ class Scraper
      */
     public function parseUrl($url, $timeout = 5)
     {
-        $client = new Client();
+        $client = new Client(['headers' => ['User-Agent' => 'facebookexternalhit/1.1']]);
         $res = $client->get($url, ['connect_timeout' => $timeout]);
 
         $this->body = $res->getBody();
