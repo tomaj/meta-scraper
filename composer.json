@@ -23,5 +23,8 @@
         "classmap": [
             "src/"
         ]
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
