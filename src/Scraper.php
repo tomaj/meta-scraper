@@ -38,66 +38,72 @@ class Scraper
             $meta->setTitle(htmlspecialchars_decode($matches[1]));
         }
 
-        preg_match('/<meta.*name=\"description\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setDescription(htmlspecialchars_decode($matches[1]));
+        $parsedMeta = [];
+
+        preg_match_all('/<meta.*>/Uis', $content, $matches);
+        foreach ($matches[0] as $match) {
+            $propertyMatch = [];
+            preg_match('/property=\"(.*)\"/Uis', $match, $propertyMatch);
+
+            $nameMatch = [];
+            preg_match('/name=\"(.*)\"/Uis', $match, $nameMatch);
+
+            $contentMatch = [];
+            preg_match('/content=\"(.*)\"/Uis', $match, $contentMatch);
+
+            if (isset($nameMatch[1]) && isset($contentMatch[1])) {
+                $parsedMeta[strtolower($nameMatch[1])] = htmlspecialchars_decode($contentMatch[1]);
+            } else if (isset($propertyMatch[1]) && isset($contentMatch[1])) {
+                $parsedMeta[strtolower($propertyMatch[1])] = htmlspecialchars_decode($contentMatch[1]);
+            }
         }
 
-        preg_match('/<meta.*name=\"keywords\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setKeywords(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['description'])) {
+            $meta->setDescription($parsedMeta['description']);
         }
 
-        preg_match('/<meta.*name=\"author\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setAuthor(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['keywords'])) {
+            $meta->setKeywords($parsedMeta['keywords']);
         }
 
-        // maybe in future - optimalize to one preg_match for all og:*
-
-        preg_match('/<meta.*property=\"og:title\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['author'])) {
+            $meta->setAuthor($parsedMeta['author']);
         }
 
-        preg_match('/<meta.*property=\"article:section\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setSection(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['og:title'])) {
+            $meta->setOgTitle($parsedMeta['og:title']);
         }
 
-        preg_match('/<meta.*property=\"article:published_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setPublishedTime(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['article:section'])) {
+            $meta->setSection($parsedMeta['article:section']);
         }
 
-        preg_match('/<meta.*property=\"article:modified_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setModifiedTime(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['article:published_time'])) {
+            $meta->setPublishedTime($parsedMeta['article:published_time']);
         }
 
-        preg_match('/<meta.*property=\"og:description\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgDescription(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['article:modified_time'])) {
+            $meta->setModifiedTime($parsedMeta['article:modified_time']);
         }
 
-        preg_match('/<meta.*property=\"og:type\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgType(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['og:description'])) {
+            $meta->setOgDescription($parsedMeta['og:description']);
         }
 
-        preg_match('/<meta.*property=\"og:url\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgUrl(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['og:type'])) {
+            $meta->setOgType($parsedMeta['og:type']);
         }
 
-        preg_match('/<meta.*property=\"og:site_name\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgSiteName(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['og:url'])) {
+            $meta->setOgUrl($parsedMeta['og:url']);
         }
 
-        preg_match('/<meta.*property=\"og:image\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgImage(htmlspecialchars_decode($matches[1]));
+        if (isset($parsedMeta['og:site_name'])) {
+            $meta->setOgSiteName($parsedMeta['og:site_name']);
+        }
+
+        if (isset($parsedMeta['og:image'])) {
+            $meta->setOgImage($parsedMeta['og:image']);
         }
 
         return $meta;

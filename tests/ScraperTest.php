@@ -82,7 +82,6 @@ EOT;
 
         $this->assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
 
-
         $this->assertEquals('Plans by Catalan separatists to re-elect their region&#x27;s former president in absentia were blocked Wednesday by Spain&#x27;s Constitutional Court.', $meta->getDescription());
 
         $this->assertEquals('Plans by Catalan separatists to re-elect their region&#x27;s former president in absentia were blocked Wednesday by Spain&#x27;s Constitutional Court. OG', $meta->getOgDescription());
@@ -92,5 +91,27 @@ EOT;
         $this->assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG', $meta->getOgTitle());
 
         $this->assertEquals('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
+    }
+
+    public function testOtherAttributes()
+    {
+        $data = <<<EOT
+        <link href="//cdn.cnn.com/cnn/.e/img/3.0/global/misc/apple-touch-icon.png" rel="apple-touch-icon" type="image/png"/><!--[if lte IE 9]><meta http-equiv="refresh" content="1;url=/2.82.0/static/unsupp.html" /><![endif]--><!--[if gt IE 9><!--><!--<![endif]--><title>China's first homegrown aircraft carrier heads out for sea trial - CNN</title><meta content="asia" name="section"><meta name="referrer" content="unsafe-url"><meta content="2018-05-13T01:59:36Z" property="og:pubdate"><meta content="2018-05-13T01:59:36Z" name="pubdate"><meta content="2018-05-14T20:18:03Z" name="lastmod"><meta content="https://www.cnn.com/2018/05/12/asia/china-aircraft-carrier-trial-intl/index.html" property="og:url"><meta content="Ben Westcott and Brad Lendon, CNN" name="author"><meta content="China&#39;s first homegrown aircraft carrier heads out for sea trial OG" property="og:title"><meta content="China&#39;s first homegrown aircraft carrier heads out for sea trial" name="twitter:title"><meta content="China&#39;s first domestically built aircraft carrier began sea trials on Sunday, a historic step in the country&#39;s mission to build a navy capable of rivaling the world&#39;s leading maritime powers. OG" property="og:description"><meta content="China&#39;s first domestically built aircraft carrier began sea trials on Sunday, a historic step in the country&#39;s mission to build a navy capable of rivaling the world&#39;s leading maritime powers." name="description"><meta content="China&#39;s first domestically built aircraft carrier began sea trials on Sunday, a historic step in the country&#39;s mission to build a navy capable of rivaling the world&#39;s leading maritime powers." name="twitter:description"><meta content="asia, China&#39;s first homegrown aircraft carrier heads out for sea trial - CNN" name="keywords"><meta content="CNN" property="og:site_name"><meta content="summary_large_image" name="twitter:card"><meta content="article" property="og:type"><meta content="https://cdn.cnn.com/cnnnext/dam/assets/180418122847-type-001a-aircraft-carrier-china-0416-super-tease.jpg" property="og:image"><meta content="1100" property="og:image:width"><meta content="619" property="og:image:height"><meta content="https://cdn.cnn.com/cnnnext/dam/assets/180418122847-type-001a-aircraft-carrier-china-0416-super-tease.jpg" name="thumbnail"><meta content="https://cdn.cnn.com/cnnnext/dam/assets/180418122847-type-001a-aircraft-carrier-china-0416-super-tease.jpg" name="twitter:image"><link rel="image_src" href="https://cdn.cnn.com/cnnnext/dam/assets/180418122847-type-001a-aircraft-carrier-china-0416-super-tease.jpg"><meta property="vr:canonical" content="https://edition.cnn.com/2018/05/12/asia/china-aircraft-carrier-trial-intl/index.html">
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data);
+
+        $this->assertEquals('China\'s first homegrown aircraft carrier heads out for sea trial - CNN', $meta->getTitle());
+
+        $this->assertEquals('China&#39;s first domestically built aircraft carrier began sea trials on Sunday, a historic step in the country&#39;s mission to build a navy capable of rivaling the world&#39;s leading maritime powers.', $meta->getDescription());
+
+        $this->assertEquals('China&#39;s first domestically built aircraft carrier began sea trials on Sunday, a historic step in the country&#39;s mission to build a navy capable of rivaling the world&#39;s leading maritime powers. OG', $meta->getOgDescription());
+
+        $this->assertEquals('https://www.cnn.com/2018/05/12/asia/china-aircraft-carrier-trial-intl/index.html', $meta->getOgUrl());
+
+        $this->assertEquals('China&#39;s first homegrown aircraft carrier heads out for sea trial OG', $meta->getOgTitle());
+
+        $this->assertEquals('https://cdn.cnn.com/cnnnext/dam/assets/180418122847-type-001a-aircraft-carrier-china-0416-super-tease.jpg', $meta->getOgImage());
     }
 }
