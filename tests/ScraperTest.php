@@ -4,7 +4,7 @@ namespace Tomaj\Scraper;
 
 use PHPUnit_Framework_TestCase;
 
-require dirname(__FILE__). '/../vendor/autoload.php';
+require dirname(__FILE__) . '/../vendor/autoload.php';
 
 class TestScraper extends PHPUnit_Framework_TestCase
 {
@@ -27,7 +27,7 @@ class TestScraper extends PHPUnit_Framework_TestCase
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data);
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
 
         $this->assertEquals('Page title', $meta->getTitle());
         $this->assertEquals('Default page description', $meta->getDescription());
@@ -48,7 +48,7 @@ EOT;
     public function testEmpty()
     {
         $scraper = new Scraper();
-        $meta = $scraper->parse("sdsadipojhafidsjf dsf ");
+        $meta = $scraper->parse("sdsadipojhafidsjf dsf ", [new \Tomaj\Scraper\Parser\OgParser()]);
         $this->assertNull($meta->getTitle());
         $this->assertNull($meta->getDescription());
         $this->assertNull($meta->getAuthor());
@@ -78,7 +78,7 @@ EOT;
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data);
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
 
         $this->assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
 
@@ -92,5 +92,81 @@ EOT;
         $this->assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG', $meta->getOgTitle());
 
         $this->assertEquals('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
+    }
+
+    public function testSchemaParser()
+    {
+        $data = <<<EOT
+        text
+        <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/","position":1325802,"headline":"Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia","description":"Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?","articleSection":"Svet,Veda","datePublished":"2018-12-15T19:00:26+00:00","dateModified":"2018-12-17T00:28:43+00:00","wordCount":1650,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/"},"author":[{"@type":"Person","@id":"495","name":"Tomáš Vasilko"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg","width":756,"height":427,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg?fm=jpg&q=80&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
+        text
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+
+        $this->assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
+
+        $this->assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
+
+        $this->assertEquals(null, $meta->getOgDescription());
+
+        $this->assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
+
+        $this->assertEquals('Svet,Veda', $meta->getSection());
+
+        $this->assertEquals(null, $meta->getOgTitle());
+
+        $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
+
+        $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
+
+        $this->assertEquals(['Tomáš Vasilko'], $meta->getAuthors());
+
+        $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
+
+        $this->assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
+    }
+
+    public function testMerge()
+    {
+        $data = <<<EOT
+        <meta charset="utf-8" />
+
+        <title>New title</title>
+        <meta property="og:description" content="Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG">
+        <meta property="og:title" content="Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG">
+
+        <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/","position":1325802,"headline":"Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia","description":"Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?","articleSection":"Svet,Veda","datePublished":"2018-12-15T19:00:26+00:00","dateModified":"2018-12-17T00:28:43+00:00","wordCount":1650,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/"},"author":[{"@type":"Person","@id":"495","name":"Tomáš Vasilko"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg","width":756,"height":427,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg?fm=jpg&q=80&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data, [
+            new \Tomaj\Scraper\Parser\SchemaParser(),
+            new \Tomaj\Scraper\Parser\OgParser(),
+        ]);
+
+        $this->assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
+
+        $this->assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
+
+        $this->assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG', $meta->getOgDescription());
+
+        $this->assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
+
+        $this->assertEquals('Svet,Veda', $meta->getSection());
+
+        $this->assertEquals('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
+
+        $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
+
+        $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
+
+        $this->assertEquals(['Tomáš Vasilko'], $meta->getAuthors());
+
+        $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
+
+        $this->assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
+
     }
 }

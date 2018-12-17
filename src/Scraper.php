@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
@@ -13,97 +14,27 @@ class Scraper
     /**
      * @throws \GuzzleHttp\Exception\RequestException
      */
-    public function parseUrl($url, $timeout = 5)
+    public function parseUrl(string $url, array $parsers, int $timeout = 5): Meta
     {
         $client = new Client();
         $res = $client->get($url, ['connect_timeout' => $timeout]);
 
         $this->body = $res->getBody();
 
-        return $this->parse($this->body);
+        return $this->parse($this->body, $parsers);
     }
 
-    public function parse($content)
+    public function parse(string $content, array $parsers): Meta
     {
         $meta = new Meta();
-
-        $matches = [];
-
-        if (!$content) {
-            return $meta;
+        foreach ($parsers as $parser) {
+            $newMeta = $parser->parse($content);
+            $meta->merge($newMeta);
         }
-
-        preg_match('/<title.*>(.+)<\/title\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setTitle(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*name=\"description\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setDescription(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*name=\"keywords\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setKeywords(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*name=\"author\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setAuthor(htmlspecialchars_decode($matches[1]));
-        }
-
-        // maybe in future - optimalize to one preg_match for all og:*
-
-        preg_match('/<meta.*property=\"og:title\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"article:section\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setSection(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"article:published_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setPublishedTime(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"article:modified_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setModifiedTime(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"og:description\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgDescription(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"og:type\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgType(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"og:url\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgUrl(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"og:site_name\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgSiteName(htmlspecialchars_decode($matches[1]));
-        }
-
-        preg_match('/<meta.*property=\"og:image\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
-        if ($matches) {
-            $meta->setOgImage(htmlspecialchars_decode($matches[1]));
-        }
-
         return $meta;
     }
 
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }

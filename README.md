@@ -23,8 +23,10 @@ Example:
 
 ```
 use Tomaj\Scraper\Scraper;
+use Tomaj\Scrapper\Parser\OgParser;
 $scraper = new Scraper();
-$meta = $scraper->parse(file_get_contents('http://www.google.com/'));
+$parsers = [new OgParser()];
+$meta = $scraper->parse(file_get_contents('http://www.google.com/'), $parsers);
 var_dump($meta);
 ```
 
@@ -32,7 +34,29 @@ or you can use ```parseUrl``` method (internaly use [Guzzle library](https://guz
 
 ```
 use Tomaj\Scraper\Scraper;
+use Tomaj\Scrapper\Parser\OgParser;
 $scraper = new Scraper();
-$meta = $scraper->parseUrl('http://www.google.com/');
+$parsers = [new OgParser()];
+$meta = $scraper->parseUrl('http://www.google.com/', $parsers);
+var_dump($meta);
+```
+
+## Parsers
+
+There are 2 parsers included in package and you can crate new implementing interface `Tomaj\Scraper\Parser\ParserInterface`.
+
+2 parsers:
+ - `Tomaj\Scraper\Parser\OgParsers` - based on og meta attributes in html
+ - `Tomaj\Scraper\Parser\SchemaParser` - based on schema json structure
+
+You can combine these parsers. Data that will not fe found in first parser will be replaced with data from second parser.
+
+```
+use Tomaj\Scraper\Scraper;
+use Tomaj\Scrapper\Parser\SchemaParser;
+use Tomaj\Scrapper\Parser\OgParser;
+$scraper = new Scraper();
+$parsers = [new SchemaParser(), new OgParser()];
+$meta = $scraper->parseUrl('http://www.google.com/', $parsers);
 var_dump($meta);
 ```
