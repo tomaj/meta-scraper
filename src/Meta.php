@@ -153,7 +153,7 @@ class Meta
 
     public function addSection(string $section): Meta
     {
-        $this->section = $section;
+        $this->sections[] = $section;
         return $this;
     }
 
