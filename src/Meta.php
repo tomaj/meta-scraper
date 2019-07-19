@@ -64,7 +64,7 @@ class Meta
     public function getAuthor(): ?string
     {
         if (count($this->authors)) {
-            return $this->authors[0];
+            return $this->authors[0]['name'];
         }
         return null;
     }

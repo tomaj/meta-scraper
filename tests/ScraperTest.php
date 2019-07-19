@@ -121,7 +121,7 @@ EOT;
 
         $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
 
-        $this->assertEquals(['Tomáš Vasilko'], $meta->getAuthors());
+        $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 
@@ -162,7 +162,7 @@ EOT;
 
         $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
 
-        $this->assertEquals(['Tomáš Vasilko'], $meta->getAuthors());
+        $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 
