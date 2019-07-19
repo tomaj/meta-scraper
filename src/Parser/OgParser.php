@@ -34,7 +34,10 @@ class OgParser implements ParserInterface
 
         preg_match('/<meta.*name=\"author\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->addAuthor(htmlspecialchars_decode($matches[1]));
+            $meta->addAuthor([
+                'id' => null,
+                'name' => htmlspecialchars_decode($matches[1]),
+            ]);
         }
 
         // maybe in future - optimalize to one preg_match for all og:*
