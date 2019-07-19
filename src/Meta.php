@@ -27,7 +27,7 @@ class Meta
 
     private $ogImage;
 
-    private $section;
+    private $sections;
 
     private $publishedTime;
 
@@ -151,15 +151,15 @@ class Meta
         return $this->ogImage;
     }
 
-    public function setSection(string $section): Meta
+    public function addSection(string $section): Meta
     {
         $this->section = $section;
         return $this;
     }
 
-    public function getSection(): ?string
+    public function getSections(): array
     {
-        return $this->section;
+        return $this->sections;
     }
 
     public function setPublishedTime($publishedTime): Meta

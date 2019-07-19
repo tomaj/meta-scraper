@@ -46,7 +46,7 @@ class OgParser implements ParserInterface
 
         preg_match('/<meta.*property=\"article:section\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->setSection(htmlspecialchars_decode($matches[1]));
+            $meta->addSection(htmlspecialchars_decode($matches[1]));
         }
 
         preg_match('/<meta.*property=\"article:published_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
