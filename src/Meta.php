@@ -214,6 +214,12 @@ class Meta
             }
         }
 
+        if (empty($this->getSections()) && count($meta->getSections())) {
+            foreach ($meta->getSections() as $section) {
+                $this->addSection($section);
+            }
+        }
+
         if (!$this->getKeywords() && $meta->getKeywords()) {
             $this->setKeywords($meta->getKeywords());
         }
@@ -240,10 +246,6 @@ class Meta
 
         if (!$this->getOgImage() && $meta->getOgImage()) {
             $this->setOgImage($meta->getOgImage());
-        }
-
-        if (!$this->getSection() && $meta->getSection()) {
-            $this->setSection($meta->getSection());
         }
 
         if (!$this->getPublishedTime() && $meta->getPublishedTime()) {
