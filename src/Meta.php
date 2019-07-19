@@ -61,14 +61,6 @@ class Meta
         return $this;
     }
 
-    public function getAuthor(): ?string
-    {
-        if (count($this->authors)) {
-            return $this->authors[0]['name'];
-        }
-        return null;
-    }
-
     public function getAuthors(): array
     {
         return $this->authors;

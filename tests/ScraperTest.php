@@ -31,7 +31,7 @@ EOT;
 
         $this->assertEquals('Page title', $meta->getTitle());
         $this->assertEquals('Default page description', $meta->getDescription());
-        $this->assertEquals('Jozko Pucik', $meta->getAuthor());
+        $this->assertEquals([['id' => null, 'name' => 'Jozko Pucik']], $meta->getAuthors());
 
         $this->assertEquals('article', $meta->getOgType());
         $this->assertEquals('Silny popis', $meta->getOgDescription());
@@ -39,7 +39,7 @@ EOT;
         $this->assertEquals('Mega site name', $meta->getOgSiteName());
         $this->assertEquals('Og title nadpis', $meta->getOgTitle());
         $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
-        $this->assertEquals('Ekonomika', $meta->getSections()[0]);
+        $this->assertEquals(['Ekonomika'], $meta->getSections());
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
@@ -51,7 +51,7 @@ EOT;
         $meta = $scraper->parse("sdsadipojhafidsjf dsf ", [new \Tomaj\Scraper\Parser\OgParser()]);
         $this->assertNull($meta->getTitle());
         $this->assertNull($meta->getDescription());
-        $this->assertNull($meta->getAuthor());
+        $this->assertEmpty($meta->getAuthors());
         $this->assertNull($meta->getOgType());
         $this->assertNull($meta->getOgDescription());
         $this->assertNull($meta->getOgUrl());
@@ -119,8 +119,6 @@ EOT;
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
-        $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
-
         $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
@@ -159,8 +157,6 @@ EOT;
         $this->assertEquals('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
-
-        $this->assertEquals('Tomáš Vasilko', $meta->getAuthor());
 
         $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
 
