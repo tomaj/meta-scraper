@@ -27,7 +27,7 @@ class Meta
 
     private $ogImage;
 
-    private $sections;
+    private $sections = [];
 
     private $publishedTime;
 
