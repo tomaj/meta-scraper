@@ -18,50 +18,52 @@ class SchemaParser implements ParserInterface
             return $meta;
         }
         
-        $schema = json_decode($matches[1][0]);
+        $schema = json_decode($matches[1][0], true);
         if (!$schema) {
             return $meta;
         }
 
         // author
-        $denniknAuthors = false;
-        if (isset($schema->author) && !is_array($schema->author)) {
-            $schema->author = [$schema->author];
+        if (isset($schema['author']) && !is_array($schema['author'])) {
+            $schema['author'] = [$schema['author']];
         }
-        foreach ($schema->author as $author) {
-            if (isset($author->name)) {
-                $meta->addAuthor($author->name);
-            } else {
-                $meta->addAuthor($author);
-            }
+        foreach ($schema['author'] ?? [] as $author) {
+            $meta->addAuthor([
+                'id' => $author['@id'] ?? null,
+                'name' => $author['name'] ?? null,
+            ]);
         }
 
-        if (isset($schema->headline)) {
-            $meta->setTitle($schema->headline);
+        // section
+        if (isset($schema['articleSection']) && !is_array($schema['articleSection'])) {
+            $schema['articleSection'] = [$schema['articleSection']];
+        }
+        foreach ($schema['articleSection'] ?? [] as $section) {
+            $meta->addSection($section);
         }
 
-        if (isset($schema->description)) {
-            $meta->setDescription($schema->description);
+        if (isset($schema['headline'])) {
+            $meta->setTitle($schema['headline']);
         }
 
-        if (isset($schema->image->url)) {
-            $meta->setOgImage($schema->image->url);
+        if (isset($schema['description'])) {
+            $meta->setDescription($schema['description']);
         }
 
-        if (isset($schema->url)) {
-            $meta->setOgUrl($schema->url);
+        if (isset($schema['image']['url'])) {
+            $meta->setOgImage($schema['image']['url']);
         }
 
-        if (isset($schema->articleSection)) {
-            $meta->setSection($schema->articleSection);
+        if (isset($schema['url'])) {
+            $meta->setOgUrl($schema['url']);
         }
 
-        if (isset($schema->datePublished)) {
-            $meta->setPublishedTime($schema->datePublished);
+        if (isset($schema['datePublished'])) {
+            $meta->setPublishedTime($schema['datePublished']);
         }
 
-        if (isset($schema->dateModified)) {
-            $meta->setModifiedTime($schema->dateModified);
+        if (isset($schema['dateModified'])) {
+            $meta->setModifiedTime($schema['dateModified']);
         }
 
         return $meta;

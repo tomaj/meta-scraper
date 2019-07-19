@@ -27,7 +27,7 @@ class Meta
 
     private $ogImage;
 
-    private $section;
+    private $sections = [];
 
     private $publishedTime;
 
@@ -59,14 +59,6 @@ class Meta
     {
         $this->authors[] = $author;
         return $this;
-    }
-
-    public function getAuthor(): ?string
-    {
-        if (count($this->authors)) {
-            return $this->authors[0];
-        }
-        return null;
     }
 
     public function getAuthors(): array
@@ -151,15 +143,15 @@ class Meta
         return $this->ogImage;
     }
 
-    public function setSection(string $section): Meta
+    public function addSection(string $section): Meta
     {
-        $this->section = $section;
+        $this->sections[] = $section;
         return $this;
     }
 
-    public function getSection(): ?string
+    public function getSections(): array
     {
-        return $this->section;
+        return $this->sections;
     }
 
     public function setPublishedTime($publishedTime): Meta
@@ -214,6 +206,12 @@ class Meta
             }
         }
 
+        if (empty($this->getSections()) && count($meta->getSections())) {
+            foreach ($meta->getSections() as $section) {
+                $this->addSection($section);
+            }
+        }
+
         if (!$this->getKeywords() && $meta->getKeywords()) {
             $this->setKeywords($meta->getKeywords());
         }
@@ -240,10 +238,6 @@ class Meta
 
         if (!$this->getOgImage() && $meta->getOgImage()) {
             $this->setOgImage($meta->getOgImage());
-        }
-
-        if (!$this->getSection() && $meta->getSection()) {
-            $this->setSection($meta->getSection());
         }
 
         if (!$this->getPublishedTime() && $meta->getPublishedTime()) {
