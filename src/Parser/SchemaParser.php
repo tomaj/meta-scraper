@@ -14,7 +14,7 @@ class SchemaParser implements ParserInterface
         $matches = [];
         preg_match_all('/<script id="schema" type="application\/ld\+json">(.*?)<\/script>/', $content, $matches);
 
-        if (!$matches) {
+        if (!isset($matches[1][0])) {
             return $meta;
         }
         

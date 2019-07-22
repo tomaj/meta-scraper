@@ -48,7 +48,10 @@ EOT;
     public function testEmpty()
     {
         $scraper = new Scraper();
-        $meta = $scraper->parse("sdsadipojhafidsjf dsf ", [new \Tomaj\Scraper\Parser\OgParser()]);
+        $meta = $scraper->parse("sdsadipojhafidsjf dsf ", [
+            new \Tomaj\Scraper\Parser\OgParser(),
+            new \Tomaj\Scraper\Parser\SchemaParser()
+        ]);
         $this->assertNull($meta->getTitle());
         $this->assertNull($meta->getDescription());
         $this->assertNull($meta->getAuthor());
