@@ -61,6 +61,9 @@ class Meta
         return $this;
     }
 
+    /**
+     * @return Author[]
+     */
     public function getAuthors(): array
     {
         return $this->authors;
@@ -149,6 +152,9 @@ class Meta
         return $this;
     }
 
+    /**
+     * @return Section[]
+     */
     public function getSections(): array
     {
         return $this->sections;
