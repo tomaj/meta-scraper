@@ -31,7 +31,7 @@ EOT;
 
         $this->assertEquals('Page title', $meta->getTitle());
         $this->assertEquals('Default page description', $meta->getDescription());
-        $this->assertEquals([['id' => null, 'name' => 'Jozko Pucik']], $meta->getAuthors());
+        $this->assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
 
         $this->assertEquals('article', $meta->getOgType());
         $this->assertEquals('Silny popis', $meta->getOgDescription());
@@ -39,7 +39,7 @@ EOT;
         $this->assertEquals('Mega site name', $meta->getOgSiteName());
         $this->assertEquals('Og title nadpis', $meta->getOgTitle());
         $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
-        $this->assertEquals(['Ekonomika'], $meta->getSections());
+        $this->assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
@@ -116,17 +116,31 @@ EOT;
 
         $this->assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
 
-        $this->assertEquals(['Svet', 'Veda'], $meta->getSections());
+        $this->assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
 
         $this->assertEquals(null, $meta->getOgTitle());
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
-        $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
+        $this->assertEquals([new Author(495, 'Tomáš Vasilko')], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
+    }
+
+    public function testSchemaParserSections()
+    {
+        $data = <<<EOT
+        text
+        <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1551857/osobne-bankroty-rychlo-pribudaju-nik-nevie-kolko-si-z-toho-odpisuju-podvodnici/","position":1551857,"headline":"Osobné bankroty rýchlo pribúdajú, nik nevie, koľko si z toho odpisujú podvodníci","description":"Len na daniach z&nbsp;príjmu a&nbsp;zdravotnom poistení bez započítania sociálnych odvodov odpustil štát za posledné dva roky ľuďom, ktorí vyhlásili bankrot, najmenej 40 miliónov eur. Možno až tretina z&nbsp;nich však splácať vedela, len využila, že to pred odpustením dlhov nikto poriadne nepreveruje. ","datePublished":"2019-08-12T14:53:54+00:00","dateModified":"2019-08-13T01:21:36+00:00","wordCount":176,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1551857/osobne-bankroty-rychlo-pribudaju-nik-nevie-kolko-si-z-toho-odpisuju-podvodnici/"},"author":[{"@type":"Person","@id":"5331","name":"Martina Kláseková"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"articleSection":["Ekonomika","Hlavná"],"articleTerms":[{"@id":432,"@type":"Category","name":"Ekonomika"},{"@id":2386,"@type":"Category","name":"Hlavná"},{"@id":9226,"@type":"Tag","name":"Osobné bankroty"}],"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2019/08/AdobeStock_242090991-bankrot.jpg","width":1200,"height":628,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2019/08/AdobeStock_242090991-bankrot.jpg?fm=jpg&q=85&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
+        text
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+
+        $this->assertEquals([new Section('432', 'Ekonomika'), new Section('2386', 'Hlavná')], $meta->getSections());
     }
 
     public function testMerge()
@@ -155,13 +169,13 @@ EOT;
 
         $this->assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
 
-        $this->assertEquals(['Svet', 'Veda'], $meta->getSections());
+        $this->assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
 
         $this->assertEquals('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
-        $this->assertEquals([['id' => 495, 'name' => 'Tomáš Vasilko']], $meta->getAuthors());
+        $this->assertEquals([new Author(495, 'Tomáš Vasilko')], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 

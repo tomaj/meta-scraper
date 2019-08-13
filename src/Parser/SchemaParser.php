@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Tomaj\Scraper\Parser;
 
 use Tomaj\Scraper\Meta;
+use Tomaj\Scraper\Section;
+use Tomaj\Scraper\Author;
 
 class SchemaParser implements ParserInterface
 {
@@ -28,18 +30,26 @@ class SchemaParser implements ParserInterface
             $schema['author'] = [$schema['author']];
         }
         foreach ($schema['author'] ?? [] as $author) {
-            $meta->addAuthor([
-                'id' => $author['@id'] ?? null,
-                'name' => $author['name'] ?? null,
-            ]);
+            $meta->addAuthor(new Author($author['@id'] ?? null, $author['name'] ?? null));
         }
 
         // section
-        if (isset($schema['articleSection']) && !is_array($schema['articleSection'])) {
-            $schema['articleSection'] = [$schema['articleSection']];
-        }
-        foreach ($schema['articleSection'] ?? [] as $section) {
-            $meta->addSection($section);
+        if (isset($schema['articleTerms']) && is_array($schema['articleTerms'])) {
+            foreach ($schema['articleTerms'] as $articleTerm) {
+                if ($articleTerm['@type'] == 'Category') {
+                    if (is_int($articleTerm['@id'])) {
+                        $articleTerm['@id'] = (string) $articleTerm['@id'];
+                    }
+                    $meta->addSection(new Section($articleTerm['@id'] ?? null, $articleTerm['name'] ?? null));
+                }
+            }
+        } else {
+            if (isset($schema['articleSection']) && !is_array($schema['articleSection'])) {
+                $schema['articleSection'] = [$schema['articleSection']];
+            }
+            foreach ($schema['articleSection'] ?? [] as $section) {
+                $meta->addSection(new Section(null, $section));
+            }
         }
 
         if (isset($schema['headline'])) {

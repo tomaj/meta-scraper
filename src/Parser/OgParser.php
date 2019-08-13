@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Tomaj\Scraper\Parser;
 
 use Tomaj\Scraper\Meta;
+use Tomaj\Scraper\Section;
+use Tomaj\Scraper\Author;
 
 class OgParser implements ParserInterface
 {
@@ -34,10 +36,7 @@ class OgParser implements ParserInterface
 
         preg_match('/<meta.*name=\"author\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->addAuthor([
-                'id' => null,
-                'name' => htmlspecialchars_decode($matches[1]),
-            ]);
+            $meta->addAuthor(new Author(null, htmlspecialchars_decode($matches[1])));
         }
 
         // maybe in future - optimalize to one preg_match for all og:*
@@ -49,7 +48,7 @@ class OgParser implements ParserInterface
 
         preg_match('/<meta.*property=\"article:section\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);
         if ($matches) {
-            $meta->addSection(htmlspecialchars_decode($matches[1]));
+            $meta->addSection(new Section(null, htmlspecialchars_decode($matches[1])));
         }
 
         preg_match('/<meta.*property=\"article:published_time\".*content=\"(.+)\"\s*[\/]*\>/Uis', $content, $matches);

@@ -55,7 +55,7 @@ class Meta
         return $this->description;
     }
 
-    public function addAuthor($author): Meta
+    public function addAuthor(Author $author): Meta
     {
         $this->authors[] = $author;
         return $this;
@@ -143,7 +143,7 @@ class Meta
         return $this->ogImage;
     }
 
-    public function addSection(string $section): Meta
+    public function addSection(Section $section): Meta
     {
         $this->sections[] = $section;
         return $this;
