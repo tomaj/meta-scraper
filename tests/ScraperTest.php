@@ -97,6 +97,19 @@ EOT;
         $this->assertEquals('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
     }
 
+    public function testNonStandardAttributes() {
+        $data = <<<EOT
+        <html lang="en"><head><meta charSet="utf-8" class="next-head" /><meta http-equiv="x-ua-compatible" content="ie=edge" class="next-head" /><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" class="next-head" /><link rel="preconnect" href="https://files.testsite.com" class="next-head" /><link rel="preconnect" href="//www.googletagmanager.com" class="next-head" /><meta property="og:image" content="https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc" class="next-head" /><meta property="og:image:type" content="image/png" class="next-head" /><meta property="og:image:width" content="600" class="next-head" /><meta property="og:image:height" content="315" class="next-head" /><meta property="og:site_name" content="TestSite" class="next-head" /><meta property="og:type" content="website" class="next-head" /><meta name="twitter:card" content="summary_large_image" class="next-head" /><meta name="apple-itunes-app" content="app-id=128210709876" class="next-head" /><meta property="og:url" content="https://testsite.com/" class="next-head" /><link rel="canonical" href="https://testsite.com/" class="next-head" /><link rel="manifest" href="/manifest.json" class="next-head" /><meta name="description" content="Description for TestSite" class="next-head" /><meta property="og:description" my-attribute="foo" content="Description for TestSite" data-attribute="test" class="next-head" />
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
+        $this->assertEquals('website', $meta->getOgType());
+        $this->assertEquals('Description for TestSite', $meta->getOgDescription());
+        $this->assertEquals('https://testsite.com/', $meta->getOgUrl());
+        $this->assertEquals('https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc', $meta->getOgImage());
+    }
+
     public function testSchemaParser()
     {
         $data = <<<EOT
