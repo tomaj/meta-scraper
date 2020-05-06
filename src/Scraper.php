@@ -7,10 +7,13 @@ use GuzzleHttp\Client;
 
 class Scraper
 {
-    protected $userAgent = 'Tomaj\Scraper';
     protected $guzzleOptions = [
-        'connect_timeout' => 5
-    ]
+        'connect_timeout' => 5,
+        'headers' => [
+            'User-Agent' => 'Tomaj\Scraper'
+        ]
+    ];
+    
     private $body;
     
     public function __construct(array $guzzleOptions = [])
