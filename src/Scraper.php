@@ -8,16 +8,23 @@ use GuzzleHttp\Client;
 class Scraper
 {
     protected $userAgent = 'Tomaj\Scraper';
-
+    protected $guzzleOptions = [
+        'connect_timeout' => 5
+    ]
     private $body;
+    
+    public function __construct(array $guzzleOptions = [])
+    {
+        $this->guzzleOptions = array_merge($this->guzzleOptions, $guzzleOptions);
+    }
 
     /**
      * @throws \GuzzleHttp\Exception\RequestException
      */
-    public function parseUrl(string $url, array $parsers, int $timeout = 5): Meta
+    public function parseUrl(string $url, array $parsers): Meta
     {
         $client = new Client();
-        $res = $client->get($url, ['connect_timeout' => $timeout]);
+        $res = $client->get($url, $this->guzzleOptions);
 
         $this->body = (string) $res->getBody();
 
