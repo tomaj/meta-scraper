@@ -26,8 +26,8 @@ class Scraper
      */
     public function parseUrl(string $url, array $parsers): Meta
     {
-        $client = new Client();
-        $res = $client->get($url, $this->guzzleOptions);
+        $client = new Client($this->guzzleOptions);
+        $res = $client->get($url);
 
         $this->body = (string) $res->getBody();
 
