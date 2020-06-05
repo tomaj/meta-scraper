@@ -28,6 +28,8 @@ class Meta
     private $ogImage;
 
     private $sections = [];
+    
+    private $tags = [];
 
     private $publishedTime;
 
@@ -67,6 +69,20 @@ class Meta
     public function getAuthors(): array
     {
         return $this->authors;
+    }
+    
+    public function addTag(Tag $tag): Meta
+    {
+        $this->tags[] = $tag;
+        return $this;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
     }
 
     public function setKeywords(string $keywords): Meta
@@ -215,6 +231,12 @@ class Meta
         if (empty($this->getSections()) && count($meta->getSections())) {
             foreach ($meta->getSections() as $section) {
                 $this->addSection($section);
+            }
+        }
+
+        if (empty($this->getTags()) && count($meta->getTags())) {
+            foreach ($meta->getTags() as $tag) {
+                $this->addTag($tag);
             }
         }
 

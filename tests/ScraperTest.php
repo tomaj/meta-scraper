@@ -156,6 +156,29 @@ EOT;
         $this->assertEquals([new Section('432', 'Ekonomika'), new Section('2386', 'Hlavná')], $meta->getSections());
     }
 
+    public function testSchemaParserTags()
+    {
+        $scraper = new Scraper();
+
+        // array of about
+        $data = <<<EOT
+        text
+        <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": [{ "@id": "7678", "name": "Zuzana Čaputová" }, { "@id": "9999", "name": "Foo" }], "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
+        text
+EOT;
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $this->assertEquals([new Tag('7678', 'Zuzana Čaputová'), new Tag('9999', 'Foo')], $meta->getTags());
+
+        // single non-array about
+        $data = <<<EOT
+        text
+        <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": { "@id": "7678", "name": "Zuzana Čaputová" }, "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
+        text
+EOT;
+        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $this->assertEquals([new Tag('7678', 'Zuzana Čaputová')], $meta->getTags());
+    }
+
     public function testMerge()
     {
         $data = <<<EOT
