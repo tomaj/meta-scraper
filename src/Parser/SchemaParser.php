@@ -6,6 +6,7 @@ namespace Tomaj\Scraper\Parser;
 use Tomaj\Scraper\Meta;
 use Tomaj\Scraper\Section;
 use Tomaj\Scraper\Author;
+use Tomaj\Scraper\Tag;
 
 class SchemaParser implements ParserInterface
 {
@@ -36,7 +37,7 @@ class SchemaParser implements ParserInterface
         // section
         if (isset($schema['articleTerms']) && is_array($schema['articleTerms'])) {
             foreach ($schema['articleTerms'] as $articleTerm) {
-                if ($articleTerm['@type'] == 'Category') {
+                if ($articleTerm['@type'] === 'Category') {
                     if (is_int($articleTerm['@id'])) {
                         $articleTerm['@id'] = (string) $articleTerm['@id'];
                     }
@@ -49,6 +50,20 @@ class SchemaParser implements ParserInterface
             }
             foreach ($schema['articleSection'] ?? [] as $section) {
                 $meta->addSection(new Section(null, $section));
+            }
+        }
+
+        // tags
+        if (isset($schema['about'])) {
+            if (!is_array(reset($schema['about']))) {
+                $schema['about'] = [$schema['about']];
+            }
+
+            foreach ($schema['about'] as $about) {
+                if (is_int($about['@id'])) {
+                    $about['@id'] = (string) $about['@id'];
+                }
+                $meta->addTag(new Tag($about['@id'] ?? null, $about['name'] ?? null));
             }
         }
 

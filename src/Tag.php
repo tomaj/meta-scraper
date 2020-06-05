@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
-class Section
+class Tag
 {
     private $id;
 
