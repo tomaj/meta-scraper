@@ -1,12 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 require dirname(__FILE__) . '/../vendor/autoload.php';
 
-class TestScraper extends PHPUnit_Framework_TestCase
+class TestScraper extends TestCase
 {
     public function testBasicInformation()
     {
@@ -135,7 +136,7 @@ EOT;
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
-        $this->assertEquals([new Author(495, 'Tomáš Vasilko')], $meta->getAuthors());
+        $this->assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 
@@ -211,7 +212,7 @@ EOT;
 
         $this->assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
-        $this->assertEquals([new Author(495, 'Tomáš Vasilko')], $meta->getAuthors());
+        $this->assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
 
