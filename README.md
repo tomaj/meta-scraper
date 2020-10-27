@@ -8,7 +8,7 @@
 
 Page meta scraper parse meta information from page.
 
-## Instalation
+## Installation
 
 via composer:
 
@@ -31,7 +31,7 @@ $meta = $scraper->parse(file_get_contents('http://www.google.com/'), $parsers);
 var_dump($meta);
 ```
 
-or you can use ```parseUrl``` method (internaly use [Guzzle library](https://guzzle.readthedocs.org/en/latest/))
+or you can use ```parseUrl``` method (internally use [Guzzle library](https://guzzle.readthedocs.org/en/latest/))
 
 ```php
 use Tomaj\Scraper\Scraper;
