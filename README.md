@@ -12,7 +12,7 @@ Page meta scraper parse meta information from page.
 
 via composer:
 
-```
+```bash
 composer require tomaj/meta-scraper
 ```
 
@@ -20,23 +20,27 @@ composer require tomaj/meta-scraper
 
 Example:
 
-```
+```php
 use Tomaj\Scraper\Scraper;
 use Tomaj\Scrapper\Parser\OgParser;
+
 $scraper = new Scraper();
 $parsers = [new OgParser()];
 $meta = $scraper->parse(file_get_contents('http://www.google.com/'), $parsers);
+
 var_dump($meta);
 ```
 
 or you can use ```parseUrl``` method (internaly use [Guzzle library](https://guzzle.readthedocs.org/en/latest/))
 
-```
+```php
 use Tomaj\Scraper\Scraper;
 use Tomaj\Scrapper\Parser\OgParser;
+
 $scraper = new Scraper();
 $parsers = [new OgParser()];
 $meta = $scraper->parseUrl('http://www.google.com/', $parsers);
+
 var_dump($meta);
 ```
 
@@ -50,12 +54,14 @@ There are 2 parsers included in package and you can crate new implementing inter
 
 You can combine these parsers. Data that will not fe found in first parser will be replaced with data from second parser.
 
-```
+```php
 use Tomaj\Scraper\Scraper;
 use Tomaj\Scrapper\Parser\SchemaParser;
 use Tomaj\Scrapper\Parser\OgParser;
+
 $scraper = new Scraper();
 $parsers = [new SchemaParser(), new OgParser()];
 $meta = $scraper->parseUrl('http://www.google.com/', $parsers);
+
 var_dump($meta);
 ```
