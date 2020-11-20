@@ -229,18 +229,18 @@ EOT;
     {
         $data = <<<EOT
             <title>Page title</title>
-            <meta name='description' content="Default page description"/>
-            <meta name='KEYWORDS'     content="Keyword1,Keyword2">
-            <META NAME='author' CONTENT="Jozko Pucik"  >
-            <meta property='og:type' content="article" />
-            <meta property='og:description' content="Silny popis" />
-            <meta property='og:title' content="Og title nadpis"/>
-            <meta property='og:url' content="https://web.sk/stranka.html"/>
-            <meta property='og:site_name' content="Mega site name" />
-            <meta property='article:section' content="Ekonomika" />
-            <meta property='og:image' content="https://obrazok.jpg">
-            <meta property='article:published_time' content="2015-10-12T12:40:27+00:00" />
-            <meta property='article:modified_time' content="2016-11-13T13:21:42+00:00" />
+            <meta name='description' content='Default page description'/>
+            <meta name='KEYWORDS'     content='Keyword1,Keyword2'>
+            <META NAME='author' CONTENT='Jozko Pucik'  >
+            <meta property='og:type' content='article' />
+            <meta property='og:description' content='Silny popis' />
+            <meta property='og:title' content='Og title nadpis'/>
+            <meta property='og:url' content='https://web.sk/stranka.html'/>
+            <meta property='og:site_name' content='Mega site name' />
+            <meta property='article:section' content='Ekonomika' />
+            <meta property='og:image' content='https://obrazok.jpg'>
+            <meta property='article:published_time' content='2015-10-12T12:40:27+00:00' />
+            <meta property='article:modified_time' content='2016-11-13T13:21:42+00:00' />
 EOT;
 
         $scraper = new Scraper();
