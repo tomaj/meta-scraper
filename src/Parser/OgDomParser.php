@@ -51,6 +51,8 @@ class OgDomParser implements ParserInterface
         }
 
         $dom = new \DOMDocument();
+        // it is used to ignore warnings like "DOMDocument::loadHTML(): Unexpected end tag : head in Entity"
+        libxml_use_internal_errors(true);
         $dom->loadHTML($content);
 
         /** @var \DOMElement $titleTag */
