@@ -63,6 +63,11 @@ class Meta
         return $this;
     }
 
+    public function addAuthorByName(string $name): Meta
+    {
+        return $this->addAuthor(new Author(null, $name));
+    }
+
     /**
      * @return Author[]
      */
@@ -166,6 +171,11 @@ class Meta
     {
         $this->sections[] = $section;
         return $this;
+    }
+
+    public function addSectionByName(string $name): Meta
+    {
+        return $this->addSection(new Section(null, $name));
     }
 
     /**

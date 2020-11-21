@@ -22,7 +22,7 @@ Example:
 
 ```php
 use Tomaj\Scraper\Scraper;
-use Tomaj\Scrapper\Parser\OgParser;
+use Tomaj\Scraper\Parser\OgParser;
 
 $scraper = new Scraper();
 $parsers = [new OgParser()];
@@ -35,7 +35,7 @@ or you can use ```parseUrl``` method (internally use [Guzzle library](https://gu
 
 ```php
 use Tomaj\Scraper\Scraper;
-use Tomaj\Scrapper\Parser\OgParser;
+use Tomaj\Scraper\Parser\OgParser;
 
 $scraper = new Scraper();
 $parsers = [new OgParser()];
@@ -46,18 +46,19 @@ var_dump($meta);
 
 ## Parsers
 
-There are 2 parsers included in package and you can crate new implementing interface `Tomaj\Scraper\Parser\ParserInterface`.
+There are 3 parsers included in package and you can create new implementing interface `Tomaj\Scraper\Parser\ParserInterface`.
 
-2 parsers:
- - `Tomaj\Scraper\Parser\OgParsers` - based on og meta attributes in html
+3 parsers:
+ - `Tomaj\Scraper\Parser\OgParsers` - based on og (Open Graph) meta attributes in html (built on regular expressions)
+ - `Tomaj\Scraper\Parser\OgDomParsers` - also based on og (Open Graph) meta attributes in html (built on php DOM extension)
  - `Tomaj\Scraper\Parser\SchemaParser` - based on schema json structure
 
-You can combine these parsers. Data that will not fe found in first parser will be replaced with data from second parser.
+You can combine these parsers. Data that will not be found in first parser will be replaced with data from second parser.
 
 ```php
 use Tomaj\Scraper\Scraper;
-use Tomaj\Scrapper\Parser\SchemaParser;
-use Tomaj\Scrapper\Parser\OgParser;
+use Tomaj\Scraper\Parser\SchemaParser;
+use Tomaj\Scraper\Parser\OgParser;
 
 $scraper = new Scraper();
 $parsers = [new SchemaParser(), new OgParser()];
