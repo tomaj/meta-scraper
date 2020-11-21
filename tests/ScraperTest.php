@@ -1,13 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace Tomaj\Scraper;
+namespace Tomaj\Scraper\Test;
 
 use PHPUnit\Framework\TestCase;
+use Tomaj\Scraper\Author;
+use Tomaj\Scraper\Parser\OgParser;
+use Tomaj\Scraper\Parser\SchemaParser;
+use Tomaj\Scraper\Scraper;
+use Tomaj\Scraper\Section;
+use Tomaj\Scraper\Tag;
 
 require dirname(__FILE__) . '/../vendor/autoload.php';
 
-class TestScraper extends TestCase
+class ScraperTest extends TestCase
 {
     public function testBasicInformation()
     {
@@ -28,7 +34,7 @@ class TestScraper extends TestCase
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
+        $meta = $scraper->parse($data, [new OgParser()]);
 
         $this->assertEquals('Page title', $meta->getTitle());
         $this->assertEquals('Default page description', $meta->getDescription());
@@ -50,8 +56,8 @@ EOT;
     {
         $scraper = new Scraper();
         $meta = $scraper->parse("sdsadipojhafidsjf dsf ", [
-            new \Tomaj\Scraper\Parser\OgParser(),
-            new \Tomaj\Scraper\Parser\SchemaParser()
+            new OgParser(),
+            new SchemaParser()
         ]);
         $this->assertNull($meta->getTitle());
         $this->assertNull($meta->getDescription());
@@ -82,7 +88,7 @@ EOT;
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
+        $meta = $scraper->parse($data, [new OgParser()]);
 
         $this->assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
 
@@ -104,7 +110,7 @@ EOT;
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\OgParser()]);
+        $meta = $scraper->parse($data, [new OgParser()]);
         $this->assertEquals('website', $meta->getOgType());
         $this->assertEquals('Description for TestSite', $meta->getOgDescription());
         $this->assertEquals('https://testsite.com/', $meta->getOgUrl());
@@ -120,7 +126,7 @@ EOT;
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $meta = $scraper->parse($data, [new SchemaParser()]);
 
         $this->assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
 
@@ -152,7 +158,7 @@ EOT;
 EOT;
 
         $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $meta = $scraper->parse($data, [new SchemaParser()]);
 
         $this->assertEquals([new Section('432', 'Ekonomika'), new Section('2386', 'Hlavná')], $meta->getSections());
     }
@@ -167,7 +173,7 @@ EOT;
         <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": [{ "@id": "7678", "name": "Zuzana Čaputová" }, { "@id": "9999", "name": "Foo" }], "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
         text
 EOT;
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $meta = $scraper->parse($data, [new SchemaParser()]);
         $this->assertEquals([new Tag('7678', 'Zuzana Čaputová'), new Tag('9999', 'Foo')], $meta->getTags());
 
         // single non-array about
@@ -176,7 +182,7 @@ EOT;
         <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": { "@id": "7678", "name": "Zuzana Čaputová" }, "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
         text
 EOT;
-        $meta = $scraper->parse($data, [new \Tomaj\Scraper\Parser\SchemaParser()]);
+        $meta = $scraper->parse($data, [new SchemaParser()]);
         $this->assertEquals([new Tag('7678', 'Zuzana Čaputová')], $meta->getTags());
     }
 
@@ -194,8 +200,8 @@ EOT;
 
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [
-            new \Tomaj\Scraper\Parser\SchemaParser(),
-            new \Tomaj\Scraper\Parser\OgParser(),
+            new SchemaParser(),
+            new OgParser(),
         ]);
 
         $this->assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
@@ -218,5 +224,39 @@ EOT;
 
         $this->assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
 
+    }
+    public function testSingleQuotedMetaProperty()
+    {
+        $data = <<<EOT
+            <title>Page title</title>
+            <meta name='description' content='Default page description'/>
+            <meta name='KEYWORDS'     content='Keyword1,Keyword2'>
+            <META NAME='author' CONTENT='Jozko Pucik'  >
+            <meta property='og:type' content='article' />
+            <meta property='og:description' content='Silny popis' />
+            <meta property='og:title' content='Og title nadpis'/>
+            <meta property='og:url' content='https://web.sk/stranka.html'/>
+            <meta property='og:site_name' content='Mega site name' />
+            <meta property='article:section' content='Ekonomika' />
+            <meta property='og:image' content='https://obrazok.jpg'>
+            <meta property='article:published_time' content='2015-10-12T12:40:27+00:00' />
+            <meta property='article:modified_time' content='2016-11-13T13:21:42+00:00' />
+EOT;
+
+        $scraper = new Scraper();
+        $meta = $scraper->parse($data, [new OgParser()]);
+
+        $this->assertEquals('Default page description', $meta->getDescription());
+        $this->assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
+        $this->assertEquals('article', $meta->getOgType());
+        $this->assertEquals('Silny popis', $meta->getOgDescription());
+        $this->assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
+        $this->assertEquals('Mega site name', $meta->getOgSiteName());
+        $this->assertEquals('Og title nadpis', $meta->getOgTitle());
+        $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        $this->assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
+        $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
+        $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
+        $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
     }
 }
