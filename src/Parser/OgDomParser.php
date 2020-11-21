@@ -62,6 +62,7 @@ class OgDomParser implements ParserInterface
 
         /** @var \DOMElement $metaTag */
         foreach ($dom->getElementsByTagName('meta') as $metaTag) {
+            $this->fixMetaTag($metaTag, [self::ATTRIBUTE_PROPERTY, self::ATTRIBUTE_NAME,]);
             $this->processMetaTag($metaTag, self::ATTRIBUTE_NAME);
             $this->processMetaTag($metaTag, self::ATTRIBUTE_PROPERTY);
         }
@@ -93,5 +94,29 @@ class OgDomParser implements ParserInterface
             [$this->meta, $allowedAttributes[$attributeValue]],
             htmlspecialchars_decode($metaTag->getAttribute(self::ATTRIBUTE_CONTENT))
         );
+    }
+
+    protected function fixMetaTag(\DOMElement &$metaTag, array $allowedAttributeNames): void
+    {
+        if (!$metaTag->attributes->length) {
+            return;
+        }
+
+        foreach ($metaTag->attributes as $name => $attributeNode) {
+            if (!in_array($name, $allowedAttributeNames)) {
+                continue;
+            }
+
+            $value          = $metaTag->getAttribute($name);
+            $lowerCaseValue = strtolower($value);
+            if ($lowerCaseValue === $value) {
+                continue;
+            }
+            if (!in_array($lowerCaseValue, array_keys($this->allowedAttributes[$name]))) {
+                continue;
+            }
+
+            $metaTag->setAttribute($name, $lowerCaseValue);
+        }
     }
 }

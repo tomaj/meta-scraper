@@ -266,7 +266,7 @@ EOT;
         $data = <<<EOT
             <title>Page title</title>
             <meta name="description" content="Default page description"/>
-            <meta name="keywords" content="Keyword1,Keyword2">
+            <meta name="KEYWORDS" content="Keyword1,Keyword2">
             <META NAME="author" CONTENT="Jozko Pucik"  >
             <meta property="og:type" content="article" />
             <meta property="og:description" content="Silny popis" />
