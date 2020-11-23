@@ -279,8 +279,7 @@ EOT;
             <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
 EOT;
 
-        $scraper = new Scraper();
-        $meta    = $scraper->parse($data, [new OgDomParser()]);
+        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
 
         $this->assertEquals('Page title', $meta->getTitle());
 
@@ -317,8 +316,7 @@ EOT;
             <meta content="2016-11-13T13:21:42+00:00" property="article:modified_time" />
 EOT;
 
-        $scraper = new Scraper();
-        $meta    = $scraper->parse($data, [new OgDomParser()]);
+        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
 
         $this->assertEquals('Page title', $meta->getTitle());
 
@@ -335,5 +333,26 @@ EOT;
         $this->assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
+    }
+
+    public function testEmptyOgDomParser()
+    {
+        $meta = (new Scraper())->parse("empty ", [new OgDomParser()]);
+
+        $this->assertNull($meta->getTitle());
+
+        $this->assertNull($meta->getDescription());
+        $this->assertNull($meta->getKeywords());
+        $this->assertEmpty($meta->getAuthors());
+
+        $this->assertNull($meta->getOgType());
+        $this->assertNull($meta->getOgDescription());
+        $this->assertNull($meta->getOgUrl());
+        $this->assertNull($meta->getOgSiteName());
+        $this->assertNull($meta->getOgTitle());
+        $this->assertNull($meta->getOgImage());
+        $this->assertEmpty($meta->getSections());
+        $this->assertEmpty($meta->getPublishedTime());
+        $this->assertEmpty($meta->getModifiedTime());
     }
 }

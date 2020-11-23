@@ -22,6 +22,11 @@ class OgDomParser implements ParserInterface
 
     public function __construct()
     {
+        $this->meta = new Meta();
+        if (!extension_loaded('dom') || !extension_loaded('libxml')) {
+            return $this->meta;
+        }
+
         $this->allowedAttributes = [
             self::ATTRIBUTE_NAME     => [
                 'description' => 'setDescription',
@@ -45,7 +50,6 @@ class OgDomParser implements ParserInterface
 
     public function parse(string $content): Meta
     {
-        $this->meta = new Meta();
         if (!$content) {
             return $this->meta;
         }

@@ -16,9 +16,11 @@
     },
     "require": {
         "php": ">= 7.1.0",
-        "ext-dom": "*",
-        "ext-libxml": "*",
         "guzzlehttp/guzzle": "^6.0 | ^7.0"
+    },
+    "suggest": {
+        "ext-dom": "Required for Tomaj\\Scraper\\Parser\\OgDomParser",
+        "ext-libxml": "Required for Tomaj\\Scraper\\Parser\\OgDomParser"
     },
     "require-dev": {
         "phpunit/phpunit": "^8 || ^9",

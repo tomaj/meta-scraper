@@ -49,8 +49,8 @@ var_dump($meta);
 There are 3 parsers included in package and you can create new implementing interface `Tomaj\Scraper\Parser\ParserInterface`.
 
 3 parsers:
- - `Tomaj\Scraper\Parser\OgParsers` - based on og (Open Graph) meta attributes in html (built on regular expressions)
- - `Tomaj\Scraper\Parser\OgDomParsers` - also based on og (Open Graph) meta attributes in html (built on php DOM extension)
+ - `Tomaj\Scraper\Parser\OgParser` - based on og (Open Graph) meta attributes in html (built on regular expressions)
+ - `Tomaj\Scraper\Parser\OgDomParser` - also based on og (Open Graph) meta attributes in html (built on php DOM extension)
  - `Tomaj\Scraper\Parser\SchemaParser` - based on schema json structure
 
 You can combine these parsers. Data that will not be found in first parser will be replaced with data from second parser.
