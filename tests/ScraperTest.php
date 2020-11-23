@@ -5,6 +5,7 @@ namespace Tomaj\Scraper\Test;
 
 use PHPUnit\Framework\TestCase;
 use Tomaj\Scraper\Author;
+use Tomaj\Scraper\Parser\OgDomParser;
 use Tomaj\Scraper\Parser\OgParser;
 use Tomaj\Scraper\Parser\SchemaParser;
 use Tomaj\Scraper\Scraper;
@@ -258,5 +259,100 @@ EOT;
         $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
         $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+    }
+
+    public function testOgDomParser()
+    {
+        $data = <<<EOT
+            <title>Page title</title>
+            <meta name="description" content="Default page description"/>
+            <meta name="KEYWORDS" content="Keyword1,Keyword2">
+            <META NAME="author" CONTENT="Jozko Pucik"  >
+            <meta property="og:type" content="article" />
+            <meta property="og:description" content="Silny popis" />
+            <meta property="og:title" content="Og title nadpis"/>
+            <meta property="og:url" content="https://web.sk/stranka.html"/>
+            <meta property="og:site_name" content="Mega site name" />
+            <meta property="article:section" content="Ekonomika" />
+            <meta property="og:image" content="https://obrazok.jpg">
+            <meta property="article:published_time" content="2015-10-12T12:40:27+00:00" />
+            <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
+EOT;
+
+        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
+
+        $this->assertEquals('Page title', $meta->getTitle());
+
+        $this->assertEquals('Default page description', $meta->getDescription());
+        $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        $this->assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
+
+        $this->assertEquals('article', $meta->getOgType());
+        $this->assertEquals('Silny popis', $meta->getOgDescription());
+        $this->assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
+        $this->assertEquals('Mega site name', $meta->getOgSiteName());
+        $this->assertEquals('Og title nadpis', $meta->getOgTitle());
+        $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        $this->assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
+        $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
+        $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
+    }
+
+    public function testReverseAttrPositionOgDomParser()
+    {
+        $data = <<<EOT
+            <title>Page title</title>
+            <meta content="Default page description" name="description"/>
+            <meta content="Keyword1,Keyword2" name="KEYWORDS">
+            <META CONTENT="Jozko Pucik"   NAME="author">
+            <meta content="article" property="og:type" />
+            <meta content="Silny popis" property="og:description" />
+            <meta content="Og title nadpis" property="og:title" />
+            <meta content="https://web.sk/stranka.html" property="og:url" />
+            <meta content="Mega site name" property="og:site_name" />
+            <meta content="Ekonomika" property="article:section" />
+            <meta content="https://obrazok.jpg" property="og:image" />
+            <meta content="2015-10-12T12:40:27+00:00" property="article:published_time" />
+            <meta content="2016-11-13T13:21:42+00:00" property="article:modified_time" />
+EOT;
+
+        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
+
+        $this->assertEquals('Page title', $meta->getTitle());
+
+        $this->assertEquals('Default page description', $meta->getDescription());
+        $this->assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        $this->assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
+
+        $this->assertEquals('article', $meta->getOgType());
+        $this->assertEquals('Silny popis', $meta->getOgDescription());
+        $this->assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
+        $this->assertEquals('Mega site name', $meta->getOgSiteName());
+        $this->assertEquals('Og title nadpis', $meta->getOgTitle());
+        $this->assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        $this->assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
+        $this->assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()->format('d.m.Y H:i:s'));
+        $this->assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()->format('d.m.Y H:i:s'));
+    }
+
+    public function testEmptyOgDomParser()
+    {
+        $meta = (new Scraper())->parse("empty ", [new OgDomParser()]);
+
+        $this->assertNull($meta->getTitle());
+
+        $this->assertNull($meta->getDescription());
+        $this->assertNull($meta->getKeywords());
+        $this->assertEmpty($meta->getAuthors());
+
+        $this->assertNull($meta->getOgType());
+        $this->assertNull($meta->getOgDescription());
+        $this->assertNull($meta->getOgUrl());
+        $this->assertNull($meta->getOgSiteName());
+        $this->assertNull($meta->getOgTitle());
+        $this->assertNull($meta->getOgImage());
+        $this->assertEmpty($meta->getSections());
+        $this->assertEmpty($meta->getPublishedTime());
+        $this->assertEmpty($meta->getModifiedTime());
     }
 }
