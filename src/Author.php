@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
-use GuzzleHttp\Client;
-
 class Author
 {
     private $id;
