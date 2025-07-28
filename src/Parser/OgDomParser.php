@@ -61,7 +61,7 @@ class OgDomParser implements ParserInterface
 
         /** @var \DOMElement $titleTag */
         foreach ($dom->getElementsByTagName('title') as $titleTag) {
-            $this->meta->setTitle(htmlspecialchars_decode($titleTag->nodeValue));
+            $this->meta->setTitle(htmlspecialchars_decode($titleTag->nodeValue, ENT_NOQUOTES | ENT_HTML401));
             // iterate only over first title tag
             break;
         }
@@ -98,7 +98,7 @@ class OgDomParser implements ParserInterface
 
         call_user_func(
             [$this->meta, $allowedAttributes[$attributeValue]],
-            htmlspecialchars_decode($metaTag->getAttribute(self::ATTRIBUTE_CONTENT))
+            htmlspecialchars_decode($metaTag->getAttribute(self::ATTRIBUTE_CONTENT), ENT_NOQUOTES | ENT_HTML401)
         );
     }
 
