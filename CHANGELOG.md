@@ -5,9 +5,19 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ## [Unreleased][unreleased]
 
 ### Added
+- `SchemaParser` reads standard schema.org JSON-LD: every `<script type="application/ld+json">` block regardless of attribute order and quoting, multiline JSON, several blocks per page, `@graph` arrays and `{"@id": …}` references. It uses the first article-like object (`Article`, `NewsArticle`, `BlogPosting`, …), then the first web page object (`WebPage`, `CollectionPage`, …); other types such as `Organization` or `ImageObject` are ignored. A block with `id="schema"` still wins ([#23](https://github.com/tomaj/meta-scraper/issues/23)).
+- `Scraper::__construct()` accepts your own Guzzle client as the second argument (`?GuzzleHttp\ClientInterface $httpClient`); the options array is then sent as request options ([#24](https://github.com/tomaj/meta-scraper/issues/24)).
+- `Tomaj\Scraper\Exception\ScraperException`, implemented by every exception of the package, `FetchException` and `MissingExtensionException` ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
+- Documentation site: https://tomaj.github.io/meta-scraper/ ([#19](https://github.com/tomaj/meta-scraper/issues/19)).
 - `LICENSE.md` (MIT), `SECURITY.md` with the supported versions and a note on fetching untrusted URLs, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `RELEASING.md` ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
 
 ### Changed
+- **BREAKING CHANGE**: `Scraper::parseUrl()` throws `Tomaj\Scraper\Exception\FetchException` (with the Guzzle exception as previous) instead of letting Guzzle exceptions escape. Catch `FetchException` or `ScraperException` ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
+- **BREAKING CHANGE**: all classes are `final`; `Author`, `Section` and `Tag` are `readonly`; the `protected` members `Scraper::$guzzleOptions`, `OgDomParser::$meta`, `$allowedAttributes`, `processMetaTag()` and `fixMetaTag()` are removed. Implement `ParserInterface` instead of extending a parser; see `UPGRADE-5.0.md` ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
+- **BREAKING CHANGE**: `new OgDomParser()` throws `MissingExtensionException` when `ext-dom` or `ext-libxml` is missing instead of silently finding nothing ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
+- **BREAKING CHANGE**: the `Scraper` options array is typed (`connect_timeout`, `timeout`, `read_timeout`, `headers`, `proxy`, `allow_redirects`, `verify`, `http_errors`, `decode_content`, `force_ip_resolve`, `version`); for other Guzzle options pass your own client. The Guzzle client is created once in the constructor instead of on every `parseUrl()` call ([#24](https://github.com/tomaj/meta-scraper/issues/24)).
+- `guzzlehttp/guzzle` 8 is supported (`^7.9 || ^8.0`) ([#24](https://github.com/tomaj/meta-scraper/issues/24)).
+- `OgDomParser` restores the previous `libxml_use_internal_errors()` setting and clears its libxml errors after parsing ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
 - **BREAKING CHANGE**: PHP 8.4 or newer is required (was PHP 7.1) ([#10](https://github.com/tomaj/meta-scraper/pull/10), [#16](https://github.com/tomaj/meta-scraper/issues/16)).
 - **BREAKING CHANGE**: `guzzlehttp/guzzle` 6 is no longer supported, `^7.9` is required ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - **BREAKING CHANGE**: properties are typed and `Meta::setPublishedTime()` / `Meta::setModifiedTime()` accept `DateTime|string` (`setModifiedTime()` now declares the `Meta` return type). Subclasses overriding these members must be updated ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
@@ -18,6 +28,12 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - The Composer dist archive contains only the library (`src/`, `composer.json`, README, LICENSE, CHANGELOG and UPGRADE files); tests and tool configuration are export-ignored ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
 - PHPUnit 13; `codeclimate/php-test-reporter` and PHP_CodeSniffer removed in favour of PHP CS Fixer ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - Development tooling at the shared baseline: PHPStan with bleedingEdge and deprecation rules, Rector, Infection, and the `rector`, `rector-fix`, `coverage` and `infection` composer scripts ([#15](https://github.com/tomaj/meta-scraper/issues/15)).
+- CI runs Rector and Infection, enforces 90 % statement coverage on PHP 8.6, and publishes releases from tags with build provenance; CodeQL and OpenSSF Scorecard workflows added ([#14](https://github.com/tomaj/meta-scraper/issues/14)).
+- Tests split per class, `parseUrl()` tested with a Guzzle `MockHandler`; mutation testing with Infection ([#18](https://github.com/tomaj/meta-scraper/issues/18)).
+
+### Fixed
+- `OgDomParser` returned the same `Meta` object from every `parse()` call, so data of one page leaked into the next and `parse('')` returned the previous page ([#21](https://github.com/tomaj/meta-scraper/issues/21)).
+- `OgDomParser` garbled UTF-8 text on pages without a charset declaration; such documents are now read as UTF-8, declared charsets still apply ([#22](https://github.com/tomaj/meta-scraper/issues/22)).
 
 ## [4.3.0] - 2020-11-23
 
