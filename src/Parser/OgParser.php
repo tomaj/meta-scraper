@@ -8,7 +8,7 @@ use Tomaj\Scraper\Author;
 use Tomaj\Scraper\Meta;
 use Tomaj\Scraper\Section;
 
-class OgParser implements ParserInterface
+final class OgParser implements ParserInterface
 {
     #[\Override]
     public function parse(string $content): Meta
@@ -16,10 +16,6 @@ class OgParser implements ParserInterface
         $meta = new Meta();
 
         $matches = [];
-
-        if ($content === '') {
-            return $meta;
-        }
 
         if (preg_match('/<title.*>(.+)<\/title\>/Uis', $content, $matches) === 1) {
             $meta->setTitle(htmlspecialchars_decode($matches[1]));

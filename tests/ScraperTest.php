@@ -4,388 +4,167 @@ declare(strict_types=1);
 
 namespace Tomaj\Scraper\Test;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Tomaj\Scraper\Author;
-use Tomaj\Scraper\Parser\OgDomParser;
+use Psr\Http\Message\RequestInterface;
+use Tomaj\Scraper\Exception\FetchException;
+use Tomaj\Scraper\Exception\ScraperException;
+use Tomaj\Scraper\Meta;
 use Tomaj\Scraper\Parser\OgParser;
-use Tomaj\Scraper\Parser\SchemaParser;
+use Tomaj\Scraper\Parser\ParserInterface;
 use Tomaj\Scraper\Scraper;
-use Tomaj\Scraper\Section;
-use Tomaj\Scraper\Tag;
 
-class ScraperTest extends TestCase
+final class ScraperTest extends TestCase
 {
-    public function testBasicInformation(): void
+    private const string PAGE = '<html><head><title>Fetched page</title><meta property="og:title" content="OG title"></head></html>';
+
+    /** @var list<RequestInterface> requests sent through handler() */
+    private array $requests = [];
+
+    /** @var list<array<mixed>> request options of those requests */
+    private array $options = [];
+
+    private function scraperWith(Response|\Throwable ...$responses): Scraper
     {
-        $data = <<<EOT
-                        <title>Page title</title>
-                        <meta name="description" content="Default page description"/>
-                        <meta name="KEYWORDS"     content="Keyword1,Keyword2">
-                        <META NAME="author" CONTENT="Jozko Pucik"  >
-                        <meta property="og:type" content="article" />
-                        <meta property="og:description" content="Silny popis" />
-                        <meta property="og:title" content="Og title nadpis"/>
-                        <meta property="og:url" content="https://web.sk/stranka.html"/>
-                        <meta property="og:site_name" content="Mega site name" />
-                        <meta property="article:section" content="Ekonomika" />
-                        <meta property="og:image" content="https://obrazok.jpg">
-                        <meta property="article:published_time" content="2015-10-12T12:40:27+00:00" />
-                        <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
-            EOT;
-
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new OgParser()]);
-
-        self::assertSame('Page title', $meta->getTitle());
-        self::assertSame('Default page description', $meta->getDescription());
-        self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
-
-        self::assertSame('article', $meta->getOgType());
-        self::assertSame('Silny popis', $meta->getOgDescription());
-        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertSame('Mega site name', $meta->getOgSiteName());
-        self::assertSame('Og title nadpis', $meta->getOgTitle());
-        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
-        self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
-        self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
-        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
+        return new Scraper([], new Client(['handler' => $this->handler(...$responses)]));
     }
 
-    public function testEmpty(): void
+    private function handler(Response|\Throwable ...$responses): callable
     {
-        $scraper = new Scraper();
-        $meta = $scraper->parse('sdsadipojhafidsjf dsf ', [
-            new OgParser(),
-            new SchemaParser(),
-        ]);
-        self::assertNull($meta->getTitle());
-        self::assertNull($meta->getDescription());
-        self::assertCount(0, $meta->getAuthors());
-        self::assertNull($meta->getOgType());
-        self::assertNull($meta->getOgDescription());
-        self::assertNull($meta->getOgUrl());
-        self::assertNull($meta->getOgSiteName());
-        self::assertNull($meta->getOgImage());
-        self::assertCount(0, $meta->getSections());
+        $stack = HandlerStack::create(new MockHandler(array_values($responses)));
+        $stack->push(Middleware::tap(function (RequestInterface $request, array $options): void {
+            $this->requests[] = $request;
+            $this->options[] = $options;
+        }));
+
+        return $stack;
     }
 
-    public function testMoreAttributes(): void
+    public function testParseUrlDownloadsAndParsesThePage(): void
     {
-        $data = <<<EOT
-                    <meta charset="utf-8" />
-            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-            <meta http-equiv="Content-Language" content="en" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-            <link rel="shortcut icon" href="/vi-assets/static-assets/favicon-4bf96cb6a1093748bf5b3c429accb9b4.ico" />
-            <link rel="apple-touch-icon" href="/vi-assets/static-assets/apple-touch-icon-319373aaf4524d94d38aa599c56b8655.png" />
-            <link rel="apple-touch-icon-precomposed" sizes="144×144" href="/vi-assets/static-assets/ios-ipad-144x144-319373aaf4524d94d38aa599c56b8655.png" />
-            <link rel="apple-touch-icon-precomposed" sizes="114×114" href="/vi-assets/static-assets/ios-iphone-114x144-61d373c43aa8365d3940c5f1135f4597.png" />
-            <link rel="apple-touch-icon-precomposed" href="/vi-assets/static-assets/ios-default-homescreen-57x57-7cccbfb151c7db793e92ea58c30b9e72.png" />
-            <meta property="fb:app_id" content="9869919170" />
-            <meta name="twitter:site" value="@nytimes" />
-                <title data-rh="true">Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times</title><meta data-rh="true" itemprop="inLanguage" content="en-US"/><meta data-rh="true" name="robots" content="noarchive"/><meta data-rh="true" name="articleid" itemprop="identifier" content="100000005891767"/><meta data-rh="true" name="description" itemprop="description" content="Plans by Catalan separatists to re-elect their region&#x27;s former president in absentia were blocked Wednesday by Spain&#x27;s Constitutional Court."/><meta data-rh="true" name="image" itemprop="image" content="https://static01.nyt.com/images/icons/t_logo_291_black.png"/><meta data-rh="true" name="byl" content="By The Associated Press"/><meta data-rh="true" name="thumbnail" itemprop="thumbnailUrl" content="https://static01.nyt.com/images/icons/t_logo_150_black.png"/><meta data-rh="true" name="news_keywords" content=""/><meta data-rh="true" name="usageTerms" itemprop="usageTerms" content="http://www.nytimes.com/content/help/rights/sale/terms-of-sale.html"/><meta data-rh="true" name="pdate" content="20180509"/><meta data-rh="true" name="utime" content="20180509153746"/><meta data-rh="true" name="ptime" content="20180509074352"/><meta data-rh="true" property="og:url" content="https://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html"/><meta data-rh="true" property="og:type" content="article"/><meta data-rh="true" property="og:title" content="Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG"/><meta data-rh="true" property="og:image" content="https://static01.nyt.com/images/icons/t_logo_291_black.png"/><meta data-rh="true" property="og:description" content="Plans by Catalan separatists to re-elect their region&#x27;s former president in absentia were blocked Wednesday by Spain&#x27;s Constitutional Court. OG"/><meta data-rh="true" property="twitter:url" content="https://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html"/><meta data-rh="true" property="twitter:title" content="Spanish Court Blocks Election of Separatist Ex-Catalan Chief"/><meta data-rh="true" property="twitter:description" content="Plans by Catalan separatists to re-elect their region&#x27;s former president in absentia were blocked Wednesday by Spain&#x27;s Constitutional Court."/><meta data-rh="true" property="twitter:image" content="https://static01.nyt.com/images/icons/t_logo_150_black.png"/><meta data-rh="true" property="twitter:image:alt" content=""/><meta data-rh="true" property="twitter:card" content="summary_large_image"/><meta data-rh="true" property="article:section" itemprop="articleSection" content="World"/><meta data-rh="true" property="article:section-taxonomy-id" itemprop="articleSection" content="9A43D8FC-F4CF-44D9-9B34-138D30468F8F"/><meta data-rh="true" property="article:published" itemprop="datePublished" content="2018-05-09T11:43:52.000Z"/><meta data-rh="true" property="article:modified" itemprop="dateModified" content="2018-05-09T19:37:46.216Z"/><meta data-rh="true" name="CG" content="world"/><meta data-rh="true" name="SCG" content="europe"/><meta data-rh="true" name="CN" content=""/><meta data-rh="true" name="CT" content=""/><meta data-rh="true" name="PT" content="article"/><meta data-rh="true" name="PST" content="News"/><meta data-rh="true" name="genre" itemprop="genre" content="News"/><meta data-rh="true" name="msapplication-starturl" content="https://www.nytimes.com"/><meta data-rh="true" property="al:android:url" content="nytimes://reader/id/100000005891767"/><meta data-rh="true" property="al:android:package" content="com.nytimes.android"/><meta data-rh="true" property="al:android:app_name" content="NYTimes"/><meta data-rh="true" name="twitter:app:name:googleplay" content="NYTimes"/><meta data-rh="true" name="twitter:app:id:googleplay" content="com.nytimes.android"/><meta data-rh="true" name="twitter:app:url:googleplay" content="nytimes://reader/id/100000005891767"/><meta data-rh="true" property="al:iphone:url" content="nytimes://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html"/><meta data-rh="true" property="al:iphone:app_store_id" content="284862083"/><meta data-rh="true" property="al:iphone:app_name" content="NYTimes"/><meta data-rh="true" property="al:ipad:url" content="nytimes://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html"/><meta data-rh="true" property="al:ipad:app_store_id" content="357066198"/><meta data-rh="true" property="al:ipad:app_name" content="NYTimes"/>
-            EOT;
+        $scraper = $this->scraperWith(new Response(200, [], self::PAGE));
 
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new OgParser()]);
+        $meta = $scraper->parseUrl('https://example.com/article', [new OgParser()]);
 
-        self::assertSame('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
-
-
-        self::assertSame("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court.", $meta->getDescription());
-
-        self::assertSame("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court. OG", $meta->getOgDescription());
-
-        self::assertSame('https://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html', $meta->getOgUrl());
-
-        self::assertSame('Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG', $meta->getOgTitle());
-
-        self::assertSame('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
+        self::assertSame('Fetched page', $meta->getTitle());
+        self::assertSame('OG title', $meta->getOgTitle());
+        self::assertSame(self::PAGE, $scraper->getBody());
+        self::assertCount(1, $this->requests);
+        self::assertSame('GET', $this->requests[0]->getMethod());
+        self::assertSame('https://example.com/article', (string) $this->requests[0]->getUri());
     }
 
-    public function testNonStandardAttributes(): void
+    public function testBodyIsEmptyBeforeTheFirstDownload(): void
     {
-        $data = <<<EOT
-                    <html lang="en"><head><meta charSet="utf-8" class="next-head" /><meta http-equiv="x-ua-compatible" content="ie=edge" class="next-head" /><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" class="next-head" /><link rel="preconnect" href="https://files.testsite.com" class="next-head" /><link rel="preconnect" href="//www.googletagmanager.com" class="next-head" /><meta property="og:image" content="https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc" class="next-head" /><meta property="og:image:type" content="image/png" class="next-head" /><meta property="og:image:width" content="600" class="next-head" /><meta property="og:image:height" content="315" class="next-head" /><meta property="og:site_name" content="TestSite" class="next-head" /><meta property="og:type" content="website" class="next-head" /><meta name="twitter:card" content="summary_large_image" class="next-head" /><meta name="apple-itunes-app" content="app-id=128210709876" class="next-head" /><meta property="og:url" content="https://testsite.com/" class="next-head" /><link rel="canonical" href="https://testsite.com/" class="next-head" /><link rel="manifest" href="/manifest.json" class="next-head" /><meta name="description" content="Description for TestSite" class="next-head" /><meta property="og:description" my-attribute="foo" content="Description for TestSite" data-attribute="test" class="next-head" />
-            EOT;
-
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new OgParser()]);
-        self::assertSame('website', $meta->getOgType());
-        self::assertSame('Description for TestSite', $meta->getOgDescription());
-        self::assertSame('https://testsite.com/', $meta->getOgUrl());
-        self::assertSame('https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc', $meta->getOgImage());
+        self::assertSame('', new Scraper()->getBody());
     }
 
-    public function testSchemaParser(): void
+    public function testOwnClientUsesTheDefaultOptions(): void
     {
-        $data = <<<EOT
-                    text
-                    <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/","position":1325802,"headline":"Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia","description":"Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?","articleSection":["Svet","Veda"],"datePublished":"2018-12-15T19:00:26+00:00","dateModified":"2018-12-17T00:28:43+00:00","wordCount":1650,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/"},"author":[{"@type":"Person","@id":"495","name":"Tomáš Vasilko"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg","width":756,"height":427,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg?fm=jpg&q=80&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
-                    text
-            EOT;
+        // @phpstan-ignore argument.type ("handler" is not part of GuzzleOptions; the test replaces the transport of the client Scraper creates)
+        $scraper = new Scraper(['handler' => $this->handler(new Response(200, [], self::PAGE))]);
 
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new SchemaParser()]);
+        $scraper->parseUrl('https://example.com/', []);
 
-        self::assertSame('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
-
-        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
-
-        self::assertEquals(null, $meta->getOgDescription());
-
-        self::assertSame('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
-
-        self::assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
-
-        self::assertEquals(null, $meta->getOgTitle());
-
-        self::assertSame('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
-
-        self::assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
-
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
-
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
+        self::assertSame('Tomaj\Scraper', $this->requests[0]->getHeaderLine('User-Agent'));
+        self::assertSame(5, $this->options[0]['connect_timeout']);
     }
 
-    public function testSchemaParserSections(): void
+    public function testOptionsOverrideTheDefaults(): void
     {
-        $data = <<<EOT
-                    text
-                    <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1551857/osobne-bankroty-rychlo-pribudaju-nik-nevie-kolko-si-z-toho-odpisuju-podvodnici/","position":1551857,"headline":"Osobné bankroty rýchlo pribúdajú, nik nevie, koľko si z toho odpisujú podvodníci","description":"Len na daniach z&nbsp;príjmu a&nbsp;zdravotnom poistení bez započítania sociálnych odvodov odpustil štát za posledné dva roky ľuďom, ktorí vyhlásili bankrot, najmenej 40 miliónov eur. Možno až tretina z&nbsp;nich však splácať vedela, len využila, že to pred odpustením dlhov nikto poriadne nepreveruje. ","datePublished":"2019-08-12T14:53:54+00:00","dateModified":"2019-08-13T01:21:36+00:00","wordCount":176,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1551857/osobne-bankroty-rychlo-pribudaju-nik-nevie-kolko-si-z-toho-odpisuju-podvodnici/"},"author":[{"@type":"Person","@id":"5331","name":"Martina Kláseková"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"articleSection":["Ekonomika","Hlavná"],"articleTerms":[{"@id":432,"@type":"Category","name":"Ekonomika"},{"@id":2386,"@type":"Category","name":"Hlavná"},{"@id":9226,"@type":"Tag","name":"Osobné bankroty"}],"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2019/08/AdobeStock_242090991-bankrot.jpg","width":1200,"height":628,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2019/08/AdobeStock_242090991-bankrot.jpg?fm=jpg&q=85&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
-                    text
-            EOT;
-
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new SchemaParser()]);
-
-        self::assertEquals([new Section('432', 'Ekonomika'), new Section('2386', 'Hlavná')], $meta->getSections());
-    }
-
-    public function testSchemaParserTags(): void
-    {
-        $scraper = new Scraper();
-
-        // array of about
-        $data = <<<EOT
-                    text
-                    <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": [{ "@id": "7678", "name": "Zuzana Čaputová" }, { "@id": "9999", "name": "Foo" }], "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
-                    text
-            EOT;
-        $meta = $scraper->parse($data, [new SchemaParser()]);
-        self::assertEquals([new Tag('7678', 'Zuzana Čaputová'), new Tag('9999', 'Foo')], $meta->getTags());
-
-        // single non-array about
-        $data = <<<EOT
-                    text
-                    <script id="schema" type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "url": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/", "position": 1917569, "headline": "Prezidentka svojich partnerov nezapiera a tak je to správne", "description": "&#8222;Pani prezidentka, priznám sa, že aj ja sa cítim tak trocha v&nbsp;rozpakoch, ale napriek tomu, už niekoľko dní je v&nbsp;médiách informácia, že sa vám darí aj v&nbsp;súkromnom živote. Takže, to je dobrá správa,&#8220; prihovorila sa moderátorka televízie Markíza Zlatica Puškárová k&nbsp;Zuzane Čaputovej. To, že sa trochu rozpakuje pýtať sa na nového partnera, bolo zrejmé. Prezidentka [&hellip;]", "datePublished": "2020-06-04T14:49:22+02:00", "dateModified": "2020-06-04T22:03:12+02:00", "wordCount": 3031, "mainEntityOfPage": { "@type": "WebPage", "@id": "https://dennikn.sk/1917569/prezidentka-svojich-partnerov-nezapiera-a-tak-je-to-spravne/" }, "author": [{ "@type": "Person", "@id": "663", "name": "Ria Gehrerová" }], "publisher": { "@type": "Organization", "name": "Denník N", "logo": { "@type": "ImageObject", "url": "https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png", "width": 60, "height": 60 } }, "articleSection": ["Rodina a vzťahy", "Slovensko"], "articleTerms": [{ "@id": "7657", "@type": "Category", "name": "Rodina a vzťahy" }, { "@id": "430", "@type": "Category", "name": "Slovensko" }, { "@id": "7678", "@type": "Tag", "name": "Zuzana Čaputová" }], "about": { "@id": "7678", "name": "Zuzana Čaputová" }, "image": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg", "width": 500, "height": 375, "thumbnail": { "@type": "ImageObject", "url": "https://img.projektn.sk/wp-static/2020/06/laska-par-Zuzana-Caputova-Juraj-Rizman-Prezidentka.jpg?fm=jpg&q=85&w=360&h=200&fit=crop", "width": 360, "height": 200 } }, "isAccessibleForFree": false, "hasPart": [{ "@type": "WebPageElement", "isAccessibleForFree": "False", "cssSelector": ".a_single" }] }</script>
-                    text
-            EOT;
-        $meta = $scraper->parse($data, [new SchemaParser()]);
-        self::assertEquals([new Tag('7678', 'Zuzana Čaputová')], $meta->getTags());
-    }
-
-    public function testMerge(): void
-    {
-        $data = <<<EOT
-                    <meta charset="utf-8" />
-
-                    <title>New title</title>
-                    <meta property="og:description" content="Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG">
-                    <meta property="og:title" content="Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG">
-
-                    <script id="schema" type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/","position":1325802,"headline":"Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia","description":"Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?","articleSection":["Svet","Veda"],"datePublished":"2018-12-15T19:00:26+00:00","dateModified":"2018-12-17T00:28:43+00:00","wordCount":1650,"mainEntityOfPage":{"@type":"WebPage","@id":"https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/"},"author":[{"@type":"Person","@id":"495","name":"Tomáš Vasilko"}],"publisher":{"@type":"Organization","name":"Denník N","logo":{"@type":"ImageObject","url":"https://dennikn.sk/wp-content/themes/dn-2-sk/dennikn-60x60.png","width":60,"height":60}},"image":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg","width":756,"height":427,"thumbnail":{"@type":"ImageObject","url":"https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg?fm=jpg&q=80&w=360&h=200&fit=crop","width":360,"height":200}},"isAccessibleForFree":false,"hasPart":[{"@type":"WebPageElement","isAccessibleForFree":"False","cssSelector":".a_single"}]}</script>
-            EOT;
-
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [
-            new SchemaParser(),
-            new OgParser(),
+        // @phpstan-ignore argument.type ("handler" is not part of GuzzleOptions; the test replaces the transport of the client Scraper creates)
+        $scraper = new Scraper([
+            'handler' => $this->handler(new Response(200, [], self::PAGE)),
+            'connect_timeout' => 2,
+            'timeout' => 10,
+            'headers' => ['User-Agent' => 'MyBot/1.0'],
         ]);
 
-        self::assertSame('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
+        $scraper->parseUrl('https://example.com/', []);
 
-        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
-
-        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG', $meta->getOgDescription());
-
-        self::assertSame('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
-
-        self::assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
-
-        self::assertSame('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
-
-        self::assertSame('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
-
-        self::assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
-
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
-
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
-
+        self::assertSame('MyBot/1.0', $this->requests[0]->getHeaderLine('User-Agent'));
+        self::assertSame(2, $this->options[0]['connect_timeout']);
+        self::assertSame(10, $this->options[0]['timeout']);
     }
-    public function testSingleQuotedMetaProperty(): void
+
+    public function testInjectedClientGetsTheOptionsAsRequestOptionsAndNoDefaults(): void
     {
-        $data = <<<EOT
-                        <title>Page title</title>
-                        <meta name='description' content='Default page description'/>
-                        <meta name='KEYWORDS'     content='Keyword1,Keyword2'>
-                        <META NAME='author' CONTENT='Jozko Pucik'  >
-                        <meta property='og:type' content='article' />
-                        <meta property='og:description' content='Silny popis' />
-                        <meta property='og:title' content='Og title nadpis'/>
-                        <meta property='og:url' content='https://web.sk/stranka.html'/>
-                        <meta property='og:site_name' content='Mega site name' />
-                        <meta property='article:section' content='Ekonomika' />
-                        <meta property='og:image' content='https://obrazok.jpg'>
-                        <meta property='article:published_time' content='2015-10-12T12:40:27+00:00' />
-                        <meta property='article:modified_time' content='2016-11-13T13:21:42+00:00' />
-            EOT;
+        $client = new Client(['handler' => $this->handler(new Response(200, [], self::PAGE), new Response(200, [], self::PAGE))]);
 
-        $scraper = new Scraper();
-        $meta = $scraper->parse($data, [new OgParser()]);
+        new Scraper([], $client)->parseUrl('https://example.com/', []);
+        self::assertNotSame('Tomaj\Scraper', $this->requests[0]->getHeaderLine('User-Agent'));
+        self::assertArrayNotHasKey('connect_timeout', $this->options[0]);
 
-        self::assertSame('Default page description', $meta->getDescription());
-        self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
+        new Scraper(['timeout' => 3, 'headers' => ['X-Test' => 'yes']], $client)->parseUrl('https://example.com/', []);
+        self::assertSame(3, $this->options[1]['timeout']);
+        self::assertSame('yes', $this->requests[1]->getHeaderLine('X-Test'));
+    }
+
+    public function testConnectionErrorIsWrappedInAPackageException(): void
+    {
+        $previous = new ConnectException('Connection refused', new Request('GET', 'https://example.com/'));
+        $scraper = $this->scraperWith($previous);
+
+        try {
+            $scraper->parseUrl('https://example.com/', [new OgParser()]);
+            self::fail('FetchException expected');
+        } catch (FetchException $e) {
+            self::assertSame($previous, $e->getPrevious());
+            self::assertSame('https://example.com/', $e->url);
+            self::assertSame(0, $e->getCode());
+            self::assertSame('Cannot fetch "https://example.com/": Connection refused', $e->getMessage());
+        }
+        self::assertSame('', $scraper->getBody());
+    }
+
+    public function testErrorResponseIsWrappedInAPackageException(): void
+    {
+        $scraper = $this->scraperWith(new Response(404, [], 'Not found'));
+
+        try {
+            $scraper->parseUrl('https://example.com/missing', [new OgParser()]);
+            self::fail('FetchException expected');
+        } catch (ScraperException $e) {
+            self::assertInstanceOf(FetchException::class, $e);
+            self::assertInstanceOf(GuzzleException::class, $e->getPrevious());
+            self::assertStringContainsString('404', $e->getMessage());
+        }
+    }
+
+    public function testParseRunsTheParsersInOrderAndTheFirstValueWins(): void
+    {
+        $first = $this->parserReturning(new Meta()->setTitle('First')->setDescription(''));
+        $second = $this->parserReturning(new Meta()->setTitle('Second')->setDescription('From second')->setOgType('article'));
+
+        $meta = new Scraper()->parse('<html></html>', [$first, $second]);
+
+        self::assertSame('First', $meta->getTitle());
+        self::assertSame('From second', $meta->getDescription());
         self::assertSame('article', $meta->getOgType());
-        self::assertSame('Silny popis', $meta->getOgDescription());
-        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertSame('Mega site name', $meta->getOgSiteName());
-        self::assertSame('Og title nadpis', $meta->getOgTitle());
-        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
-        self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
-        self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
-        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
     }
 
-    public function testOgDomParser(): void
+    public function testParseWithoutParsersReturnsAnEmptyMeta(): void
     {
-        $data = <<<EOT
-                        <title>Page title</title>
-                        <meta name="description" content="Default page description"/>
-                        <meta name="KEYWORDS" content="Keyword1,Keyword2">
-                        <META NAME="author" CONTENT="Jozko Pucik"  >
-                        <meta property="og:type" content="article" />
-                        <meta property="og:description" content="Silny popis" />
-                        <meta property="og:title" content="Og title nadpis"/>
-                        <meta property="og:url" content="https://web.sk/stranka.html"/>
-                        <meta property="og:site_name" content="Mega site name" />
-                        <meta property="article:section" content="Ekonomika" />
-                        <meta property="og:image" content="https://obrazok.jpg">
-                        <meta property="article:published_time" content="2015-10-12T12:40:27+00:00" />
-                        <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
-            EOT;
-
-        $meta = new Scraper()->parse($data, [new OgDomParser()]);
-
-        self::assertSame('Page title', $meta->getTitle());
-
-        self::assertSame('Default page description', $meta->getDescription());
-        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
-        self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
-
-        self::assertSame('article', $meta->getOgType());
-        self::assertSame('Silny popis', $meta->getOgDescription());
-        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertSame('Mega site name', $meta->getOgSiteName());
-        self::assertSame('Og title nadpis', $meta->getOgTitle());
-        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
-        self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
-        self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
+        self::assertEquals(new Meta(), new Scraper()->parse('<title>x</title>', []));
     }
 
-    public function testReverseAttrPositionOgDomParser(): void
+    private function parserReturning(Meta $meta): ParserInterface
     {
-        $data = <<<EOT
-                        <title>Page title</title>
-                        <meta content="Default page description" name="description"/>
-                        <meta content="Keyword1,Keyword2" name="KEYWORDS">
-                        <META CONTENT="Jozko Pucik"   NAME="author">
-                        <meta content="article" property="og:type" />
-                        <meta content="Silny popis" property="og:description" />
-                        <meta content="Og title nadpis" property="og:title" />
-                        <meta content="https://web.sk/stranka.html" property="og:url" />
-                        <meta content="Mega site name" property="og:site_name" />
-                        <meta content="Ekonomika" property="article:section" />
-                        <meta content="https://obrazok.jpg" property="og:image" />
-                        <meta content="2015-10-12T12:40:27+00:00" property="article:published_time" />
-                        <meta content="2016-11-13T13:21:42+00:00" property="article:modified_time" />
-            EOT;
+        return new readonly class ($meta) implements ParserInterface {
+            public function __construct(private Meta $meta) {}
 
-        $meta = new Scraper()->parse($data, [new OgDomParser()]);
-
-        self::assertSame('Page title', $meta->getTitle());
-
-        self::assertSame('Default page description', $meta->getDescription());
-        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
-        self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
-
-        self::assertSame('article', $meta->getOgType());
-        self::assertSame('Silny popis', $meta->getOgDescription());
-        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertSame('Mega site name', $meta->getOgSiteName());
-        self::assertSame('Og title nadpis', $meta->getOgTitle());
-        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
-        self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
-        self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
-    }
-
-    public function testEmptyOgDomParser(): void
-    {
-        $meta = new Scraper()->parse('empty ', [new OgDomParser()]);
-
-        self::assertNull($meta->getTitle());
-
-        self::assertNull($meta->getDescription());
-        self::assertNull($meta->getKeywords());
-        self::assertCount(0, $meta->getAuthors());
-
-        self::assertNull($meta->getOgType());
-        self::assertNull($meta->getOgDescription());
-        self::assertNull($meta->getOgUrl());
-        self::assertNull($meta->getOgSiteName());
-        self::assertNull($meta->getOgTitle());
-        self::assertNull($meta->getOgImage());
-        self::assertCount(0, $meta->getSections());
-        self::assertNull($meta->getPublishedTime());
-        self::assertNull($meta->getModifiedTime());
-    }
-
-    public function testSchemaParserSingleAuthorObject(): void
-    {
-        $data = '<script id="schema" type="application/ld+json">{"author":{"@type":"Person","@id":"a1","name":"Jana"},"about":{"@id":5,"name":"T"}}</script>';
-
-        $meta = new Scraper()->parse($data, [new SchemaParser()]);
-
-        self::assertEquals([new Author('a1', 'Jana')], $meta->getAuthors());
-        self::assertEquals([new Tag('5', 'T')], $meta->getTags());
-    }
-
-    public function testSchemaParserUnexpectedTypes(): void
-    {
-        $data = '<script id="schema" type="application/ld+json">{"author":["A","B"],"headline":123,"description":["x"],"articleSection":["S",7],"about":[],"image":"https://i/y.jpg","url":{"x":1}}</script>';
-
-        $meta = new Scraper()->parse($data, [new SchemaParser()]);
-
-        self::assertEquals([new Author(null, 'A'), new Author(null, 'B')], $meta->getAuthors());
-        self::assertSame('123', $meta->getTitle());
-        self::assertNull($meta->getDescription());
-        self::assertEquals([new Section(null, 'S'), new Section(null, '7')], $meta->getSections());
-        self::assertSame([], $meta->getTags());
-        self::assertNull($meta->getOgImage());
-        self::assertNull($meta->getOgUrl());
-    }
-
-    public function testSchemaParserIgnoresInvalidJson(): void
-    {
-        $meta = new Scraper()->parse('<script id="schema" type="application/ld+json">{headline:</script>', [new SchemaParser()]);
-
-        self::assertNull($meta->getTitle());
-        self::assertSame([], $meta->getAuthors());
+            #[\Override]
+            public function parse(string $content): Meta
+            {
+                return $this->meta;
+            }
+        };
     }
 }

@@ -6,7 +6,7 @@ namespace Tomaj\Scraper;
 
 use DateTime;
 
-class Meta
+final class Meta
 {
     private ?string $title = null;
 
