@@ -2,7 +2,11 @@
     "name": "tomaj/meta-scraper",
     "description": "Page meta scraper library",
     "license": "MIT",
-    "keywords": ["page", "sraper", "meta"],
+    "keywords": [
+        "page",
+        "sraper",
+        "meta"
+    ],
     "authors": [
         {
             "name": "Tomas Majer",
@@ -15,21 +19,23 @@
         "source": "https://github.com/tomaj/meta-scraper"
     },
     "require": {
-        "php": ">= 7.1.0",
-        "guzzlehttp/guzzle": "^6.0 | ^7.0"
+        "php": "^8.3",
+        "guzzlehttp/guzzle": "^7.9"
     },
     "suggest": {
         "ext-dom": "Required for Tomaj\\Scraper\\Parser\\OgDomParser",
         "ext-libxml": "Required for Tomaj\\Scraper\\Parser\\OgDomParser"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8 || ^9",
-        "squizlabs/php_codesniffer": "^3.5",
-        "codeclimate/php-test-reporter": "0.4.4"
+        "friendsofphp/php-cs-fixer": "^3.90",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-phpunit": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^12.5"
     },
     "autoload": {
         "psr-4": {
-             "Tomaj\\Scraper\\": "src"
+            "Tomaj\\Scraper\\": "src"
         }
     },
     "autoload-dev": {
@@ -38,6 +44,21 @@
         }
     },
     "scripts": {
-        "test": "phpunit"
+        "check": [
+            "@phpcs",
+            "@phpstan",
+            "@test"
+        ],
+        "cs-fix": "php-cs-fixer fix",
+        "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "phpunit": [
+            "@putenv XDEBUG_MODE=off",
+            "phpunit --no-coverage"
+        ],
+        "test": "@phpunit"
+    },
+    "config": {
+        "sort-packages": true
     }
 }

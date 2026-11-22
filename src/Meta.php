@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Scraper;
@@ -7,33 +8,36 @@ use DateTime;
 
 class Meta
 {
-    private $title;
+    private ?string $title = null;
 
-    private $description;
+    private ?string $description = null;
 
-    private $authors = [];
+    /** @var list<Author> */
+    private array $authors = [];
 
-    private $keywords;
+    private ?string $keywords = null;
 
-    private $ogType;
+    private ?string $ogType = null;
 
-    private $ogTitle;
+    private ?string $ogTitle = null;
 
-    private $ogDescription;
+    private ?string $ogDescription = null;
 
-    private $ogUrl;
+    private ?string $ogUrl = null;
 
-    private $ogSiteName;
+    private ?string $ogSiteName = null;
 
-    private $ogImage;
+    private ?string $ogImage = null;
 
-    private $sections = [];
-    
-    private $tags = [];
+    /** @var list<Section> */
+    private array $sections = [];
 
-    private $publishedTime;
+    /** @var list<Tag> */
+    private array $tags = [];
 
-    private $modifiedTime;
+    private ?DateTime $publishedTime = null;
+
+    private ?DateTime $modifiedTime = null;
 
     public function setTitle(string $title): Meta
     {
@@ -69,13 +73,13 @@ class Meta
     }
 
     /**
-     * @return Author[]
+     * @return list<Author>
      */
     public function getAuthors(): array
     {
         return $this->authors;
     }
-    
+
     public function addTag(Tag $tag): Meta
     {
         $this->tags[] = $tag;
@@ -83,7 +87,7 @@ class Meta
     }
 
     /**
-     * @return Tag[]
+     * @return list<Tag>
      */
     public function getTags(): array
     {
@@ -179,20 +183,20 @@ class Meta
     }
 
     /**
-     * @return Section[]
+     * @return list<Section>
      */
     public function getSections(): array
     {
         return $this->sections;
     }
 
-    public function setPublishedTime($publishedTime): Meta
+    public function setPublishedTime(DateTime|string $publishedTime): Meta
     {
         if ($publishedTime instanceof DateTime) {
             $this->publishedTime = $publishedTime;
         } else {
             $time = strtotime($publishedTime);
-            if ($time) {
+            if ($time !== false) {
                 $this->publishedTime = new DateTime('@' . $time);
             }
         }
@@ -204,13 +208,13 @@ class Meta
         return $this->publishedTime;
     }
 
-    public function setModifiedTime($modifiedTime)
+    public function setModifiedTime(DateTime|string $modifiedTime): Meta
     {
         if ($modifiedTime instanceof DateTime) {
             $this->modifiedTime = $modifiedTime;
         } else {
             $time = strtotime($modifiedTime);
-            if ($time) {
+            if ($time !== false) {
                 $this->modifiedTime = new DateTime('@' . $time);
             }
         }
@@ -224,68 +228,89 @@ class Meta
 
     public function merge(Meta $meta): Meta
     {
-        if (!$this->getTitle() && $meta->getTitle()) {
-            $this->setTitle($meta->getTitle());
+        $value = $meta->getTitle();
+        if (self::isEmpty($this->getTitle()) && !self::isEmpty($value)) {
+            $this->setTitle($value);
         }
 
-        if (!$this->getDescription() && $meta->getDescription()) {
-            $this->setDescription($meta->getDescription());
+        $value = $meta->getDescription();
+        if (self::isEmpty($this->getDescription()) && !self::isEmpty($value)) {
+            $this->setDescription($value);
         }
 
-        if (empty($this->getAuthors()) && count($meta->getAuthors())) {
+        if ($this->getAuthors() === [] && $meta->getAuthors() !== []) {
             foreach ($meta->getAuthors() as $author) {
                 $this->addAuthor($author);
             }
         }
 
-        if (empty($this->getSections()) && count($meta->getSections())) {
+        if ($this->getSections() === [] && $meta->getSections() !== []) {
             foreach ($meta->getSections() as $section) {
                 $this->addSection($section);
             }
         }
 
-        if (empty($this->getTags()) && count($meta->getTags())) {
+        if ($this->getTags() === [] && $meta->getTags() !== []) {
             foreach ($meta->getTags() as $tag) {
                 $this->addTag($tag);
             }
         }
 
-        if (!$this->getKeywords() && $meta->getKeywords()) {
-            $this->setKeywords($meta->getKeywords());
+        $value = $meta->getKeywords();
+        if (self::isEmpty($this->getKeywords()) && !self::isEmpty($value)) {
+            $this->setKeywords($value);
         }
 
-        if (!$this->getOgType() && $meta->getOgType()) {
-            $this->setOgType($meta->getOgType());
+        $value = $meta->getOgType();
+        if (self::isEmpty($this->getOgType()) && !self::isEmpty($value)) {
+            $this->setOgType($value);
         }
 
-        if (!$this->getOgTitle() && $meta->getOgTitle()) {
-            $this->setOgTitle($meta->getOgTitle());
+        $value = $meta->getOgTitle();
+        if (self::isEmpty($this->getOgTitle()) && !self::isEmpty($value)) {
+            $this->setOgTitle($value);
         }
 
-        if (!$this->getOgDescription() && $meta->getOgDescription()) {
-            $this->setOgDescription($meta->getOgDescription());
+        $value = $meta->getOgDescription();
+        if (self::isEmpty($this->getOgDescription()) && !self::isEmpty($value)) {
+            $this->setOgDescription($value);
         }
 
-        if (!$this->getOgUrl() && $meta->getOgUrl()) {
-            $this->setOgUrl($meta->getOgUrl());
+        $value = $meta->getOgUrl();
+        if (self::isEmpty($this->getOgUrl()) && !self::isEmpty($value)) {
+            $this->setOgUrl($value);
         }
 
-        if (!$this->getOgSiteName() && $meta->getOgSiteName()) {
-            $this->setOgSiteName($meta->getOgSiteName());
+        $value = $meta->getOgSiteName();
+        if (self::isEmpty($this->getOgSiteName()) && !self::isEmpty($value)) {
+            $this->setOgSiteName($value);
         }
 
-        if (!$this->getOgImage() && $meta->getOgImage()) {
-            $this->setOgImage($meta->getOgImage());
+        $value = $meta->getOgImage();
+        if (self::isEmpty($this->getOgImage()) && !self::isEmpty($value)) {
+            $this->setOgImage($value);
         }
 
-        if (!$this->getPublishedTime() && $meta->getPublishedTime()) {
-            $this->setPublishedTime($meta->getPublishedTime());
+        $value = $meta->getPublishedTime();
+        if (self::isEmpty($this->getPublishedTime()) && !self::isEmpty($value)) {
+            $this->setPublishedTime($value);
         }
 
-        if (!$this->getModifiedTime() && $meta->getModifiedTime()) {
-            $this->setModifiedTime($meta->getModifiedTime());
+        $value = $meta->getModifiedTime();
+        if (self::isEmpty($this->getModifiedTime()) && !self::isEmpty($value)) {
+            $this->setModifiedTime($value);
         }
 
         return $this;
+    }
+
+    /**
+     * Mirrors the original loose emptiness check, so '' and '0' count as missing values.
+     *
+     * @phpstan-assert-if-false !null $value
+     */
+    private static function isEmpty(string|DateTime|null $value): bool
+    {
+        return $value === null || $value === '' || $value === '0';
     }
 }

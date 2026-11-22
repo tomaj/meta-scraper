@@ -1,14 +1,12 @@
 # Meta Scraper
 
-[![Build Status](https://travis-ci.org/tomaj/meta-scraper.svg?branch=master)](https://travis-ci.org/tomaj/meta-scraper)
-[![Code Climate](https://codeclimate.com/github/tomaj/meta-scraper/badges/gpa.svg)](https://codeclimate.com/github/tomaj/meta-scraper)
-[![Test Coverage](https://codeclimate.com/github/tomaj/meta-scraper/badges/coverage.svg)](https://codeclimate.com/github/tomaj/meta-scraper/coverage)
-
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/abee19ff-2c5b-443d-ae84-04537b155287/big.png)](https://insight.sensiolabs.com/projects/abee19ff-2c5b-443d-ae84-04537b155287)
+[![CI](https://github.com/tomaj/meta-scraper/actions/workflows/ci.yml/badge.svg)](https://github.com/tomaj/meta-scraper/actions/workflows/ci.yml)
 
 Page meta scraper parse meta information from page.
 
 ## Installation
+
+Requires PHP 8.3 or newer.
 
 via composer:
 

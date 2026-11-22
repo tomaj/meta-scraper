@@ -1,28 +1,35 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
 use GuzzleHttp\Client;
+use Tomaj\Scraper\Parser\ParserInterface;
 
 class Scraper
 {
-    protected $guzzleOptions = [
+    /** @var array<string, mixed> */
+    protected array $guzzleOptions = [
         'connect_timeout' => 5,
         'headers' => [
-            'User-Agent' => 'Tomaj\Scraper'
-        ]
+            'User-Agent' => 'Tomaj\Scraper',
+        ],
     ];
-    
-    private $body;
-    
+
+    private string $body = '';
+
+    /**
+     * @param array<string, mixed> $guzzleOptions
+     */
     public function __construct(array $guzzleOptions = [])
     {
         $this->guzzleOptions = array_merge($this->guzzleOptions, $guzzleOptions);
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\RequestException
+     * @param array<ParserInterface> $parsers
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function parseUrl(string $url, array $parsers): Meta
     {
@@ -34,6 +41,9 @@ class Scraper
         return $this->parse($this->body, $parsers);
     }
 
+    /**
+     * @param array<ParserInterface> $parsers
+     */
     public function parse(string $content, array $parsers): Meta
     {
         $meta = new Meta();

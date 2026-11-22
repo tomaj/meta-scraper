@@ -1,15 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
-use GuzzleHttp\Client;
-
 class Author
 {
-    private $id;
+    private ?string $id;
 
-    private $name;
+    private ?string $name;
 
     public function __construct(?string $id, ?string $name)
     {

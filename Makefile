@@ -2,7 +2,10 @@ vendor/autoload.php:
 	composer install
 
 sniff: vendor/autoload.php
-	vendor/bin/phpcs --standard=PSR2 src -n
+	composer phpcs
+
+phpstan: vendor/autoload.php
+	composer phpstan
 
 test: vendor/autoload.php
-	vendor/bin/phpunit
+	composer test
