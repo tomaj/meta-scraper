@@ -8,13 +8,14 @@ use Tomaj\Scraper\Meta;
 
 class OgDomParser implements ParserInterface
 {
-    /** @var Meta */
-    protected $meta;
+    protected Meta $meta;
 
     /**
-     * @var \string[][]
+     * Allowed attribute values per attribute name, mapped to the Meta setter that receives the content.
+     *
+     * @var array<string, array<string, string>>
      */
-    protected $allowedAttributes;
+    protected array $allowedAttributes = [];
 
     private const ATTRIBUTE_NAME = 'name';
     private const ATTRIBUTE_PROPERTY = 'property';
@@ -24,7 +25,7 @@ class OgDomParser implements ParserInterface
     {
         $this->meta = new Meta();
         if (!extension_loaded('dom') || !extension_loaded('libxml')) {
-            return $this->meta;
+            return;
         }
 
         $this->allowedAttributes = [
@@ -50,7 +51,7 @@ class OgDomParser implements ParserInterface
 
     public function parse(string $content): Meta
     {
-        if (!$content) {
+        if ($content === '') {
             return $this->meta;
         }
 
@@ -61,7 +62,7 @@ class OgDomParser implements ParserInterface
 
         /** @var \DOMElement $titleTag */
         foreach ($dom->getElementsByTagName('title') as $titleTag) {
-            $this->meta->setTitle(htmlspecialchars_decode($titleTag->nodeValue));
+            $this->meta->setTitle(htmlspecialchars_decode($titleTag->nodeValue ?? ''));
             // iterate only over first title tag
             break;
         }
@@ -88,7 +89,7 @@ class OgDomParser implements ParserInterface
 
         $attributeValue    = $metaTag->getAttribute($attributeName);
         $allowedAttributes = $this->allowedAttributes[$attributeName] ?? [];
-        if (!in_array($attributeValue, array_keys($allowedAttributes))) {
+        if (!array_key_exists($attributeValue, $allowedAttributes)) {
             return;
         }
 
@@ -96,20 +97,26 @@ class OgDomParser implements ParserInterface
             return;
         }
 
-        call_user_func(
-            [$this->meta, $allowedAttributes[$attributeValue]],
-            htmlspecialchars_decode($metaTag->getAttribute(self::ATTRIBUTE_CONTENT))
-        );
-    }
-
-    protected function fixMetaTag(\DOMElement &$metaTag, array $allowedAttributeNames): void
-    {
-        if (!$metaTag->attributes->length) {
+        $setter = [$this->meta, $allowedAttributes[$attributeValue]];
+        if (!is_callable($setter)) {
             return;
         }
 
-        foreach ($metaTag->attributes as $name => $attributeNode) {
-            if (!in_array($name, $allowedAttributeNames)) {
+        $setter(htmlspecialchars_decode($metaTag->getAttribute(self::ATTRIBUTE_CONTENT)));
+    }
+
+    /**
+     * @param list<string> $allowedAttributeNames
+     */
+    protected function fixMetaTag(\DOMElement &$metaTag, array $allowedAttributeNames): void
+    {
+        if ($metaTag->attributes->length === 0) {
+            return;
+        }
+
+        foreach ($metaTag->attributes as $attributeNode) {
+            $name = $attributeNode->nodeName;
+            if (!in_array($name, $allowedAttributeNames, true)) {
                 continue;
             }
 
@@ -118,7 +125,7 @@ class OgDomParser implements ParserInterface
             if ($lowerCaseValue === $value) {
                 continue;
             }
-            if (!in_array($lowerCaseValue, array_keys($this->allowedAttributes[$name]))) {
+            if (!array_key_exists($lowerCaseValue, $this->allowedAttributes[$name] ?? [])) {
                 continue;
             }
 
