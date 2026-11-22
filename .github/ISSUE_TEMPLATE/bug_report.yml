@@ -1,0 +1,102 @@
+name: Bug report
+description: Report a defect or unexpected behaviour in meta-scraper
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        If this is a security vulnerability, do not continue. Report it privately at https://github.com/tomaj/meta-scraper/security/advisories/new (see SECURITY.md).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What went wrong?
+      placeholder: The parser returns the wrong title when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: html
+    attributes:
+      label: HTML input
+      description: The smallest HTML snippet (or a public URL) that shows the problem.
+      render: html
+      placeholder: |
+        <html><head><meta property="og:title" content="..."></head></html>
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code sample
+      description: How you call meta-scraper.
+      render: php
+      placeholder: |
+        $meta = (new Scraper())->parse($html, [new OgDomParser()]);
+        echo $meta->getOgTitle();
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What happened instead? Include the exception message if there is one.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: meta-scraper version
+      description: The version from composer, for example 4.3.0.
+      placeholder: "4.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: Output of `php -v`.
+      placeholder: "8.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: parser
+    attributes:
+      label: Parser
+      description: Which parser is involved?
+      options:
+        - OgParser
+        - OgDomParser
+        - SchemaParser
+        - Scraper::parseUrl() / fetching
+        - Custom parser
+        - Not parser-specific
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
+        - label: This is not a security vulnerability
+          required: true

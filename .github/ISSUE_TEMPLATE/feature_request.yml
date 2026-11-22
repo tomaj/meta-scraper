@@ -1,0 +1,54 @@
+name: Feature request
+description: Suggest an improvement to meta-scraper
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. meta-scraper extracts metadata from HTML pages; breaking ideas wait for the next major version.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is difficult or missing today?
+      placeholder: Pages that publish their metadata as ... are not parsed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should meta-scraper behave? Include sample HTML if it is about parsing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: What else did you consider, including a custom ParserInterface implementation?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: compatibility
+    attributes:
+      label: Compatibility
+      description: Can this land without a breaking change?
+      options:
+        - Yes, it can ship in a minor version
+        - No, it needs a new major version
+        - Not sure
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
