@@ -1,0 +1,48 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "logs": {
+        "text": "build/infection.log",
+        "html": "build/infection.html",
+        "summary": "build/infection-summary.log",
+        "json": "build/infection.json"
+    },
+    "mutators": {
+        "@default": true,
+        // ext-dom and ext-libxml are always loaded where the tests run, so the check that throws without them cannot fail
+        "ArrayItemRemoval": {
+            "ignore": [
+                "Tomaj\\Scraper\\Parser\\OgDomParser::__construct"
+            ]
+        },
+        "Foreach_": {
+            "ignore": [
+                "Tomaj\\Scraper\\Parser\\OgDomParser::__construct"
+            ]
+        },
+        // parsing '' without the early return also gives an empty Meta; the return only skips the DOM work
+        "ReturnRemoval": {
+            "ignore": [
+                "Tomaj\\Scraper\\Parser\\OgDomParser::parse",
+                // a declared charset also wins over the UTF-8 prefix in the libxml versions the tests run on;
+                // the check keeps such documents untouched for libxml versions where it does not
+                "Tomaj\\Scraper\\Parser\\OgDomParser::withEncoding"
+            ]
+        },
+        // same reason: an upper-case <META CHARSET> that is not detected is still honoured by libxml
+        "PregMatchRemoveFlags": {
+            "ignore": [
+                "Tomaj\\Scraper\\Parser\\OgDomParser::withEncoding"
+            ]
+        }
+    },
+    "minMsi": 95,
+    "minCoveredMsi": 95,
+    "phpUnit": {
+        "configDir": "."
+    }
+}
