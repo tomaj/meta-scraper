@@ -4,7 +4,7 @@ This file lists the changes in 5.0 that may need work in your application. The f
 
 Checklist:
 
-- PHP 8.4 and Guzzle 7.9 or 8: [Requirements](#requirements).
+- PHP 8.4 and Guzzle 7.15.2+ or 8: [Requirements](#requirements).
 - `parseUrl()` throws `FetchException` instead of Guzzle exceptions: [Exceptions](#parseurl-throws-fetchexception).
 - Classes are `final`, value objects are `readonly`, `protected` members are gone: [Final classes](#classes-are-final).
 - `Scraper` options are typed; options outside the documented list go into your own Guzzle client: [Scraper options](#scraper-options-and-your-own-guzzle-client).
@@ -14,7 +14,7 @@ Checklist:
 ## Requirements
 
 - PHP 8.4 or newer (4.x ran on PHP 7.1+).
-- `guzzlehttp/guzzle` `^7.9 || ^8.0`. Guzzle 6 is no longer supported.
+- `guzzlehttp/guzzle` `^7.15.2 || ^8.0.1`. Guzzle 6 is no longer supported; older Guzzle 7 releases have published security advisories.
 
 ## `parseUrl()` throws `FetchException`
 
