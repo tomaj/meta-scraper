@@ -10,6 +10,7 @@ parameters:
     paths:
         - src
         - tests
+        - docs/snippets
     checkMissingOverrideMethodAttribute: true
     checkUninitializedProperties: true
     reportUnmatchedIgnoredErrors: true
