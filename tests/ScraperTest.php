@@ -355,4 +355,37 @@ class ScraperTest extends TestCase
         self::assertEmpty($meta->getPublishedTime());
         self::assertEmpty($meta->getModifiedTime());
     }
+
+    public function testSchemaParserSingleAuthorObject(): void
+    {
+        $data = '<script id="schema" type="application/ld+json">{"author":{"@type":"Person","@id":"a1","name":"Jana"},"about":{"@id":5,"name":"T"}}</script>';
+
+        $meta = (new Scraper())->parse($data, [new SchemaParser()]);
+
+        self::assertEquals([new Author('a1', 'Jana')], $meta->getAuthors());
+        self::assertEquals([new Tag('5', 'T')], $meta->getTags());
+    }
+
+    public function testSchemaParserUnexpectedTypes(): void
+    {
+        $data = '<script id="schema" type="application/ld+json">{"author":["A","B"],"headline":123,"description":["x"],"articleSection":["S",7],"about":[],"image":"https://i/y.jpg","url":{"x":1}}</script>';
+
+        $meta = (new Scraper())->parse($data, [new SchemaParser()]);
+
+        self::assertEquals([new Author(null, 'A'), new Author(null, 'B')], $meta->getAuthors());
+        self::assertSame('123', $meta->getTitle());
+        self::assertNull($meta->getDescription());
+        self::assertEquals([new Section(null, 'S'), new Section(null, '7')], $meta->getSections());
+        self::assertSame([], $meta->getTags());
+        self::assertNull($meta->getOgImage());
+        self::assertNull($meta->getOgUrl());
+    }
+
+    public function testSchemaParserIgnoresInvalidJson(): void
+    {
+        $meta = (new Scraper())->parse('<script id="schema" type="application/ld+json">{headline:</script>', [new SchemaParser()]);
+
+        self::assertNull($meta->getTitle());
+        self::assertSame([], $meta->getAuthors());
+    }
 }
