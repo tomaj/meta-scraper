@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tomaj\Scraper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Tomaj\Scraper\Parser\ParserInterface;
 
 class Scraper
@@ -29,7 +30,7 @@ class Scraper
 
     /**
      * @param array<ParserInterface> $parsers
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function parseUrl(string $url, array $parsers): Meta
     {

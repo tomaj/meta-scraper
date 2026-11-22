@@ -10,6 +10,7 @@ use Tomaj\Scraper\Section;
 
 class OgParser implements ParserInterface
 {
+    #[\Override]
     public function parse(string $content): Meta
     {
         $meta = new Meta();

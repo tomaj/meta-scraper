@@ -36,20 +36,20 @@ class ScraperTest extends TestCase
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [new OgParser()]);
 
-        self::assertEquals('Page title', $meta->getTitle());
-        self::assertEquals('Default page description', $meta->getDescription());
+        self::assertSame('Page title', $meta->getTitle());
+        self::assertSame('Default page description', $meta->getDescription());
         self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
 
-        self::assertEquals('article', $meta->getOgType());
-        self::assertEquals('Silny popis', $meta->getOgDescription());
-        self::assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertEquals('Mega site name', $meta->getOgSiteName());
-        self::assertEquals('Og title nadpis', $meta->getOgTitle());
-        self::assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        self::assertSame('article', $meta->getOgType());
+        self::assertSame('Silny popis', $meta->getOgDescription());
+        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
+        self::assertSame('Mega site name', $meta->getOgSiteName());
+        self::assertSame('Og title nadpis', $meta->getOgTitle());
+        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
         self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
         self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
     }
 
     public function testEmpty(): void
@@ -61,13 +61,13 @@ class ScraperTest extends TestCase
         ]);
         self::assertNull($meta->getTitle());
         self::assertNull($meta->getDescription());
-        self::assertEmpty($meta->getAuthors());
+        self::assertCount(0, $meta->getAuthors());
         self::assertNull($meta->getOgType());
         self::assertNull($meta->getOgDescription());
         self::assertNull($meta->getOgUrl());
         self::assertNull($meta->getOgSiteName());
         self::assertNull($meta->getOgImage());
-        self::assertEmpty($meta->getSections());
+        self::assertCount(0, $meta->getSections());
     }
 
     public function testMoreAttributes(): void
@@ -90,18 +90,18 @@ class ScraperTest extends TestCase
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [new OgParser()]);
 
-        self::assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
+        self::assertSame('Spanish Court Blocks Election of Separatist Ex-Catalan Chief - The New York Times', $meta->getTitle());
 
 
-        self::assertEquals("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court.", $meta->getDescription());
+        self::assertSame("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court.", $meta->getDescription());
 
-        self::assertEquals("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court. OG", $meta->getOgDescription());
+        self::assertSame("Plans by Catalan separatists to re-elect their region's former president in absentia were blocked Wednesday by Spain's Constitutional Court. OG", $meta->getOgDescription());
 
-        self::assertEquals('https://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html', $meta->getOgUrl());
+        self::assertSame('https://www.nytimes.com/aponline/2018/05/09/world/europe/ap-eu-spain-catalonia.html', $meta->getOgUrl());
 
-        self::assertEquals('Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG', $meta->getOgTitle());
+        self::assertSame('Spanish Court Blocks Election of Separatist Ex-Catalan Chief OG', $meta->getOgTitle());
 
-        self::assertEquals('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
+        self::assertSame('https://static01.nyt.com/images/icons/t_logo_291_black.png', $meta->getOgImage());
     }
 
     public function testNonStandardAttributes(): void
@@ -112,10 +112,10 @@ class ScraperTest extends TestCase
 
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [new OgParser()]);
-        self::assertEquals('website', $meta->getOgType());
-        self::assertEquals('Description for TestSite', $meta->getOgDescription());
-        self::assertEquals('https://testsite.com/', $meta->getOgUrl());
-        self::assertEquals('https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc', $meta->getOgImage());
+        self::assertSame('website', $meta->getOgType());
+        self::assertSame('Description for TestSite', $meta->getOgDescription());
+        self::assertSame('https://testsite.com/', $meta->getOgUrl());
+        self::assertSame('https://testsite.com/static/cloud/img/splash_600x315_1.png?_=7f9e1cc', $meta->getOgImage());
     }
 
     public function testSchemaParser(): void
@@ -129,19 +129,19 @@ class ScraperTest extends TestCase
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [new SchemaParser()]);
 
-        self::assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
+        self::assertSame('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
 
-        self::assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
+        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
 
         self::assertEquals(null, $meta->getOgDescription());
 
-        self::assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
+        self::assertSame('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
 
         self::assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
 
         self::assertEquals(null, $meta->getOgTitle());
 
-        self::assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
+        self::assertSame('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
         self::assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
 
@@ -205,19 +205,19 @@ class ScraperTest extends TestCase
             new OgParser(),
         ]);
 
-        self::assertEquals('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
+        self::assertSame('Veľa pohybu a málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia', $meta->getTitle());
 
-        self::assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
+        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie?', $meta->getDescription());
 
-        self::assertEquals('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG', $meta->getOgDescription());
+        self::assertSame('Čo spája miesta na Zemi, kde ľudia žijú najdlhšie? OG', $meta->getOgDescription());
 
-        self::assertEquals('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
+        self::assertSame('https://dennikn.sk/1325802/vela-pohybu-a-malo-masa-pat-miest-kde-ludia-ziju-najdlhsie-ohrozuje-westernizacia/', $meta->getOgUrl());
 
         self::assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
 
-        self::assertEquals('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
+        self::assertSame('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
 
-        self::assertEquals('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
+        self::assertSame('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 
         self::assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
 
@@ -247,18 +247,18 @@ class ScraperTest extends TestCase
         $scraper = new Scraper();
         $meta = $scraper->parse($data, [new OgParser()]);
 
-        self::assertEquals('Default page description', $meta->getDescription());
+        self::assertSame('Default page description', $meta->getDescription());
         self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
-        self::assertEquals('article', $meta->getOgType());
-        self::assertEquals('Silny popis', $meta->getOgDescription());
-        self::assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertEquals('Mega site name', $meta->getOgSiteName());
-        self::assertEquals('Og title nadpis', $meta->getOgTitle());
-        self::assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        self::assertSame('article', $meta->getOgType());
+        self::assertSame('Silny popis', $meta->getOgDescription());
+        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
+        self::assertSame('Mega site name', $meta->getOgSiteName());
+        self::assertSame('Og title nadpis', $meta->getOgTitle());
+        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
         self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
         self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
-        self::assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
     }
 
     public function testOgDomParser(): void
@@ -279,20 +279,20 @@ class ScraperTest extends TestCase
                         <meta property="article:modified_time" content="2016-11-13T13:21:42+00:00" />
             EOT;
 
-        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
+        $meta = new Scraper()->parse($data, [new OgDomParser()]);
 
-        self::assertEquals('Page title', $meta->getTitle());
+        self::assertSame('Page title', $meta->getTitle());
 
-        self::assertEquals('Default page description', $meta->getDescription());
-        self::assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        self::assertSame('Default page description', $meta->getDescription());
+        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
         self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
 
-        self::assertEquals('article', $meta->getOgType());
-        self::assertEquals('Silny popis', $meta->getOgDescription());
-        self::assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertEquals('Mega site name', $meta->getOgSiteName());
-        self::assertEquals('Og title nadpis', $meta->getOgTitle());
-        self::assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        self::assertSame('article', $meta->getOgType());
+        self::assertSame('Silny popis', $meta->getOgDescription());
+        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
+        self::assertSame('Mega site name', $meta->getOgSiteName());
+        self::assertSame('Og title nadpis', $meta->getOgTitle());
+        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
         self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
         self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
@@ -316,20 +316,20 @@ class ScraperTest extends TestCase
                         <meta content="2016-11-13T13:21:42+00:00" property="article:modified_time" />
             EOT;
 
-        $meta = (new Scraper())->parse($data, [new OgDomParser()]);
+        $meta = new Scraper()->parse($data, [new OgDomParser()]);
 
-        self::assertEquals('Page title', $meta->getTitle());
+        self::assertSame('Page title', $meta->getTitle());
 
-        self::assertEquals('Default page description', $meta->getDescription());
-        self::assertEquals('Keyword1,Keyword2', $meta->getKeywords());
+        self::assertSame('Default page description', $meta->getDescription());
+        self::assertSame('Keyword1,Keyword2', $meta->getKeywords());
         self::assertEquals([new Author(null, 'Jozko Pucik')], $meta->getAuthors());
 
-        self::assertEquals('article', $meta->getOgType());
-        self::assertEquals('Silny popis', $meta->getOgDescription());
-        self::assertEquals('https://web.sk/stranka.html', $meta->getOgUrl());
-        self::assertEquals('Mega site name', $meta->getOgSiteName());
-        self::assertEquals('Og title nadpis', $meta->getOgTitle());
-        self::assertEquals('https://obrazok.jpg', $meta->getOgImage());
+        self::assertSame('article', $meta->getOgType());
+        self::assertSame('Silny popis', $meta->getOgDescription());
+        self::assertSame('https://web.sk/stranka.html', $meta->getOgUrl());
+        self::assertSame('Mega site name', $meta->getOgSiteName());
+        self::assertSame('Og title nadpis', $meta->getOgTitle());
+        self::assertSame('https://obrazok.jpg', $meta->getOgImage());
         self::assertEquals([new Section(null, 'Ekonomika')], $meta->getSections());
         self::assertEquals('12.10.2015 12:40:27', $meta->getPublishedTime()?->format('d.m.Y H:i:s'));
         self::assertEquals('13.11.2016 13:21:42', $meta->getModifiedTime()?->format('d.m.Y H:i:s'));
@@ -337,13 +337,13 @@ class ScraperTest extends TestCase
 
     public function testEmptyOgDomParser(): void
     {
-        $meta = (new Scraper())->parse('empty ', [new OgDomParser()]);
+        $meta = new Scraper()->parse('empty ', [new OgDomParser()]);
 
         self::assertNull($meta->getTitle());
 
         self::assertNull($meta->getDescription());
         self::assertNull($meta->getKeywords());
-        self::assertEmpty($meta->getAuthors());
+        self::assertCount(0, $meta->getAuthors());
 
         self::assertNull($meta->getOgType());
         self::assertNull($meta->getOgDescription());
@@ -351,16 +351,16 @@ class ScraperTest extends TestCase
         self::assertNull($meta->getOgSiteName());
         self::assertNull($meta->getOgTitle());
         self::assertNull($meta->getOgImage());
-        self::assertEmpty($meta->getSections());
-        self::assertEmpty($meta->getPublishedTime());
-        self::assertEmpty($meta->getModifiedTime());
+        self::assertCount(0, $meta->getSections());
+        self::assertNull($meta->getPublishedTime());
+        self::assertNull($meta->getModifiedTime());
     }
 
     public function testSchemaParserSingleAuthorObject(): void
     {
         $data = '<script id="schema" type="application/ld+json">{"author":{"@type":"Person","@id":"a1","name":"Jana"},"about":{"@id":5,"name":"T"}}</script>';
 
-        $meta = (new Scraper())->parse($data, [new SchemaParser()]);
+        $meta = new Scraper()->parse($data, [new SchemaParser()]);
 
         self::assertEquals([new Author('a1', 'Jana')], $meta->getAuthors());
         self::assertEquals([new Tag('5', 'T')], $meta->getTags());
@@ -370,7 +370,7 @@ class ScraperTest extends TestCase
     {
         $data = '<script id="schema" type="application/ld+json">{"author":["A","B"],"headline":123,"description":["x"],"articleSection":["S",7],"about":[],"image":"https://i/y.jpg","url":{"x":1}}</script>';
 
-        $meta = (new Scraper())->parse($data, [new SchemaParser()]);
+        $meta = new Scraper()->parse($data, [new SchemaParser()]);
 
         self::assertEquals([new Author(null, 'A'), new Author(null, 'B')], $meta->getAuthors());
         self::assertSame('123', $meta->getTitle());
@@ -383,7 +383,7 @@ class ScraperTest extends TestCase
 
     public function testSchemaParserIgnoresInvalidJson(): void
     {
-        $meta = (new Scraper())->parse('<script id="schema" type="application/ld+json">{headline:</script>', [new SchemaParser()]);
+        $meta = new Scraper()->parse('<script id="schema" type="application/ld+json">{headline:</script>', [new SchemaParser()]);
 
         self::assertNull($meta->getTitle());
         self::assertSame([], $meta->getAuthors());

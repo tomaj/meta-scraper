@@ -11,6 +11,7 @@ use Tomaj\Scraper\Tag;
 
 class SchemaParser implements ParserInterface
 {
+    #[\Override]
     public function parse(string $content): Meta
     {
         $meta = new Meta();
@@ -28,11 +29,11 @@ class SchemaParser implements ParserInterface
         }
 
         // author
-        foreach (self::listOf($schema['author'] ?? null) as $author) {
+        foreach ($this->listOf($schema['author'] ?? null) as $author) {
             if (is_array($author)) {
-                $meta->addAuthor(new Author(self::stringOrNull($author['@id'] ?? null), self::stringOrNull($author['name'] ?? null)));
+                $meta->addAuthor(new Author($this->stringOrNull($author['@id'] ?? null), $this->stringOrNull($author['name'] ?? null)));
             } else {
-                $meta->addAuthor(new Author(null, self::stringOrNull($author)));
+                $meta->addAuthor(new Author(null, $this->stringOrNull($author)));
             }
         }
 
@@ -40,49 +41,49 @@ class SchemaParser implements ParserInterface
         if (isset($schema['articleTerms']) && is_array($schema['articleTerms'])) {
             foreach ($schema['articleTerms'] as $articleTerm) {
                 if (is_array($articleTerm) && ($articleTerm['@type'] ?? null) === 'Category') {
-                    $meta->addSection(new Section(self::stringOrNull($articleTerm['@id'] ?? null), self::stringOrNull($articleTerm['name'] ?? null)));
+                    $meta->addSection(new Section($this->stringOrNull($articleTerm['@id'] ?? null), $this->stringOrNull($articleTerm['name'] ?? null)));
                 }
             }
         } else {
-            foreach (self::listOf($schema['articleSection'] ?? null) as $section) {
-                $meta->addSection(new Section(null, self::stringOrNull($section)));
+            foreach ($this->listOf($schema['articleSection'] ?? null) as $section) {
+                $meta->addSection(new Section(null, $this->stringOrNull($section)));
             }
         }
 
         // tags
-        foreach (self::listOf($schema['about'] ?? null) as $about) {
+        foreach ($this->listOf($schema['about'] ?? null) as $about) {
             if (is_array($about)) {
-                $meta->addTag(new Tag(self::stringOrNull($about['@id'] ?? null), self::stringOrNull($about['name'] ?? null)));
+                $meta->addTag(new Tag($this->stringOrNull($about['@id'] ?? null), $this->stringOrNull($about['name'] ?? null)));
             }
         }
 
-        $headline = self::stringOrNull($schema['headline'] ?? null);
+        $headline = $this->stringOrNull($schema['headline'] ?? null);
         if ($headline !== null) {
             $meta->setTitle($headline);
         }
 
-        $description = self::stringOrNull($schema['description'] ?? null);
+        $description = $this->stringOrNull($schema['description'] ?? null);
         if ($description !== null) {
             $meta->setDescription($description);
         }
 
         $image = $schema['image'] ?? null;
-        $imageUrl = is_array($image) ? self::stringOrNull($image['url'] ?? null) : null;
+        $imageUrl = is_array($image) ? $this->stringOrNull($image['url'] ?? null) : null;
         if ($imageUrl !== null) {
             $meta->setOgImage($imageUrl);
         }
 
-        $url = self::stringOrNull($schema['url'] ?? null);
+        $url = $this->stringOrNull($schema['url'] ?? null);
         if ($url !== null) {
             $meta->setOgUrl($url);
         }
 
-        $datePublished = self::stringOrNull($schema['datePublished'] ?? null);
+        $datePublished = $this->stringOrNull($schema['datePublished'] ?? null);
         if ($datePublished !== null) {
             $meta->setPublishedTime($datePublished);
         }
 
-        $dateModified = self::stringOrNull($schema['dateModified'] ?? null);
+        $dateModified = $this->stringOrNull($schema['dateModified'] ?? null);
         if ($dateModified !== null) {
             $meta->setModifiedTime($dateModified);
         }
@@ -95,7 +96,7 @@ class SchemaParser implements ParserInterface
      *
      * @return list<mixed>
      */
-    private static function listOf(mixed $value): array
+    private function listOf(mixed $value): array
     {
         if ($value === null) {
             return [];
@@ -107,7 +108,7 @@ class SchemaParser implements ParserInterface
         return [$value];
     }
 
-    private static function stringOrNull(mixed $value): ?string
+    private function stringOrNull(mixed $value): ?string
     {
         if (is_string($value)) {
             return $value;

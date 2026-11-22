@@ -4,15 +4,20 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+### Added
+- `LICENSE.md` (MIT), `SECURITY.md` with the supported versions and a note on fetching untrusted URLs, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `RELEASING.md` ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
+
 ### Changed
-- **BREAKING CHANGE**: PHP 8.3 or newer is required (was PHP 7.1) ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
+- **BREAKING CHANGE**: PHP 8.4 or newer is required (was PHP 7.1) ([#10](https://github.com/tomaj/meta-scraper/pull/10), [#16](https://github.com/tomaj/meta-scraper/issues/16)).
 - **BREAKING CHANGE**: `guzzlehttp/guzzle` 6 is no longer supported, `^7.9` is required ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - **BREAKING CHANGE**: properties are typed and `Meta::setPublishedTime()` / `Meta::setModifiedTime()` accept `DateTime|string` (`setModifiedTime()` now declares the `Meta` return type). Subclasses overriding these members must be updated ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - `SchemaParser` ignores schema values of unexpected types instead of failing (a TypeError before), accepts a single `author` object (it used to produce one empty author per key), authors given as plain strings, and numeric `@id` values everywhere; an empty `about` list no longer adds an empty tag ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - A published/modified time of exactly `1970-01-01T00:00:00Z` is no longer ignored ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
 - Parsers decode `&#039;` / `&#x27;` to `'`: since PHP 8.1 `htmlspecialchars_decode()` decodes single quotes by default, so this differs from running 1.x on PHP 7 ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
-- CI moved from Travis CI to GitHub Actions (PHP 8.3 - 8.6, nightly 8.7), with PHP CS Fixer, PHPStan (level max) and `composer audit` ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
-- PHPUnit 12; `codeclimate/php-test-reporter` and PHP_CodeSniffer removed in favour of PHP CS Fixer ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
+- CI moved from Travis CI to GitHub Actions (PHP 8.4 - 8.6, nightly 8.7), with PHP CS Fixer, PHPStan (level max) and `composer audit` ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
+- The Composer dist archive contains only the library (`src/`, `composer.json`, README, LICENSE, CHANGELOG and UPGRADE files); tests and tool configuration are export-ignored ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
+- PHPUnit 13; `codeclimate/php-test-reporter` and PHP_CodeSniffer removed in favour of PHP CS Fixer ([#10](https://github.com/tomaj/meta-scraper/pull/10)).
+- Development tooling at the shared baseline: PHPStan with bleedingEdge and deprecation rules, Rector, Infection, and the `rector`, `rector-fix`, `coverage` and `infection` composer scripts ([#15](https://github.com/tomaj/meta-scraper/issues/15)).
 
 ## [4.3.0] - 2020-11-23
 

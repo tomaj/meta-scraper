@@ -1,5 +1,7 @@
 includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
 
@@ -8,3 +10,6 @@ parameters:
     paths:
         - src
         - tests
+    checkMissingOverrideMethodAttribute: true
+    checkUninitializedProperties: true
+    reportUnmatchedIgnoredErrors: true

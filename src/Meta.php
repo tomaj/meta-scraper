@@ -229,12 +229,12 @@ class Meta
     public function merge(Meta $meta): Meta
     {
         $value = $meta->getTitle();
-        if (self::isEmpty($this->getTitle()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getTitle()) && !$this->isEmpty($value)) {
             $this->setTitle($value);
         }
 
         $value = $meta->getDescription();
-        if (self::isEmpty($this->getDescription()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getDescription()) && !$this->isEmpty($value)) {
             $this->setDescription($value);
         }
 
@@ -257,47 +257,47 @@ class Meta
         }
 
         $value = $meta->getKeywords();
-        if (self::isEmpty($this->getKeywords()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getKeywords()) && !$this->isEmpty($value)) {
             $this->setKeywords($value);
         }
 
         $value = $meta->getOgType();
-        if (self::isEmpty($this->getOgType()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgType()) && !$this->isEmpty($value)) {
             $this->setOgType($value);
         }
 
         $value = $meta->getOgTitle();
-        if (self::isEmpty($this->getOgTitle()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgTitle()) && !$this->isEmpty($value)) {
             $this->setOgTitle($value);
         }
 
         $value = $meta->getOgDescription();
-        if (self::isEmpty($this->getOgDescription()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgDescription()) && !$this->isEmpty($value)) {
             $this->setOgDescription($value);
         }
 
         $value = $meta->getOgUrl();
-        if (self::isEmpty($this->getOgUrl()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgUrl()) && !$this->isEmpty($value)) {
             $this->setOgUrl($value);
         }
 
         $value = $meta->getOgSiteName();
-        if (self::isEmpty($this->getOgSiteName()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgSiteName()) && !$this->isEmpty($value)) {
             $this->setOgSiteName($value);
         }
 
         $value = $meta->getOgImage();
-        if (self::isEmpty($this->getOgImage()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getOgImage()) && !$this->isEmpty($value)) {
             $this->setOgImage($value);
         }
 
         $value = $meta->getPublishedTime();
-        if (self::isEmpty($this->getPublishedTime()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getPublishedTime()) && !$this->isEmpty($value)) {
             $this->setPublishedTime($value);
         }
 
         $value = $meta->getModifiedTime();
-        if (self::isEmpty($this->getModifiedTime()) && !self::isEmpty($value)) {
+        if ($this->isEmpty($this->getModifiedTime()) && !$this->isEmpty($value)) {
             $this->setModifiedTime($value);
         }
 
@@ -309,8 +309,8 @@ class Meta
      *
      * @phpstan-assert-if-false !null $value
      */
-    private static function isEmpty(string|DateTime|null $value): bool
+    private function isEmpty(string|DateTime|null $value): bool
     {
-        return $value === null || $value === '' || $value === '0';
+        return in_array($value, [null, '', '0'], true);
     }
 }

@@ -1,11 +1,16 @@
 {
     "name": "tomaj/meta-scraper",
-    "description": "Page meta scraper library",
+    "description": "Extracts title, description, Open Graph and schema.org JSON-LD metadata from HTML pages.",
     "license": "MIT",
+    "type": "library",
     "keywords": [
-        "page",
-        "sraper",
-        "meta"
+        "scraper",
+        "meta",
+        "meta-tags",
+        "open-graph",
+        "schema-org",
+        "json-ld",
+        "html"
     ],
     "authors": [
         {
@@ -14,25 +19,32 @@
             "homepage": "http://www.tomaj.sk/"
         }
     ],
+    "homepage": "https://tomaj.github.io/meta-scraper/",
     "support": {
         "issues": "https://github.com/tomaj/meta-scraper/issues",
-        "source": "https://github.com/tomaj/meta-scraper"
+        "source": "https://github.com/tomaj/meta-scraper",
+        "docs": "https://tomaj.github.io/meta-scraper/",
+        "security": "https://github.com/tomaj/meta-scraper/security/policy"
     },
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "guzzlehttp/guzzle": "^7.9"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.90",
+        "infection/infection": "^0.35",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^13.2",
+        "rector/rector": "^2.8"
     },
     "suggest": {
         "ext-dom": "Required for Tomaj\\Scraper\\Parser\\OgDomParser",
         "ext-libxml": "Required for Tomaj\\Scraper\\Parser\\OgDomParser"
     },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.90",
-        "phpstan/phpstan": "^2.3",
-        "phpstan/phpstan-phpunit": "^2.1",
-        "phpstan/phpstan-strict-rules": "^2.1",
-        "phpunit/phpunit": "^12.5"
-    },
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Tomaj\\Scraper\\": "src"
@@ -43,22 +55,48 @@
             "Tomaj\\Scraper\\Test\\": "tests"
         }
     },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true
+        },
+        "sort-packages": true
+    },
     "scripts": {
         "check": [
             "@phpcs",
             "@phpstan",
+            "@rector",
             "@test"
         ],
+        "coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
+        ],
         "cs-fix": "php-cs-fixer fix",
+        "infection": [
+            "@putenv XDEBUG_MODE=coverage",
+            "infection --threads=max"
+        ],
         "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
         "phpstan": "phpstan analyse --memory-limit=1G",
         "phpunit": [
             "@putenv XDEBUG_MODE=off",
             "phpunit --no-coverage"
         ],
+        "rector": "rector --dry-run",
+        "rector-fix": "rector",
         "test": "@phpunit"
     },
-    "config": {
-        "sort-packages": true
+    "scripts-descriptions": {
+        "check": "Runs code style, PHPStan, Rector and the tests.",
+        "coverage": "Runs the tests with Xdebug coverage (Clover in build/logs, HTML in build/coverage).",
+        "cs-fix": "Fixes the code style with PHP-CS-Fixer.",
+        "infection": "Runs Infection mutation testing.",
+        "phpcs": "Checks the code style with PHP-CS-Fixer (dry run).",
+        "phpstan": "Runs PHPStan static analysis.",
+        "phpunit": "Runs the PHPUnit tests without coverage.",
+        "rector": "Shows the changes Rector would make (dry run).",
+        "rector-fix": "Applies Rector changes.",
+        "test": "Runs the PHPUnit tests."
     }
 }

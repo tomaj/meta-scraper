@@ -17,9 +17,9 @@ class OgDomParser implements ParserInterface
      */
     protected array $allowedAttributes = [];
 
-    private const ATTRIBUTE_NAME = 'name';
-    private const ATTRIBUTE_PROPERTY = 'property';
-    private const ATTRIBUTE_CONTENT = 'content';
+    private const string ATTRIBUTE_NAME = 'name';
+    private const string ATTRIBUTE_PROPERTY = 'property';
+    private const string ATTRIBUTE_CONTENT = 'content';
 
     public function __construct()
     {
@@ -49,6 +49,7 @@ class OgDomParser implements ParserInterface
     }
 
 
+    #[\Override]
     public function parse(string $content): Meta
     {
         if ($content === '') {
@@ -77,10 +78,6 @@ class OgDomParser implements ParserInterface
         return $this->meta;
     }
 
-    /**
-     * @param \DOMElement $metaTag
-     * @param string      $attributeName
-     */
     protected function processMetaTag(\DOMElement $metaTag, string $attributeName): void
     {
         if (!$metaTag->hasAttribute($attributeName)) {
