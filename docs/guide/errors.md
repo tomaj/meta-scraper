@@ -117,7 +117,7 @@ The parsers return what they could read and leave the rest `null`:
 | a page in another charset | `OgDomParser` decodes a declared charset, the other parsers return the raw bytes |
 
 ```php
-$meta = $scraper->parse('<title>Broken <b>page</title><script type="application/ld+json">{oops</script>', $parsers);
+$meta = $scraper->parse('<TITLE>Broken page</TITLE><div><p>unclosed<script type="application/ld+json">{oops</script>', $parsers);
 var_dump($meta->getTitle(), $meta->getAuthors());
 ```
 
