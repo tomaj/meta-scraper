@@ -6,6 +6,8 @@ import type { HeadConfig, PageData } from 'vitepress'
 const base = process.env.DOCS_BASE || '/meta-scraper/'
 export const siteUrl = `https://tomaj.github.io${base}`
 const ogImage = `${siteUrl}og.png`
+// Slovak pages get the social card with the Slovak tagline.
+const ogImageSk = `${siteUrl}og-sk.png`
 const siteName = 'Meta Scraper'
 const repoUrl = 'https://github.com/tomaj/meta-scraper'
 
@@ -94,6 +96,7 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
   const url = pageUrl(page.relativePath)
   const locale = localeOf(page.relativePath)
   const sk = locale.prefix === 'sk/'
+  const image = sk ? ogImageSk : ogImage
   const isHome = page.frontmatter.layout === 'home'
   const homeTitle = sk ? 'Meta Scraper – Open Graph a JSON-LD metadáta pre PHP' : 'Meta Scraper – Open Graph and JSON-LD metadata for PHP'
   const title = isHome ? homeTitle : `${page.title} | ${siteName}`
@@ -110,14 +113,14 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
     ['meta', { property: 'og:title', content: title }],
     ['meta', { property: 'og:description', content: description }],
     ['meta', { property: 'og:url', content: url }],
-    ['meta', { property: 'og:image', content: ogImage }],
+    ['meta', { property: 'og:image', content: image }],
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
     ['meta', { property: 'og:image:alt', content: sk ? 'Meta Scraper: HTML stránka prejde parsermi a stane sa z nej jeden objekt Meta' : 'Meta Scraper: an HTML page goes through parsers and becomes one Meta object' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: title }],
     ['meta', { name: 'twitter:description', content: description }],
-    ['meta', { name: 'twitter:image', content: ogImage }],
+    ['meta', { name: 'twitter:image', content: image }],
     ['meta', { name: 'author', content: person.name }],
   ]
   if (modified && !isHome) head.push(['meta', { property: 'article:modified_time', content: modified }])
@@ -142,7 +145,7 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
       operatingSystem: 'Linux, macOS, Windows',
       license: 'https://opensource.org/licenses/MIT',
       author: { '@id': person['@id'] },
-      image: ogImage,
+      image,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     })
   } else {
@@ -154,7 +157,7 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
       url,
       mainEntityOfPage: url,
       inLanguage: locale.lang,
-      image: ogImage,
+      image,
       author: { '@id': person['@id'] },
       publisher: { '@id': person['@id'] },
       isPartOf: { '@id': `${siteUrl}#website` },
