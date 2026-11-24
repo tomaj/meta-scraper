@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" width="560" height="480" role="img" aria-label="HTML stránka s titulkom, Open Graph a JSON-LD tagmi prejde tromi parsermi a stane sa z nej jeden objekt Meta s titulkom, obrázkom, autormi a dátumami">
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1l8 4-8 4z" fill="#0f766e"/></marker></defs>
+  <rect x="14" y="16" width="336" height="214" rx="16" fill="#0f172a" opacity="0.08" transform="translate(4 6)"/>
+  <rect x="14" y="16" width="336" height="214" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <path d="M14 32a16 16 0 0 1 16-16h304a16 16 0 0 1 16 16v20H14z" fill="#f8fafc"/>
+  <path d="M14 52h336" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="36" cy="34" r="5" fill="#f87171"/><circle cx="52" cy="34" r="5" fill="#fbbf24"/><circle cx="68" cy="34" r="5" fill="#34d399"/>
+  <rect x="86" y="25" width="236" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="98" y="38" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" fill="#64748b">dennik.example/nocna-elektricka</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12">
+    <text x="32" y="80"><tspan fill="#0f766e">&lt;title&gt;</tspan><tspan fill="#0f172a">Nočná električka</tspan><tspan fill="#0f766e">&lt;/title&gt;</tspan></text>
+    <text x="32" y="104"><tspan fill="#0f766e">&lt;meta </tspan><tspan fill="#b45309">property</tspan><tspan fill="#64748b">=</tspan><tspan fill="#0369a1">"og:image"</tspan><tspan fill="#0f766e"> …&gt;</tspan></text>
+    <text x="32" y="128"><tspan fill="#0f766e">&lt;meta </tspan><tspan fill="#b45309">name</tspan><tspan fill="#64748b">=</tspan><tspan fill="#0369a1">"author"</tspan><tspan fill="#0f766e"> …&gt;</tspan></text>
+    <text x="32" y="152"><tspan fill="#0f766e">&lt;script </tspan><tspan fill="#b45309">type</tspan><tspan fill="#64748b">=</tspan><tspan fill="#0369a1">"application/ld+json"</tspan><tspan fill="#0f766e">&gt;</tspan></text>
+    <text x="32" y="176"><tspan fill="#0f172a">  {"@type": </tspan><tspan fill="#0369a1">"NewsArticle"</tspan><tspan fill="#0f172a">, …}</tspan></text>
+    <text x="32" y="200"><tspan fill="#0f766e">&lt;/script&gt;</tspan></text>
+  </g>
+  <path d="M182 236v18" stroke="#0f766e" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" text-anchor="middle">
+    <rect x="14" y="262" width="122" height="32" rx="16" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.5"/>
+    <text x="75" y="283" fill="#0f766e">SchemaParser</text>
+    <rect x="146" y="262" width="122" height="32" rx="16" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.5"/>
+    <text x="207" y="283" fill="#0f766e">OgDomParser</text>
+    <rect x="278" y="262" width="104" height="32" rx="16" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="330" y="283" fill="#d97706">váš parser</text>
+  </g>
+  <path d="M207 300c0 18 30 22 60 22" stroke="#0f766e" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <rect x="276" y="300" width="270" height="164" rx="18" fill="#0f172a" opacity="0.08" transform="translate(4 6)"/>
+  <rect x="276" y="300" width="270" height="164" rx="18" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+  <rect x="292" y="314" width="58" height="22" rx="11" fill="#0f766e"/>
+  <text x="321" y="329.5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Meta</text>
+  <rect x="292" y="348" width="88" height="100" rx="10" fill="#e0f2fe"/>
+  <circle cx="358" cy="372" r="9" fill="#fbbf24"/>
+  <path d="M292 424l26-30 20 20 14-12 28 26v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10z" fill="#14b8a6"/>
+  <path d="M292 438l30-22 22 14 36-6v14a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10z" fill="#5eead4"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11">
+    <text x="394" y="360" fill="#64748b">titulok</text>
+    <text x="394" y="375" fill="#0f172a" font-weight="600">Nočná električka</text>
+    <text x="394" y="396" fill="#64748b">autori</text>
+    <text x="394" y="411" fill="#0f172a" font-weight="600">Zuzana Kováčová</text>
+    <text x="394" y="432" fill="#64748b">publikované</text>
+    <text x="394" y="447" fill="#0f172a" font-weight="600">2026-11-20 05:30 UTC</text>
+  </g>
+</svg>

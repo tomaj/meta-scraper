@@ -1,5 +1,5 @@
-// Per-page SEO: title, canonical URL, Open Graph and Twitter tags, and JSON-LD. Used by transformHead in config.mts.
-import { readFileSync } from 'node:fs'
+// Per-page SEO: title, canonical URL, Open Graph and Twitter tags, hreflang alternates and JSON-LD. Used by transformHead in config.mts.
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { HeadConfig, PageData } from 'vitepress'
 
@@ -20,10 +20,38 @@ export function pageUrl(relativePath: string): string {
   return siteUrl + relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '.html')
 }
 
-const sections: Record<string, [string, string]> = {
-  guide: ['Guide', 'guide/getting-started.html'],
-  examples: ['Examples', 'examples/'],
-  api: ['Reference', 'api/reference.html'],
+// English pages live at the site root, Slovak pages mirror them under sk/.
+export function localeOf(relativePath: string): { prefix: string, lang: string, ogLocale: string } {
+  return relativePath.startsWith('sk/')
+    ? { prefix: 'sk/', lang: 'sk-SK', ogLocale: 'sk_SK' }
+    : { prefix: '', lang: 'en-US', ogLocale: 'en_US' }
+}
+
+// Section names for the breadcrumb, from the first path segment after the locale.
+const sections: Record<string, Record<string, [string, string]>> = {
+  '': {
+    guide: ['Guide', 'guide/getting-started.html'],
+    examples: ['Examples', 'examples/'],
+    api: ['Reference', 'api/reference.html'],
+  },
+  'sk/': {
+    guide: ['Príručka', 'guide/getting-started.html'],
+    examples: ['Príklady', 'examples/'],
+    api: ['Referencia', 'api/reference.html'],
+  },
+}
+
+// The same page in the other locale, when it exists, for hreflang links.
+export function alternates(relativePath: string, srcDir: string): { lang: string, href: string }[] {
+  const { prefix } = localeOf(relativePath)
+  const base = relativePath.slice(prefix.length)
+  const pairs: [string, string][] = [['en', base], ['sk', `sk/${base}`]]
+  const found = pairs.filter(([, path]) => existsSync(resolve(srcDir, path)))
+  if (found.length < 2) return []
+  return [
+    ...found.map(([lang, path]) => ({ lang, href: pageUrl(path) })),
+    { lang: 'x-default', href: pageUrl(base) },
+  ]
 }
 
 // Markdown to plain text, enough for JSON-LD answers.
@@ -38,14 +66,15 @@ function plain(markdown: string): string {
     .trim()
 }
 
-// faq.md: every `##` heading is a question; other pages: the `###` headings under `## FAQ`.
+// faq.md: every `##` heading is a question; other pages: the `###` headings under `## FAQ`
+// (Slovak: `## Časté otázky {#faq}`).
 function faqEntries(source: string, relativePath: string): { q: string, a: string }[] {
   let section = source
   let level = '## '
-  if (relativePath !== 'faq.md') {
-    const start = source.indexOf('\n## FAQ\n')
-    if (start < 0) return []
-    section = source.slice(start + 8)
+  if (relativePath !== 'faq.md' && relativePath !== 'sk/faq.md') {
+    const heading = /\n## (FAQ|Časté otázky(?: \{#faq\})?)\n/.exec(source)
+    if (!heading) return []
+    section = source.slice(heading.index + heading[0].length)
     const next = section.search(/\n## /)
     if (next >= 0) section = section.slice(0, next)
     level = '### '
@@ -63,8 +92,11 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
     return [['meta', { name: 'robots', content: 'noindex' }]]
   }
   const url = pageUrl(page.relativePath)
+  const locale = localeOf(page.relativePath)
+  const sk = locale.prefix === 'sk/'
   const isHome = page.frontmatter.layout === 'home'
-  const title = isHome ? 'Meta Scraper – Open Graph and JSON-LD metadata for PHP' : `${page.title} | ${siteName}`
+  const homeTitle = sk ? 'Meta Scraper – Open Graph a JSON-LD metadáta pre PHP' : 'Meta Scraper – Open Graph and JSON-LD metadata for PHP'
+  const title = isHome ? homeTitle : `${page.title} | ${siteName}`
   const description = page.description || page.frontmatter.description || siteDescription
   const source = readFileSync(resolve(srcDir, page.relativePath), 'utf8')
   const modified = page.lastUpdated ? new Date(page.lastUpdated).toISOString() : undefined
@@ -73,14 +105,15 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
     ['link', { rel: 'canonical', href: url }],
     ['meta', { property: 'og:type', content: isHome ? 'website' : 'article' }],
     ['meta', { property: 'og:site_name', content: siteName }],
-    ['meta', { property: 'og:locale', content: 'en_US' }],
+    ['meta', { property: 'og:locale', content: locale.ogLocale }],
+    ['meta', { property: 'og:locale:alternate', content: sk ? 'en_US' : 'sk_SK' }],
     ['meta', { property: 'og:title', content: title }],
     ['meta', { property: 'og:description', content: description }],
     ['meta', { property: 'og:url', content: url }],
     ['meta', { property: 'og:image', content: ogImage }],
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
-    ['meta', { property: 'og:image:alt', content: 'Meta Scraper: an HTML page goes through parsers and becomes one Meta object' }],
+    ['meta', { property: 'og:image:alt', content: sk ? 'Meta Scraper: HTML stránka prejde parsermi a stane sa z nej jeden objekt Meta' : 'Meta Scraper: an HTML page goes through parsers and becomes one Meta object' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: title }],
     ['meta', { name: 'twitter:description', content: description }],
@@ -88,8 +121,11 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
     ['meta', { name: 'author', content: person.name }],
   ]
   if (modified && !isHome) head.push(['meta', { property: 'article:modified_time', content: modified }])
+  for (const alt of alternates(page.relativePath, srcDir)) {
+    head.push(['link', { rel: 'alternate', hreflang: alt.lang, href: alt.href }])
+  }
 
-  const website = { '@type': 'WebSite', '@id': `${siteUrl}#website`, name: siteName, url: siteUrl, inLanguage: 'en', publisher: { '@id': person['@id'] } }
+  const website = { '@type': 'WebSite', '@id': `${siteUrl}#website`, name: siteName, url: siteUrl, inLanguage: ['en-US', 'sk-SK'], publisher: { '@id': person['@id'] } }
   const graph: Record<string, unknown>[] = [person, website]
   if (isHome) {
     graph.push({
@@ -97,7 +133,8 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
       '@id': `${siteUrl}#software`,
       name: 'tomaj/meta-scraper',
       description: siteDescription,
-      url: siteUrl,
+      url: siteUrl + locale.prefix,
+      inLanguage: locale.lang,
       codeRepository: repoUrl,
       programmingLanguage: { '@type': 'ComputerLanguage', name: 'PHP' },
       runtimePlatform: 'PHP 8.4+',
@@ -116,7 +153,7 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
       description,
       url,
       mainEntityOfPage: url,
-      inLanguage: 'en',
+      inLanguage: locale.lang,
       image: ogImage,
       author: { '@id': person['@id'] },
       publisher: { '@id': person['@id'] },
@@ -124,9 +161,10 @@ export function seoHead(page: PageData, srcDir: string, siteDescription: string)
       about: { '@type': 'SoftwareSourceCode', name: 'tomaj/meta-scraper', codeRepository: repoUrl },
       ...(modified ? { dateModified: modified } : {}),
     })
-    const items = [{ name: siteName, item: siteUrl }]
-    const section = sections[page.relativePath.split('/')[0]]
-    if (section && siteUrl + section[1] !== url) items.push({ name: section[0], item: siteUrl + section[1] })
+    const home = siteUrl + locale.prefix
+    const items = [{ name: siteName, item: home }]
+    const section = sections[locale.prefix][page.relativePath.slice(locale.prefix.length).split('/')[0]]
+    if (section && home + section[1] !== url) items.push({ name: section[0], item: home + section[1] })
     items.push({ name: page.title, item: url })
     graph.push({
       '@type': 'BreadcrumbList',

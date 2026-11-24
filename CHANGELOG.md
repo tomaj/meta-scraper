@@ -11,6 +11,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Documentation site: https://tomaj.github.io/meta-scraper/ ([#19](https://github.com/tomaj/meta-scraper/issues/19)).
 - Documentation site at presentation level: logo, illustrations, a page per parser and topic, configuration, error handling, testing and security pages, and seven runnable examples in `examples/` that scrape fixture pages served by `php -S`, tested by the Examples workflow; inline PHP code in the README and docs is run by the test suite ([#27](https://github.com/tomaj/meta-scraper/issues/27)).
 - `LICENSE.md` (MIT), `SECURITY.md` with the supported versions and a note on fetching untrusted URLs, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `RELEASING.md` ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
+- Slovak translation of the documentation site ([#31](https://github.com/tomaj/meta-scraper/issues/31)).
 
 ### Changed
 - **BREAKING CHANGE**: `Scraper::parseUrl()` throws `Tomaj\Scraper\Exception\FetchException` (with the Guzzle exception as previous) instead of letting Guzzle exceptions escape. Catch `FetchException` or `ScraperException` ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
