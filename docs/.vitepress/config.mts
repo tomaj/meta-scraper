@@ -1,16 +1,16 @@
 import { defineConfig } from 'vitepress'
-import { nav, sidebar } from '../site-nav'
+import { nav, navSk, sidebar, sidebarSk } from '../site-nav'
 import { seoHead, siteUrl } from './seo'
 
 const base = process.env.DOCS_BASE || '/meta-scraper/'
 const description = 'PHP library that reads the title, description, Open Graph tags and schema.org JSON-LD of any HTML page into one object'
+const descriptionSk = 'PHP knižnica, ktorá z ľubovoľnej HTML stránky prečíta titulok, popis, Open Graph tagy a schema.org JSON-LD do jedného objektu'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcExclude: ['public/**', 'scripts/**', 'snippets/**', 'README.md'],
   title: 'Meta Scraper',
   description,
-  lang: 'en',
   base,
   cleanUrls: false,
   lastUpdated: true,
@@ -30,7 +30,57 @@ export default defineConfig({
   },
 
   transformHead({ pageData, siteConfig }) {
-    return seoHead(pageData, siteConfig.srcDir, description)
+    return seoHead(pageData, siteConfig.srcDir, pageData.relativePath.startsWith('sk/') ? descriptionSk : description)
+  },
+
+  // English is the default locale at the site root; Slovak mirrors every page under /sk/.
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en-US',
+      description,
+    },
+    sk: {
+      label: 'Slovenčina',
+      lang: 'sk-SK',
+      link: '/sk/',
+      description: descriptionSk,
+      themeConfig: {
+        nav: navSk,
+        sidebar: sidebarSk,
+        outline: { level: [2, 3], label: 'Na tejto stránke' },
+        docFooter: {
+          prev: 'Predchádzajúca stránka',
+          next: 'Nasledujúca stránka',
+        },
+        editLink: {
+          pattern: 'https://github.com/tomaj/meta-scraper/edit/master/docs/:path',
+          text: 'Upraviť túto stránku na GitHube',
+        },
+        lastUpdated: {
+          text: 'Naposledy upravené',
+          formatOptions: { dateStyle: 'medium' },
+        },
+        darkModeSwitchLabel: 'Vzhľad',
+        lightModeSwitchTitle: 'Prepnúť na svetlý režim',
+        darkModeSwitchTitle: 'Prepnúť na tmavý režim',
+        sidebarMenuLabel: 'Ponuka',
+        returnToTopLabel: 'Späť na začiatok',
+        langMenuLabel: 'Zmeniť jazyk',
+        skipToContentLabel: 'Preskočiť na obsah',
+        footer: {
+          message: 'Vydané pod <a href="https://github.com/tomaj/meta-scraper/blob/master/LICENSE.md">licenciou MIT</a>.',
+          copyright: 'Copyright © 2015-2026 Tomas Majer',
+        },
+        notFound: {
+          code: '404',
+          title: 'STRÁNKA SA NENAŠLA',
+          quote: 'Táto stránka neexistuje alebo sa presunula. Skúste vyhľadávanie alebo začnite od úvodu.',
+          linkLabel: 'prejsť na úvod',
+          linkText: 'Späť na úvod',
+        },
+      },
+    },
   },
 
   markdown: {
@@ -62,6 +112,33 @@ export default defineConfig({
 
     search: {
       provider: 'local',
+      options: {
+        locales: {
+          sk: {
+            translations: {
+              button: {
+                buttonText: 'Hľadať',
+                buttonAriaLabel: 'Hľadať',
+              },
+              modal: {
+                displayDetails: 'Zobraziť podrobný zoznam',
+                resetButtonTitle: 'Vymazať hľadanie',
+                backButtonTitle: 'Zavrieť hľadanie',
+                noResultsText: 'Žiadne výsledky pre',
+                footer: {
+                  selectText: 'vybrať',
+                  selectKeyAriaLabel: 'enter',
+                  navigateText: 'prejsť',
+                  navigateUpKeyAriaLabel: 'šípka hore',
+                  navigateDownKeyAriaLabel: 'šípka dole',
+                  closeText: 'zavrieť',
+                  closeKeyAriaLabel: 'escape',
+                },
+              },
+            },
+          },
+        },
+      },
     },
 
     footer: {

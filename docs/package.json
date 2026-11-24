@@ -11,6 +11,7 @@
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
     "docs:links": "bash scripts/check-links.sh",
+    "docs:locales": "python3 scripts/check-locales.py",
     "illustrations": "python3 scripts/illustrations.py",
     "illustrations:check": "python3 scripts/illustrations.py --check",
     "brand": "node scripts/brand-assets.mjs"

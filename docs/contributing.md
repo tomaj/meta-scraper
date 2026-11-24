@@ -24,7 +24,7 @@ Every behaviour change needs a test and a `CHANGELOG.md` entry. The tests never 
 
 ## Documentation
 
-This site is built with [VitePress](https://vitepress.dev/) from the [`docs/`](https://github.com/tomaj/meta-scraper/tree/master/docs) folder.
+This site is built with [VitePress](https://vitepress.dev/) from the [`docs/`](https://github.com/tomaj/meta-scraper/tree/master/docs) folder. English pages are at the root of `docs/`, Slovak ones in `docs/sk/` with the same paths; a CI check (`npm run docs:locales`) fails when a page has no twin in the other language.
 
 ```bash
 cd docs
@@ -45,6 +45,6 @@ When you change an example's output on purpose, update its `expected-output.txt`
 
 ### Illustrations and brand assets
 
-- The hero illustration and the diagrams in `docs/public/illustrations/` and `docs/public/diagrams/` are generated in a light and a dark variant by `python3 docs/scripts/illustrations.py` from the templates in that script; `npm run docs:links` fails when a generated file is out of date.
+- The hero illustration and the diagrams in `docs/public/illustrations/` and `docs/public/diagrams/` are generated in a light and a dark variant, in English and in Slovak, by `python3 docs/scripts/illustrations.py` from the templates in that script; `npm run docs:links` fails when a generated file is out of date.
 - The logo (`logo.svg`, `logo-dark.svg`) and `favicon.svg` are drawn by hand. `npm run brand` renders `og.png`, the PNG icons and `favicon.ico` from them with headless Chrome (`CHROME_PATH` if Chrome is not in a standard location); commit the results.
 - `scripts/check-svg.py` checks that every SVG is well-formed.

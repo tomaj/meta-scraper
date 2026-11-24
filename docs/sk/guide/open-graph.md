@@ -1,0 +1,92 @@
+---
+description: OgParser a OgDomParser čítajú titulok, popis, kľúčové slová, autora a Open Graph tagy stránky. Všetky tagy, ktoré čítajú, a ako sa tieto dva parsery líšia.
+---
+
+# Meta tagy a Open Graph
+
+`OgParser` a `OgDomParser` čítajú tie isté tagy do tých istých polí `Meta`. `OgParser` používa regulárne výrazy a nepotrebuje žiadne rozšírenie; `OgDomParser` spracuje dokument rozšírením DOM a je presnejší.
+
+## Čítané tagy {#tags-that-are-read}
+
+| Tag | Pole `Meta` |
+| --- | --- |
+| `<title>…</title>` | `setTitle()` / `getTitle()` |
+| `<meta name="description" content="…">` | `getDescription()` |
+| `<meta name="keywords" content="…">` | `getKeywords()` (celý reťazec, nerozdelený) |
+| `<meta name="author" content="…">` | `getAuthors()`: `Author` s `id()` `null` |
+| `<meta property="og:title" content="…">` | `getOgTitle()` |
+| `<meta property="og:description" content="…">` | `getOgDescription()` |
+| `<meta property="og:type" content="…">` | `getOgType()` |
+| `<meta property="og:url" content="…">` | `getOgUrl()` |
+| `<meta property="og:site_name" content="…">` | `getOgSiteName()` |
+| `<meta property="og:image" content="…">` | `getOgImage()` |
+| `<meta property="article:section" content="…">` | `getSections()`: `Section` s `id()` `null` |
+| `<meta property="article:published_time" content="…">` | `getPublishedTime()`, spracované cez `strtotime()` |
+| `<meta property="article:modified_time" content="…">` | `getModifiedTime()`, spracované cez `strtotime()` |
+
+Tagy `name` musia používať `name`, Open Graph tagy musia používať `property` (tak to určuje protokol Open Graph): `<meta name="og:title">` sa nečíta. Tagy, ktoré v tabuľke nie sú, vrátane `twitter:*`, `og:image:width`, `og:locale` a `article:tag`, sa ignorujú; prečítate ich [vlastným parserom](./custom-parser.md).
+
+```php
+$meta = new OgDomParser()->parse($html);
+
+echo $meta->getOgType(), ' | ', $meta->getOgSiteName(), ' | ', $meta->getOgUrl(), "\n";
+echo $meta->getSections()[0]->name(), ' | ', $meta->getPublishedTime()?->format(DATE_ATOM), "\n";
+```
+
+<!-- snippet: output -->
+```text
+article | Example Blog | https://blog.example/php-84-tips
+PHP | 2024-11-21T08:00:00+00:00
+```
+
+## OgDomParser
+
+```php
+$parser = new OgDomParser(); // throws MissingExtensionException without ext-dom or ext-libxml
+```
+
+- **Akékoľvek značkovanie.** Dokument spracuje HTML parser knižnice libxml, takže na poradí atribútov, spôsobe úvodzoviek, veľkých písmenách v tagoch ani chýbajúcich uzatváracích tagoch nezáleží. Varovania libxml o chybnom značkovaní sa potlačia a vymažú; vaše nastavenie `libxml_use_internal_errors()` sa potom obnoví.
+- **Titulok:** text prvého elementu `<title>`.
+- **Hodnoty atribútov nerozlišujú veľkosť písmen:** `property="OG:Title"` je `og:title`.
+- **Opakované tagy:** každý tag `author` a `article:section` sa pridá do zoznamu; pri ostatných poliach platí **posledný** tag na stránke.
+- **Entity** dekóduje HTML parser (`&hellip;` sa zmení na `…`) a potom ešte raz `htmlspecialchars_decode()`, takže dvakrát escapované `&amp;lt;` sa zmení na `<`.
+- **Kódovanie:** dokument, ktorý deklaruje svoje kódovanie (`<meta charset="windows-1250">` alebo `<meta http-equiv="Content-Type" content="text/html; charset=…">`, prípadne XML deklarácia s `encoding`), sa z neho dekóduje. Dokument bez deklarácie sa číta ako UTF-8. Hlavička `Content-Type` odpovede sa nepoužíva: `parse()` vidí len HTML.
+- **Prázdny vstup:** `parse('')` vráti prázdny `Meta`.
+
+## OgParser
+
+```php
+$parser = new OgParser(); // no requirements
+```
+
+- **Regulárne výrazy:** jeden výraz na tag, bez rozlišovania veľkosti písmen, nad celým reťazcom. Funguje na akomkoľvek reťazci, aj na fragmentoch, napríklad len na `<head>`.
+- **Na poradí atribútov záleží:** atribút `name` alebo `property` musí byť pred `content`. Fungujú jednoduché aj dvojité úvodzovky, hodnoty bez úvodzoviek nie.
+- **Len prvá zhoda:** pri každom tagu, vrátane `author` a `article:section`, sa číta len prvý výskyt.
+- **Entity:** dekódujú sa len `&amp;`, `&lt;`, `&gt;`, `&quot;` a `&#039;` (`htmlspecialchars_decode()`); ostatné entity, napríklad `&hellip;`, zostanú tak, ako sú.
+- **Kódovanie:** bajty sa vrátia tak, ako sú; stránky, ktoré nie sú v UTF-8, pred spracovaním preveďte ([Sťahovanie stránok](./fetching.md#character-sets)).
+
+::: warning Hodnoty z nesprávneho tagu
+Keďže výraz môže zachytiť text cez viac tagov, tag zapísaný ako `<meta content="…" property="og:title">` (content na začiatku) alebo s prázdnym `content=""` môže spôsobiť, že `OgParser` namiesto `null` vráti obsah **neskoršieho** tagu alebo kus značkovania. Ukazuje to [príklad s poškodenými stránkami](../examples/broken-pages.md). Na stránky, ktoré nemáte pod kontrolou, používajte `OgDomParser`.
+:::
+
+## Porovnanie oboch
+
+[Príklad článku s Open Graph](../examples/open-graph-article.md) spracuje jeden novinový článok oboma parsermi. Výstup sa líši len v sekciách: stránka má dva tagy `article:section` a `OgParser` prečíta prvý z nich.
+
+```php
+$html = '<title>A &amp; B &hellip;</title>'
+    . '<meta property="og:title" content="First"><meta property="og:title" content="Second">'
+    . '<meta name="author" content="Ann"><meta name="author" content="Bob">';
+
+foreach ([new OgParser(), new OgDomParser()] as $parser) {
+    $meta = $parser->parse($html);
+    $authors = implode(', ', array_map(static fn(Author $a): ?string => $a->name(), $meta->getAuthors()));
+    echo new ReflectionClass($parser)->getShortName(), ' | ', $meta->getTitle(), ' | ', $meta->getOgTitle(), ' | ', $authors, "\n";
+}
+```
+
+<!-- snippet: output -->
+```text
+OgParser | A & B &hellip; | First | Ann
+OgDomParser | A & B … | Second | Ann, Bob
+```
