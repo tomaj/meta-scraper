@@ -1,0 +1,11 @@
+ok    Open Graph title is preferred
+ok    image is read
+ok    a 404 response gives null
+ok    a connection error gives null
+ok    three requests were made
+ok    the request is a GET
+ok    to the right URL
+ok    with the User-Agent from the request options
+ok    with the timeout from the request options
+ok    every canned response was used
+ok    getBody() returns the downloaded HTML

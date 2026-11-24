@@ -1,0 +1,16 @@
+{
+    "name": "acme/twitter-card",
+    "description": "A custom tomaj/meta-scraper parser that reads Twitter card tags as a fallback for Open Graph",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "ext-dom": "*",
+        "tomaj/meta-scraper": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

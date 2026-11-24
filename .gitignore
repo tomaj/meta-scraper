@@ -7,3 +7,7 @@ docs/node_modules/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
 .idea/
+examples/*/vendor/
+examples/*/composer.lock
+examples/*/output.txt
+examples/*/server-*.log

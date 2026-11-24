@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build the VitePress site and check links at the real GitHub Pages base.
+# Check the generated illustrations and the SVGs, build the VitePress site, and check links at the
+# real GitHub Pages base. Works with bash 3.2 (macOS).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -7,7 +8,9 @@ cd "$(dirname "$0")/.."
 port="${DOCS_LINK_PORT:-4173}"
 base="/meta-scraper/"
 
+python3 scripts/illustrations.py --check
 npm run docs:build
+python3 scripts/check-svg.py public .vitepress/dist > /dev/null
 
 if curl -sf -o /dev/null "http://127.0.0.1:${port}${base}"; then
   echo "Port ${port} is already in use" >&2
@@ -109,6 +112,12 @@ for kind, (prefix, exists) in kinds.items():
     print(f"ok {len(found)} {kind} links match the checkout")
 PY
 
+# Workflow links must point at a workflow file of this checkout.
+for workflow in $(grep -rhoE 'github\.com/tomaj/meta-scraper/actions/workflows/[a-z-]+\.yml' .vitepress/dist | sort -u); do
+  file="../.github/workflows/${workflow##*/}"
+  [[ -f "$file" ]] || { echo "Workflow link target is missing: $workflow" >&2; exit 1; }
+done
+
 # github.com edit, blob and tree links are skipped so a 429 or 503 from GitHub
 # cannot fail the check. Absolute links to the published site (canonical,
 # og:url, og:image, sitemap) point at pages this crawl already checks
@@ -118,6 +127,10 @@ skip_args=(
   --skip 'https://github\.com/tomaj/meta-scraper/blob/master/'
   --skip 'https://github\.com/tomaj/meta-scraper/tree/master/'
   --skip 'https://tomaj\.github\.io/meta-scraper/'
+  # Workflow pages 404 until the workflow file is on master; the file is checked below instead.
+  --skip 'https://github\.com/tomaj/meta-scraper/actions/workflows/'
+  # Plain http links in CHANGELOG.md, included as it is.
+  --skip '^http://keepachangelog\.com/'
 )
 
 run_check() {
@@ -140,13 +153,13 @@ while true; do
   if [[ "$status" -eq 0 ]]; then
     break
   fi
-  mapfile -t codes < <(grep -oE '\[[0-9]{3}\]' /tmp/meta-scraper-docs-linkinator.txt | tr -d '[]' | sort -u)
-  if [[ ${#codes[@]} -eq 0 ]]; then
+  codes="$(grep -oE '\[[0-9]{3}\]' /tmp/meta-scraper-docs-linkinator.txt | tr -d '[]' | sort -u || true)"
+  if [[ -z "$codes" ]]; then
     exit "$status"
   fi
   only_rate_limit=1
   retryable=1
-  for code in "${codes[@]}"; do
+  for code in $codes; do
     if [[ "$code" != "429" ]]; then
       only_rate_limit=0
     fi

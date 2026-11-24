@@ -9,6 +9,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - `Scraper::__construct()` accepts your own Guzzle client as the second argument (`?GuzzleHttp\ClientInterface $httpClient`); the options array is then sent as request options ([#24](https://github.com/tomaj/meta-scraper/issues/24)).
 - `Tomaj\Scraper\Exception\ScraperException`, implemented by every exception of the package, `FetchException` and `MissingExtensionException` ([#17](https://github.com/tomaj/meta-scraper/issues/17)).
 - Documentation site: https://tomaj.github.io/meta-scraper/ ([#19](https://github.com/tomaj/meta-scraper/issues/19)).
+- Documentation site at presentation level: logo, illustrations, a page per parser and topic, configuration, error handling, testing and security pages, and seven runnable examples in `examples/` that scrape fixture pages served by `php -S`, tested by the Examples workflow; inline PHP code in the README and docs is run by the test suite ([#27](https://github.com/tomaj/meta-scraper/issues/27)).
 - `LICENSE.md` (MIT), `SECURITY.md` with the supported versions and a note on fetching untrusted URLs, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `RELEASING.md` ([#13](https://github.com/tomaj/meta-scraper/issues/13)).
 
 ### Changed

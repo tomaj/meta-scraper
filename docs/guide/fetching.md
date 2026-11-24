@@ -1,62 +1,101 @@
-# Fetching Pages
+---
+description: Download pages with Scraper::parseUrl() and Guzzle - timeouts, User-Agent, redirects, proxies, your own Guzzle client, getBody() and character sets.
+---
 
-`Scraper::parseUrl(string $url, array $parsers)` downloads the page with a `GET` request and parses it. `getBody()` returns the downloaded HTML afterwards.
+# Fetching pages
 
-## Options
+<!-- snippet: skip -->
+```php
+public function parseUrl(string $url, array $parsers): Meta;
+```
 
-The first constructor argument configures the Guzzle client the scraper creates. It is merged over the defaults: a 5 second connect timeout and the `Tomaj\Scraper` User-Agent. A `headers` array replaces the default headers.
+`parseUrl()` sends one `GET` request for `$url` with Guzzle, stores the response body (see `getBody()`) and returns `parse($body, $parsers)`. A failed request throws `FetchException` ([Error handling](./errors.md)).
+
+## The scraper's Guzzle client
+
+<!-- snippet: skip -->
+```php
+public function __construct(array $guzzleOptions = [], ?\GuzzleHttp\ClientInterface $httpClient = null);
+```
+
+The scraper creates its Guzzle client once, in the constructor, and uses it for every `parseUrl()` call. Reuse one `Scraper` for many pages.
+
+Without a client, `$guzzleOptions` configure the client the scraper creates. They are merged over the defaults with `array_merge()`:
+
+| Default | Value |
+| --- | --- |
+| `connect_timeout` | `5` seconds |
+| `headers` | `['User-Agent' => 'Tomaj\Scraper']` |
+
+`array_merge()` is shallow: a `headers` array you pass **replaces** the default headers, so set the `User-Agent` in it if you want one:
 
 <<< @/snippets/fetch.php
 
-Supported options: `connect_timeout`, `timeout`, `read_timeout`, `headers`, `proxy`, `allow_redirects`, `verify`, `http_errors`, `decode_content`, `force_ip_resolve` and `version`, with the meaning they have in [Guzzle](https://docs.guzzlephp.org/en/stable/request-options.html).
+Every accepted option, with its type and default, is in the [configuration reference](./configuration.md).
 
-::: tip
-Without a `timeout`, a server that accepts the connection but never answers blocks `parseUrl()` indefinitely. Set one.
+::: tip Always set a timeout
+The default has a connect timeout but no total `timeout`: a server that accepts the connection and then sends nothing, or sends a body forever, blocks `parseUrl()` indefinitely. Set `timeout` (and limit redirects) whenever you fetch hosts you do not control.
 :::
 
 ## Your own Guzzle client
 
-For anything else (middleware, retries, cookies, authentication, a mock handler in your tests), configure a Guzzle client and pass it as the second argument. The defaults are not applied to it; the first argument becomes request options sent with every request.
+For anything the options do not cover (middleware such as retries or logging, cookies, authentication, `on_redirect` checks, a mock handler in tests), configure a Guzzle client yourself and pass it as the second argument:
+
+- the scraper's defaults are **not** applied to your client: set the timeouts and the User-Agent yourself;
+- `$guzzleOptions` become **request options**, sent with every request and merged by Guzzle over your client's configuration.
 
 <<< @/snippets/own-client.php
 
-## Errors
+The [link preview example](../examples/link-preview.md) uses its own client to check every redirect target and to pin the connection to a checked IP address.
 
-Every failure of the download throws `Tomaj\Scraper\Exception\FetchException`: connection errors, timeouts, TLS errors, too many redirects, and 4xx/5xx responses (unless you set `http_errors` to `false`). The original Guzzle exception is `getPrevious()`, the URL is `$e->url`.
+## getBody()
 
-All exceptions of the package implement `Tomaj\Scraper\Exception\ScraperException`:
-
+<!-- snippet: skip -->
 ```php
-use Tomaj\Scraper\Exception\ScraperException;
-
-try {
-    $meta = $scraper->parseUrl($url, $parsers);
-} catch (ScraperException $e) {
-    // ...
-}
+public function getBody(): string;
 ```
 
-Parsers do not throw on bad HTML or invalid JSON-LD: they return what they could read.
+Returns the body downloaded by the last **successful** `parseUrl()` call (`''` before the first one). A failed call does not change it. Use it to store the HTML, or to run other parsers without downloading the page again:
+
+```php
+$scraper->parseUrl($url, []);           // only download
+$html = $scraper->getBody();
+
+$social = $scraper->parse($html, [new OgDomParser()]);
+$article = $scraper->parse($html, [new SchemaParser()]);
+echo $social->getOgSiteName(), ' / ', $article->getTitle(), "\n";
+```
+
+<!-- snippet: output -->
+```text
+Example Blog / Ten tips for PHP 8.4
+```
+
+The body is kept in the `Scraper` object, so one `Scraper` used from several places at once (in an async runtime) would mix bodies; use one `Scraper` per worker.
 
 ## Character sets
 
-`parseUrl()` passes the body to the parsers as it was received. `OgDomParser` honours a charset declared in the HTML and reads undeclared documents as UTF-8. `OgParser` and `SchemaParser` return the bytes unchanged, so for pages that are not UTF-8 convert the body first:
+`parseUrl()` passes the body to the parsers exactly as it was received; the `Content-Type` header is not used. How the parsers handle it:
+
+- `OgDomParser` decodes a charset declared in the HTML (`<meta charset>`, `http-equiv`) and reads documents without a declaration as UTF-8.
+- `OgParser` and `SchemaParser` return the bytes as they are.
+
+For a page that is not UTF-8, convert the body before you give it to `OgParser` or `SchemaParser`. PHP's `mbstring` does not know Windows-1250, `iconv` does:
 
 ```php
-$scraper->parseUrl($url, []);
-$html = mb_convert_encoding($scraper->getBody(), 'UTF-8', 'Windows-1250');
-$meta = $scraper->parse($html, [new OgParser()]);
+$legacy = iconv('UTF-8', 'Windows-1250', '<title>Žltý kôň</title>');   // a Windows-1250 page
+
+$utf8 = iconv('Windows-1250', 'UTF-8', $legacy);
+echo new OgParser()->parse((string) $utf8)->getTitle(), "\n";
 ```
 
-## Security
+<!-- snippet: output -->
+```text
+Žltý kôň
+```
 
-`parseUrl()` requests whatever URL it gets. When the URL comes from a user (a link preview, an "import from URL" form), an attacker can make your server request internal addresses: `localhost`, private networks, or the cloud metadata service at `169.254.169.254`. This is server-side request forgery (SSRF). Before you call `parseUrl()` with such a URL:
+The [broken pages example](../examples/broken-pages.md) serves a real Windows-1250 page and parses it with all three parsers.
 
-- allow only `http` and `https`;
-- resolve the host name and reject private, loopback and link-local addresses, and pin the request to the checked address (for example with Guzzle's `curl` options `CURLOPT_RESOLVE`), so a DNS change between the check and the request does not bypass it;
-- disable redirects (`'allow_redirects' => false`) or check every redirect target the same way (`on_redirect` in your own client);
-- set `timeout` and limit the response size, so a huge or slow response cannot tie up a worker.
+## Compressed and large responses
 
-Or send the requests through an egress proxy that blocks internal networks (`proxy` option).
-
-The parsed values come from the page author: escape them before you put them into HTML, and check URLs such as `getOgImage()` (scheme, host) before you fetch or embed them.
+Guzzle asks for and decodes gzip and deflate responses (`decode_content`, on by default). The whole body is loaded into memory before parsing; limit what you download from untrusted hosts (see [Security](./security.md#resource-limits)).

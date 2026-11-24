@@ -1,0 +1,10 @@
+{
+    "name": "acme/fetch-errors",
+    "description": "Handles failed downloads of tomaj/meta-scraper: HTTP errors, timeouts, redirects, connection errors with tomaj/meta-scraper",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "tomaj/meta-scraper": "^5.0"
+    }
+}

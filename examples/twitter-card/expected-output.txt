@@ -1,0 +1,18 @@
+== card-only.html, OgDomParser
+title           Weekend hiking: Malá Fatra in winter
+og:title        (null)
+og:description  (null)
+og:image        (null)
+
+== card-only.html, OgDomParser + TwitterCardParser
+title           Weekend hiking: Malá Fatra in winter
+og:title        Malá Fatra in winter: five safe routes
+og:description  Routes that stay open when there is snow, with times & difficulty.
+og:image        https://outdoor.example/img/mala-fatra.jpg
+
+== both.html, OgDomParser + TwitterCardParser
+title           Weekend hiking: Slovak Paradise
+og:title        Slovak Paradise: ladders and gorges
+og:description  Suchá Belá gorge, step by step.
+og:image        https://outdoor.example/img/paradise-og.jpg
+

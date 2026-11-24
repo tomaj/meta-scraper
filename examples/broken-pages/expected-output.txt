@@ -1,0 +1,50 @@
+== reversed.html: content before property
+OgParser
+  title         Attributes in any order
+  ogTitle       https://shop.example/p/42
+  ogUrl         Shop
+  ogSiteName    Shop
+OgDomParser
+  title         Attributes in any order
+  ogTitle       Written content first
+  ogUrl         https://shop.example/p/42
+  ogSiteName    Shop
+
+== unquoted.html: upper case tags, unquoted attributes, no closing tags
+OgParser
+  title         Old CMS & unclosed tags
+  description   (null)
+  ogType        (null)
+OgDomParser
+  title         Old CMS & unclosed tags
+  description   Upper case tags, unquoted attribute names
+  ogType        website
+
+== invalid-json-ld.html: the broken block is skipped
+SchemaParser
+  title         The valid block
+  authors       Ján Kráľ
+  published     (null)
+
+== no-charset.html: UTF-8 without a charset declaration
+OgParser
+  title         Ľudovít Štúr – životopis
+OgDomParser
+  title         Ľudovít Štúr – životopis
+
+== windows-1250.html: a declared legacy charset
+OgParser
+  valid UTF-8   no
+OgDomParser
+  title         Žltý kôň úpel ďábelské ódy
+  description   Stránka v kódovaní windows-1250
+OgParser after iconv()
+  title         Žltý kôň úpel ďábelské ódy
+  description   Stránka v kódovaní windows-1250
+
+== empty.html: an empty body
+all three parsers
+  title         (null)
+  description   (null)
+  ogImage       (null)
+  authors       

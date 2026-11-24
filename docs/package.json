@@ -10,14 +10,20 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "docs:links": "bash scripts/check-links.sh"
+    "docs:links": "bash scripts/check-links.sh",
+    "illustrations": "python3 scripts/illustrations.py",
+    "illustrations:check": "python3 scripts/illustrations.py --check",
+    "brand": "node scripts/brand-assets.mjs"
   },
   "license": "MIT",
   "devDependencies": {
     "linkinator": "8.1.0",
+    "puppeteer-core": "25.16.0",
     "vitepress": "1.6.4"
   },
   "overrides": {
-    "vite": "^6.4.3"
+    "vite": "^6.4.5",
+    "glob": "^14.0.6",
+    "minimatch": "^11.0.9"
   }
 }
