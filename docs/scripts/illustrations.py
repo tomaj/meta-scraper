@@ -176,7 +176,7 @@ STRINGS = {
         },
         "merge": {
             "aria": "SchemaParser runs first and sets the title and authors; OgDomParser runs second: its title is ignored because the field is already set, its image and site name fill empty fields",
-            "title": "title", "authors": "authors", "image": "image", "site": "site name", "strike1": "150", "strike2": "100",
+            "title": "title", "authors": "authors", "image": "image", "site": "site name", "strike1": "92", "strike2": "82",
             "struck": "struck out: the field is already set, the later value is ignored",
         },
         "link-preview": {
@@ -199,7 +199,7 @@ STRINGS = {
         },
         "merge": {
             "aria": "SchemaParser beží prvý a nastaví titulok a autorov; OgDomParser beží druhý: jeho titulok sa ignoruje, lebo pole je už vyplnené, jeho obrázok a názov webu doplnia prázdne polia",
-            "title": "titulok", "authors": "autori", "image": "obrázok", "site": "názov webu", "strike1": "134", "strike2": "86",
+            "title": "titulok", "authors": "autori", "image": "obrázok", "site": "názov webu", "strike1": "104", "strike2": "72",
             "struck": "prečiarknuté: pole je už vyplnené, neskoršia hodnota sa ignoruje",
         },
         "link-preview": {

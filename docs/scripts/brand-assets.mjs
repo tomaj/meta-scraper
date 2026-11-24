@@ -1,5 +1,5 @@
 // Renders the bitmap brand assets from the SVG sources in public/ with headless Chrome:
-//   public/og.png (1200 × 630 social card), favicon-16/32.png, favicon.ico (16, 32, 48),
+//   public/og.png and og-sk.png (1200 × 630 social cards, English and Slovak), favicon-16/32.png, favicon.ico (16, 32, 48),
 //   apple-touch-icon.png (180), icon-192.png and icon-512.png (site.webmanifest).
 // Run after changing logo.svg, favicon.svg or the hero illustration, and commit the files:
 //   CHROME_PATH=/path/to/chrome npm run brand
@@ -53,17 +53,23 @@ sizes.forEach((size, i) => {
 })
 writeFileSync(pub('favicon.ico'), Buffer.concat([header, ...sizes.map((size) => icons[size])]))
 
-// social card
-const hero = read('illustrations/hero-light.svg').replace('<svg', '<svg style="width:560px;height:480px"')
-await render(`<div style="width:1200px;height:630px;background:linear-gradient(135deg,#f0fdfa 0%,#ffffff 55%,#fffbeb 100%);display:flex;align-items:center;gap:40px;padding:0 56px;box-sizing:border-box;font-family:Inter,Helvetica,Arial,sans-serif">
+// social cards: og.png (English) and og-sk.png (Slovak, for the /sk/ pages)
+const cards = [
+  { file: 'og.png', suffix: '', tagline: 'Title, description, Open Graph and schema.org JSON-LD from any HTML page, in PHP' },
+  { file: 'og-sk.png', suffix: '-sk', tagline: 'Titulok, popis, Open Graph a schema.org JSON-LD z ľubovoľnej HTML stránky, v PHP' },
+]
+for (const card of cards) {
+  const hero = read(`illustrations/hero${card.suffix}-light.svg`).replace('<svg', '<svg style="width:560px;height:480px"')
+  await render(`<div style="width:1200px;height:630px;background:linear-gradient(135deg,#f0fdfa 0%,#ffffff 55%,#fffbeb 100%);display:flex;align-items:center;gap:40px;padding:0 56px;box-sizing:border-box;font-family:Inter,Helvetica,Arial,sans-serif">
   <div style="flex:1">
     ${logo.replace('<svg', '<svg style="width:120px;height:120px"')}
     <div style="font-size:76px;font-weight:800;color:#134e4a;line-height:1.05;margin-top:22px">Meta Scraper</div>
-    <div style="font-size:30px;color:#334155;margin-top:18px;line-height:1.3">Title, description, Open Graph and schema.org JSON-LD from any HTML page, in PHP</div>
+    <div style="font-size:30px;color:#334155;margin-top:18px;line-height:1.3">${card.tagline}</div>
     <div style="font-size:22px;color:#0f766e;margin-top:26px;font-weight:600">composer require tomaj/meta-scraper</div>
   </div>
   ${hero}
-</div>`, 1200, 630, 'og.png')
+</div>`, 1200, 630, card.file)
+}
 
 await browser.close()
-console.log('public/og.png, favicon-16.png, favicon-32.png, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png written')
+console.log('public/og.png, og-sk.png, favicon-16.png, favicon-32.png, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png written')
