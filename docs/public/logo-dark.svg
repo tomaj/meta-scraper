@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Meta Scraper">
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#0d9488"/>
+  <path d="M17 11h19.5L47 21.5V47a4 4 0 0 1-4 4H17a4 4 0 0 1-4-4V15a4 4 0 0 1 4-4z" fill="#ffffff"/>
+  <path d="M36.5 11v7.5a3 3 0 0 0 3 3H47z" fill="#99f6e4"/>
+  <rect x="19" y="19" width="12" height="3.5" rx="1.75" fill="#0d9488"/>
+  <rect x="19" y="26.5" width="21" height="3.5" rx="1.75" fill="#5eead4"/>
+  <rect x="19" y="34" width="9" height="3.5" rx="1.75" fill="#5eead4"/>
+  <path d="M31 46.5l6.5-7h16a2.5 2.5 0 0 1 2.5 2.5v9a2.5 2.5 0 0 1-2.5 2.5h-16z" fill="#f59e0b" stroke="#0d9488" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="38.5" cy="46.5" r="2.2" fill="#0d9488"/>
+  <path d="M43 44.5h8M43 48.5h5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+</svg>

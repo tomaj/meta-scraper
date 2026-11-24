@@ -1,84 +1,118 @@
-# API Reference
+---
+description: API reference of tomaj/meta-scraper 5.x - every public class, method, parameter, return value and exception.
+---
 
-All classes are in the `Tomaj\Scraper` namespace and are `final`. Extension happens through `ParserInterface`.
+# API reference
+
+All classes are in the `Tomaj\Scraper` namespace and `final`; extension happens through `ParserInterface`. Version 5.x, PHP 8.4+.
+
+| Class | Kind | Page |
+| --- | --- | --- |
+| [`Scraper`](#scraper) | service | [Fetching pages](../guide/fetching.md) |
+| [`Meta`](#meta) | result | [The Meta object](../guide/meta.md) |
+| [`Author`, `Section`, `Tag`](#author-section-tag) | readonly values | [The Meta object](../guide/meta.md#author-section-and-tag) |
+| [`Parser\ParserInterface`](#parserinterface) | interface | [Writing a parser](../guide/custom-parser.md) |
+| [`Parser\OgParser`](#ogparser) | parser | [Meta tags and Open Graph](../guide/open-graph.md#ogparser) |
+| [`Parser\OgDomParser`](#ogdomparser) | parser | [Meta tags and Open Graph](../guide/open-graph.md#ogdomparser) |
+| [`Parser\SchemaParser`](#schemaparser) | parser | [schema.org JSON-LD](../guide/json-ld.md) |
+| [`Exception\ScraperException`](#scraperexception) | interface | [Error handling](../guide/errors.md) |
+| [`Exception\FetchException`](#fetchexception) | exception | [Error handling](../guide/errors.md#fetchexception) |
+| [`Exception\MissingExtensionException`](#missingextensionexception) | exception | [Error handling](../guide/errors.md#missingextensionexception) |
 
 ## Scraper
 
+<!-- snippet: skip -->
 ```php
 final class Scraper
 {
-    public function __construct(array $guzzleOptions = [], ?GuzzleHttp\ClientInterface $httpClient = null);
-    public function parse(string $content, array $parsers): Meta;
+    public function __construct(array $guzzleOptions = [], ?\GuzzleHttp\ClientInterface $httpClient = null);
     public function parseUrl(string $url, array $parsers): Meta;
+    public function parse(string $content, array $parsers): Meta;
     public function getBody(): string;
 }
 ```
 
-### `__construct(array $guzzleOptions = [], ?ClientInterface $httpClient = null)`
+### __construct()
 
-- Without `$httpClient`: creates a `GuzzleHttp\Client` with `$guzzleOptions` merged over the defaults `['connect_timeout' => 5, 'headers' => ['User-Agent' => 'Tomaj\Scraper']]`.
-- With `$httpClient`: uses that client as it is; `$guzzleOptions` are request options sent with every request.
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `$guzzleOptions` | `GuzzleOptions` (array shape) | `[]` | Without `$httpClient`: configuration of the Guzzle client the scraper creates, merged with `array_merge()` over `['connect_timeout' => 5, 'headers' => ['User-Agent' => 'Tomaj\Scraper']]`. With `$httpClient`: request options sent with every request. Keys: see [Configuration reference](../guide/configuration.md#options). |
+| `$httpClient` | `?GuzzleHttp\ClientInterface` | `null` | Your own configured Guzzle client, used as it is (the defaults are not applied). |
 
-`$guzzleOptions` accepts `connect_timeout`, `timeout`, `read_timeout` (int|float), `headers` (`array<string, string|list<string>>`), `proxy`, `allow_redirects`, `verify`, `http_errors`, `decode_content`, `force_ip_resolve` and `version`. See [Fetching Pages](../guide/fetching.md#options).
+The Guzzle client is created once, here. Throws nothing.
 
-### `parse(string $content, array $parsers): Meta`
+### parseUrl()
 
-Runs each `ParserInterface` of `$parsers` on `$content` in order and merges the results into a new `Meta` (the first value found wins, see `Meta::merge()`). No parsers give an empty `Meta`.
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$url` | `string` | The URL to download with `GET`. |
+| `$parsers` | `array<ParserInterface>` | Parsers to run, in order of priority. May be empty. |
 
-### `parseUrl(string $url, array $parsers): Meta`
+**Returns** `Meta`: the merged result of the parsers on the downloaded body.
+**Throws** `Exception\FetchException` when Guzzle throws (connection error, timeout, TLS error, too many redirects, a 4xx/5xx response unless `http_errors` is `false`).
+**Side effect:** on success, stores the body for `getBody()`.
 
-Sends `GET $url`, stores the body for `getBody()` and returns `parse($body, $parsers)`.
+Does not validate `$url`; see [Security](../guide/security.md) before passing URLs from users.
 
-Throws `Exception\FetchException` when the request fails or the response is 4xx/5xx.
+### parse()
 
-### `getBody(): string`
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$content` | `string` | The HTML (or any string). |
+| `$parsers` | `array<ParserInterface>` | Parsers to run, in order of priority. May be empty. |
 
-The body downloaded by the last successful `parseUrl()` call, `''` before the first one.
+**Returns** a new `Meta`: for each parser in order, `$meta->merge($parser->parse($content))`. An empty parser list gives an empty `Meta`. Throws nothing itself (only what a custom parser throws).
+
+### getBody()
+
+**Returns** `string`: the body downloaded by the last successful `parseUrl()` call, `''` before the first one.
 
 ## Meta
 
-A mutable result object. Setters return the same `Meta` for chaining.
+A mutable result object. Every setter and adder returns `$this` (`Meta`).
 
-| Getter | Setter / adder | Type |
+| Method | Returns | Notes |
 | --- | --- | --- |
-| `getTitle()` | `setTitle(string)` | `?string` |
-| `getDescription()` | `setDescription(string)` | `?string` |
-| `getKeywords()` | `setKeywords(string)` | `?string` |
-| `getAuthors()` | `addAuthor(Author)`, `addAuthorByName(string)` | `list<Author>` |
-| `getSections()` | `addSection(Section)`, `addSectionByName(string)` | `list<Section>` |
-| `getTags()` | `addTag(Tag)` | `list<Tag>` |
-| `getOgType()` | `setOgType(string)` | `?string` |
-| `getOgTitle()` | `setOgTitle(string)` | `?string` |
-| `getOgDescription()` | `setOgDescription(string)` | `?string` |
-| `getOgUrl()` | `setOgUrl(string)` | `?string` |
-| `getOgSiteName()` | `setOgSiteName(string)` | `?string` |
-| `getOgImage()` | `setOgImage(string)` | `?string` |
-| `getPublishedTime()` | `setPublishedTime(DateTime\|string)` | `?DateTime` |
-| `getModifiedTime()` | `setModifiedTime(DateTime\|string)` | `?DateTime` |
+| `getTitle()` / `setTitle(string $title)` | `?string` / `Meta` | |
+| `getDescription()` / `setDescription(string $description)` | `?string` / `Meta` | |
+| `getKeywords()` / `setKeywords(string $keywords)` | `?string` / `Meta` | the whole `content`, not split |
+| `getAuthors()` | `list<Author>` | |
+| `addAuthor(Author $author)` | `Meta` | appends |
+| `addAuthorByName(string $name)` | `Meta` | `addAuthor(new Author(null, $name))` |
+| `getSections()` | `list<Section>` | |
+| `addSection(Section $section)` | `Meta` | appends |
+| `addSectionByName(string $name)` | `Meta` | `addSection(new Section(null, $name))` |
+| `getTags()` | `list<Tag>` | |
+| `addTag(Tag $tag)` | `Meta` | appends |
+| `getOgType()` / `setOgType(string $ogType)` | `?string` / `Meta` | |
+| `getOgTitle()` / `setOgTitle(string $ogTitle)` | `?string` / `Meta` | |
+| `getOgDescription()` / `setOgDescription(string $ogDescription)` | `?string` / `Meta` | |
+| `getOgUrl()` / `setOgUrl(string $ogUrl)` | `?string` / `Meta` | |
+| `getOgSiteName()` / `setOgSiteName(string $ogSiteName)` | `?string` / `Meta` | |
+| `getOgImage()` / `setOgImage(string $ogImage)` | `?string` / `Meta` | |
+| `getPublishedTime()` / `setPublishedTime(DateTime\|string $publishedTime)` | `?DateTime` / `Meta` | a string is parsed with `strtotime()` into a UTC `DateTime`; an unparsable string is ignored |
+| `getModifiedTime()` / `setModifiedTime(DateTime\|string $modifiedTime)` | `?DateTime` / `Meta` | as above |
+| `merge(Meta $meta)` | `Meta` (`$this`) | copies each value of `$meta` into fields of `$this` that are empty (`null`, `''`, `'0'`, `[]`); lists are copied whole |
 
-`setPublishedTime()` and `setModifiedTime()` parse a string with `strtotime()` and store it as a UTC `DateTime`; a string `strtotime()` cannot parse is ignored.
-
-### `merge(Meta $meta): Meta`
-
-Copies every value of `$meta` into this object where this object has none (`null`, `''` or `'0'`; for authors, sections and tags an empty list) and returns `$this`.
+The constructor takes no arguments; every field starts as `null` or `[]`.
 
 ## Author, Section, Tag
 
-Readonly value objects with the same shape:
-
+<!-- snippet: skip -->
 ```php
-final readonly class Author // Section, Tag
+final readonly class Author // Section and Tag have the same shape
 {
     public function __construct(?string $id, ?string $name);
-    public function id(): ?string;
+    public function id(): ?string;    // schema.org @id, or null
     public function name(): ?string;
 }
 ```
 
-`id()` is the schema.org `@id` when the parser knows it, otherwise `null`.
+`id()` is set by `SchemaParser` for authors, `articleTerms` sections and `about` tags that have an `@id`; it is `null` for values from meta tags and for plain-string JSON-LD values.
 
-## Parsers
+## ParserInterface
 
+<!-- snippet: skip -->
 ```php
 namespace Tomaj\Scraper\Parser;
 
@@ -88,20 +122,42 @@ interface ParserInterface
 }
 ```
 
-An implementation returns a new `Meta` from every call and does not throw on malformed input.
+Contract: return a new `Meta` on every call, do not throw on malformed input, do not keep state between calls.
 
-| Class | Description |
+## OgParser
+
+`Tomaj\Scraper\Parser\OgParser implements ParserInterface`. Constructor without arguments. `parse()` reads `<title>`, the `description`, `keywords` and `author` meta tags and the Open Graph / `article:` properties with regular expressions; first occurrence of each tag. See [OgParser](../guide/open-graph.md#ogparser).
+
+## OgDomParser
+
+`Tomaj\Scraper\Parser\OgDomParser implements ParserInterface`.
+
+- `__construct()`: throws `Exception\MissingExtensionException` when `ext-dom` or `ext-libxml` is not loaded.
+- `parse(string $content): Meta`: the same tags as `OgParser`, with `DOMDocument`; any attribute order, case-insensitive attribute values, all `author` and `article:section` tags, the last occurrence of the other tags; declared charsets decoded, UTF-8 otherwise. See [OgDomParser](../guide/open-graph.md#ogdomparser).
+
+## SchemaParser
+
+`Tomaj\Scraper\Parser\SchemaParser implements ParserInterface`. Constructor without arguments. `parse()` reads schema.org JSON-LD: the `id="schema"` block, else the first article node, else the first web page node, with `@graph` and `@id` references resolved. See [schema.org JSON-LD](../guide/json-ld.md) for the node selection and the field mapping.
+
+## ScraperException
+
+`interface Tomaj\Scraper\Exception\ScraperException extends \Throwable`, implemented by every exception of the package.
+
+## FetchException
+
+`final class Tomaj\Scraper\Exception\FetchException extends \RuntimeException implements ScraperException`
+
+| Member | Description |
 | --- | --- |
-| `Parser\OgParser` | Meta tags and Open Graph with regular expressions. |
-| `Parser\OgDomParser` | Meta tags and Open Graph with `ext-dom`. The constructor throws `Exception\MissingExtensionException` without `ext-dom` or `ext-libxml`. |
-| `Parser\SchemaParser` | schema.org JSON-LD. |
+| `public readonly string $url` | The URL passed to `parseUrl()`. |
+| `getPrevious()` | The `GuzzleHttp\Exception\GuzzleException` that caused it. |
+| `getMessage()` | `Cannot fetch "<url>": <Guzzle message>` |
+| `__construct(string $url, \Throwable $previous)` | Code `0`. |
 
-What each parser reads is described in [Parsers](../guide/parsers.md).
+## MissingExtensionException
 
-## Exceptions
+`final class Tomaj\Scraper\Exception\MissingExtensionException extends \LogicException implements ScraperException`
 
-| Class | Extends | Thrown by |
-| --- | --- | --- |
-| `Exception\ScraperException` | interface, `Throwable` | implemented by every exception below |
-| `Exception\FetchException` | `RuntimeException` | `Scraper::parseUrl()`; `getPrevious()` is the Guzzle exception, `public readonly string $url` the requested URL |
-| `Exception\MissingExtensionException` | `LogicException` | `new OgDomParser()` without `ext-dom` / `ext-libxml` |
+| Member | Description |
+| --- | --- |
+| `__construct(string $parser, string $extension)` | Message: `<parser class> requires the PHP extension "<extension>"`. |

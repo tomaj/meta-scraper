@@ -1,0 +1,46 @@
+name: Examples
+
+# Runs every example in examples/ against the code of the push or pull request (a Composer path
+# repository, see examples/ci/use-local-meta-scraper.sh) and compares its output with the
+# example's expected-output.txt. The examples scrape fixture pages served by `php -S` on
+# 127.0.0.1, so they need no network beyond Packagist.
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+# a new push to a pull request cancels its older run
+concurrency:
+  group: examples-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  example:
+    name: Example ${{ matrix.example }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [open-graph-article, json-ld-graph, twitter-card, broken-pages, fetch-errors, link-preview, testing]
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@e8d43d139fbfbe401c32ef3a3a32e14075f20122 # main after 2.40.0 (PHP 8.6 stable)
+      with:
+        php-version: '8.4'
+        extensions: curl, dom, libxml, mbstring, iconv
+        coverage: none
+
+    - name: Run examples/${{ matrix.example }}/e2e.sh
+      env:
+        EXAMPLE: ${{ matrix.example }}
+      run: examples/ci/recipe.sh "$EXAMPLE"

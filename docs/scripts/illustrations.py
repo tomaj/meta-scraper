@@ -1,0 +1,188 @@
+#!/usr/bin/env python3
+"""Write the hand-drawn SVG illustrations and diagrams of the site in a light and a dark variant.
+
+Every drawing is one template with colour placeholders, so both variants always show the same
+thing. Run after changing a drawing and commit the generated files:
+
+    python3 docs/scripts/illustrations.py           # write docs/public/{illustrations,diagrams}/*.svg
+    python3 docs/scripts/illustrations.py --check   # fail when a generated file is out of date
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from string import Template
+
+PUBLIC = Path(__file__).resolve().parents[1] / "public"
+
+PALETTES = {
+    "light": {
+        "bg": "#ffffff", "panel": "#f8fafc", "line": "#cbd5e1", "ink": "#0f172a", "muted": "#64748b",
+        "brand": "#0f766e", "brandSoft": "#ccfbf1", "brandMid": "#5eead4", "accent": "#d97706", "accentSoft": "#fef3c7",
+        "tag": "#0f766e", "attr": "#b45309", "str": "#0369a1", "danger": "#dc2626", "dangerSoft": "#fee2e2",
+        "sky": "#e0f2fe", "hill": "#5eead4", "hill2": "#14b8a6", "sun": "#fbbf24", "shadow": "#0f172a", "shadowOpacity": "0.08",
+    },
+    "dark": {
+        "bg": "#1e293b", "panel": "#0f172a", "line": "#334155", "ink": "#e2e8f0", "muted": "#94a3b8",
+        "brand": "#2dd4bf", "brandSoft": "#134e4a", "brandMid": "#14b8a6", "accent": "#fbbf24", "accentSoft": "#422006",
+        "tag": "#5eead4", "attr": "#fbbf24", "str": "#7dd3fc", "danger": "#f87171", "dangerSoft": "#450a0a",
+        "sky": "#0c4a6e", "hill": "#0d9488", "hill2": "#115e59", "sun": "#fbbf24", "shadow": "#000000", "shadowOpacity": "0.35",
+    },
+}
+
+FONT = "font-family=\"ui-monospace, SFMono-Regular, Menlo, Consolas, monospace\""
+SANS = "font-family=\"Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif\""
+
+ARROW = """<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1l8 4-8 4z" fill="$brand"/></marker>"""
+
+HERO = Template(f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" width="560" height="480" role="img" aria-label="An HTML page with title, Open Graph and JSON-LD tags goes through three parsers and becomes one Meta object with title, image, authors and dates">
+  <defs>{ARROW}</defs>
+  <rect x="14" y="16" width="336" height="214" rx="16" fill="$shadow" opacity="$shadowOpacity" transform="translate(4 6)"/>
+  <rect x="14" y="16" width="336" height="214" rx="16" fill="$bg" stroke="$line" stroke-width="1.5"/>
+  <path d="M14 32a16 16 0 0 1 16-16h304a16 16 0 0 1 16 16v20H14z" fill="$panel"/>
+  <path d="M14 52h336" stroke="$line" stroke-width="1.5"/>
+  <circle cx="36" cy="34" r="5" fill="#f87171"/><circle cx="52" cy="34" r="5" fill="#fbbf24"/><circle cx="68" cy="34" r="5" fill="#34d399"/>
+  <rect x="86" y="25" width="236" height="18" rx="9" fill="$bg" stroke="$line"/>
+  <text x="98" y="38" {SANS} font-size="10.5" fill="$muted">citydaily.example/night-tram</text>
+  <g {FONT} font-size="12">
+    <text x="32" y="80"><tspan fill="$tag">&lt;title&gt;</tspan><tspan fill="$ink">Night tram line</tspan><tspan fill="$tag">&lt;/title&gt;</tspan></text>
+    <text x="32" y="104"><tspan fill="$tag">&lt;meta </tspan><tspan fill="$attr">property</tspan><tspan fill="$muted">=</tspan><tspan fill="$str">"og:image"</tspan><tspan fill="$tag"> …&gt;</tspan></text>
+    <text x="32" y="128"><tspan fill="$tag">&lt;meta </tspan><tspan fill="$attr">name</tspan><tspan fill="$muted">=</tspan><tspan fill="$str">"author"</tspan><tspan fill="$tag"> …&gt;</tspan></text>
+    <text x="32" y="152"><tspan fill="$tag">&lt;script </tspan><tspan fill="$attr">type</tspan><tspan fill="$muted">=</tspan><tspan fill="$str">"application/ld+json"</tspan><tspan fill="$tag">&gt;</tspan></text>
+    <text x="32" y="176"><tspan fill="$ink">  {{"@type": </tspan><tspan fill="$str">"NewsArticle"</tspan><tspan fill="$ink">, …}}</tspan></text>
+    <text x="32" y="200"><tspan fill="$tag">&lt;/script&gt;</tspan></text>
+  </g>
+  <path d="M182 236v18" stroke="$brand" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <g {SANS} font-size="13" font-weight="600" text-anchor="middle">
+    <rect x="14" y="262" width="122" height="32" rx="16" fill="$brandSoft" stroke="$brand" stroke-width="1.5"/>
+    <text x="75" y="283" fill="$brand">SchemaParser</text>
+    <rect x="146" y="262" width="122" height="32" rx="16" fill="$brandSoft" stroke="$brand" stroke-width="1.5"/>
+    <text x="207" y="283" fill="$brand">OgDomParser</text>
+    <rect x="278" y="262" width="104" height="32" rx="16" fill="$accentSoft" stroke="$accent" stroke-width="1.5"/>
+    <text x="330" y="283" fill="$accent">your parser</text>
+  </g>
+  <path d="M207 300c0 18 30 22 60 22" stroke="$brand" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <rect x="276" y="300" width="270" height="164" rx="18" fill="$shadow" opacity="$shadowOpacity" transform="translate(4 6)"/>
+  <rect x="276" y="300" width="270" height="164" rx="18" fill="$bg" stroke="$brand" stroke-width="2"/>
+  <rect x="292" y="314" width="58" height="22" rx="11" fill="$brand"/>
+  <text x="321" y="329.5" {SANS} font-size="12" font-weight="700" fill="$bg" text-anchor="middle">Meta</text>
+  <rect x="292" y="348" width="88" height="100" rx="10" fill="$sky"/>
+  <circle cx="358" cy="372" r="9" fill="$sun"/>
+  <path d="M292 424l26-30 20 20 14-12 28 26v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10z" fill="$hill2"/>
+  <path d="M292 438l30-22 22 14 36-6v14a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10z" fill="$hill"/>
+  <g {SANS} font-size="11">
+    <text x="394" y="360" fill="$muted">title</text>
+    <text x="394" y="375" fill="$ink" font-weight="600">Night tram line</text>
+    <text x="394" y="396" fill="$muted">authors</text>
+    <text x="394" y="411" fill="$ink" font-weight="600">Zuzana Kováčová</text>
+    <text x="394" y="432" fill="$muted">published</text>
+    <text x="394" y="447" fill="$ink" font-weight="600">2026-11-20 05:30 UTC</text>
+  </g>
+</svg>
+""")
+
+
+def box(x: int, y: int, w: int, h: int, title: str, sub: str, kind: str = "brand", top: bool = False) -> str:
+    fill, stroke, ink = {"brand": ("$brandSoft", "$brand", "$brand"), "accent": ("$accentSoft", "$accent", "$accent"),
+                         "plain": ("$bg", "$line", "$ink"), "danger": ("$dangerSoft", "$danger", "$danger")}[kind]
+    cx = x + w / 2
+    out = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>'
+    ty = y + 28 if top else y + h / 2 - (3 if sub else -5)
+    out += f'<text x="{cx}" y="{ty}" {SANS} font-size="14" font-weight="700" fill="{ink}" text-anchor="middle">{title}</text>'
+    if sub:
+        out += f'<text x="{cx}" y="{y + h / 2 + 15}" {SANS} font-size="11.5" fill="$muted" text-anchor="middle">{sub}</text>'
+    return out
+
+
+def arrow(d: str, dashed: bool = False) -> str:
+    dash = ' stroke-dasharray="5 5"' if dashed else ""
+    return f'<path d="{d}" stroke="$brand" stroke-width="2" fill="none"{dash} marker-end="url(#arrow)"/>'
+
+
+def label(x: float, y: float, text: str, anchor: str = "middle") -> str:
+    return f'<text x="{x}" y="{y}" {SANS} font-size="11.5" fill="$muted" text-anchor="{anchor}">{text}</text>'
+
+
+def svg(width: int, height: int, alt: str, body: str) -> Template:
+    return Template(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" role="img" aria-label="{alt}">\n'
+                    f'  <defs>{ARROW}</defs>\n  <rect width="{width}" height="{height}" rx="16" fill="$panel"/>\n  {body}\n</svg>\n')
+
+
+HOW_IT_WORKS = svg(820, 300, "parseUrl downloads the page with Guzzle; parse takes HTML you already have; each parser returns a new Meta; Meta merge keeps the first value found; the result is one Meta object", "".join([
+    box(24, 40, 170, 64, "parseUrl($$url)", "GET with Guzzle"),
+    box(24, 190, 170, 64, "parse($$html)", "HTML you already have", "plain"),
+    arrow("M194 72h46"),
+    label(110, 140, "FetchException on failure"),
+    box(244, 40, 132, 64, "HTML string", "getBody()", "plain"),
+    arrow("M310 104v36c0 14 10 20 34 20"),
+    arrow("M194 222h106c22 0 26-14 44-14"),
+    box(348, 140, 150, 40, "parser 1", ""),
+    box(348, 188, 150, 40, "parser 2", ""),
+    box(348, 236, 150, 40, "parser n", "", "accent"),
+    arrow("M498 160h46"), arrow("M498 208h46"), arrow("M498 256h46"),
+    box(548, 140, 120, 136, "merge()", "first value wins", "plain"),
+    arrow("M668 208h34"),
+    box(706, 160, 96, 96, "Meta", "getters"),
+    label(423, 128, "each returns a new Meta"),
+]))
+
+MERGE = svg(820, 270, "SchemaParser runs first and sets the title and authors; OgDomParser runs second: its title is ignored because the field is already set, its image and site name fill empty fields", "".join([
+    f'<text x="24" y="34" {SANS} font-size="13" font-weight="700" fill="$ink">Scraper::parse($$html, [new SchemaParser(), new OgDomParser()])</text>',
+    box(24, 58, 220, 180, "SchemaParser", "", "plain", top=True),
+    box(300, 58, 220, 180, "OgDomParser", "", "plain", top=True),
+    box(576, 58, 220, 180, "Meta", "", "brand", top=True),
+    "".join(f'<text x="40" y="{118 + i * 26}" {SANS} font-size="12" fill="$ink">{t}</text>' for i, t in enumerate(["title: Schema headline", "authors: Peter, Eva", "image: —", "site name: —"])),
+    "".join(f'<text x="316" y="{118 + i * 26}" {SANS} font-size="12" fill="{c}">{t}</text>' for i, (t, c) in enumerate([("title: Page | Site", "$muted"), ("authors: Peter", "$muted"), ("image: og.jpg", "$ink"), ("site name: Site", "$ink")])),
+    '<path d="M316 114h150M316 140h100" stroke="$danger" stroke-width="1.5"/>',
+    "".join(f'<text x="592" y="{118 + i * 26}" {SANS} font-size="12" fill="$ink">{t}</text>' for i, t in enumerate(["title: Schema headline", "authors: Peter, Eva", "image: og.jpg", "site name: Site"])),
+    arrow("M244 148h52"), arrow("M520 148h52"),
+    label(410, 258, "struck out: the field is already set, the later value is ignored"),
+]))
+
+LINK_PREVIEW = svg(820, 250, "A pasted URL is checked by the URL guard: scheme, resolved address, private ranges. Blocked URLs stop there. Allowed URLs are fetched pinned to the checked address, every redirect target is checked again, then the parsed values are escaped into a preview card", "".join([
+    box(20, 90, 120, 64, "pasted URL", "from a user", "plain"),
+    arrow("M140 122h34"),
+    box(178, 80, 160, 84, "UrlGuard", "scheme, DNS, private IP"),
+    arrow("M258 164v34"),
+    box(178, 200, 160, 40, "blocked", "", "danger"),
+    arrow("M338 122h34"),
+    box(376, 80, 160, 84, "parseUrl()", "pinned IP, timeouts"),
+    '<path d="M456 80c0-40-70-48-104-48c-30 0-60 10-94 46" stroke="$accent" stroke-width="2" fill="none" stroke-dasharray="5 5" marker-end="url(#arrow)"/>',
+    label(372, 26, "every redirect target is checked again"),
+    arrow("M536 122h34"),
+    box(574, 80, 100, 84, "Meta", "untrusted"),
+    arrow("M674 122h30"),
+    box(708, 80, 96, 84, "card", "escaped"),
+]))
+
+DRAWINGS = {
+    "illustrations/hero": HERO,
+    "diagrams/how-it-works": HOW_IT_WORKS,
+    "diagrams/merge": MERGE,
+    "diagrams/link-preview": LINK_PREVIEW,
+}
+
+
+def main(argv: list[str]) -> int:
+    check = "--check" in argv
+    stale = []
+    for name, template in DRAWINGS.items():
+        for variant, palette in PALETTES.items():
+            path = PUBLIC / f"{name}-{variant}.svg"
+            content = template.substitute(palette)
+            if check:
+                if not path.is_file() or path.read_text(encoding="utf-8") != content:
+                    stale.append(str(path))
+                continue
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+            print(f"wrote {path.relative_to(PUBLIC.parent)}")
+    if stale:
+        print("Out of date, run python3 docs/scripts/illustrations.py:\n" + "\n".join(stale), file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

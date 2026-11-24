@@ -1,0 +1,19 @@
+== parseUrl() with a 1 s timeout and at most 3 redirects
+/ok                ok, title "It works"
+/moved             ok, title "It works"
+/echo-user-agent   ok, title "ExampleBot/1.0"
+/missing           FetchException: HTTP 404
+/error             FetchException: HTTP 500
+/slow              FetchException: timed out
+/loop              FetchException: too many redirects
+/closed-port       FetchException: connection refused
+
+== http_errors: false parses error pages instead of throwing
+/missing           ok, title "Page not found | Fixture site"
+
+== allow_redirects: false returns the redirect response itself
+/moved             ok, title NULL, body 0 bytes
+
+== catch every exception of the package with ScraperException
+Tomaj\Scraper\Exception\FetchException
+Cannot fetch "http://127.0.0.1:8405/error": Server error: `GET http://127.0.0.1:8405/error`

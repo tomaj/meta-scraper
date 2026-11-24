@@ -1,0 +1,10 @@
+{
+    "name": "acme/open-graph-article",
+    "description": "Scrapes the meta tags and Open Graph properties of a news article with tomaj/meta-scraper",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "tomaj/meta-scraper": "^5.0"
+    }
+}

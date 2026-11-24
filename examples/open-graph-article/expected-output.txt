@@ -1,0 +1,29 @@
+== OgDomParser
+title           Bratislava opens its first night tram line | City Daily
+description     Line N1 runs every 20 minutes from Račianske mýto to Petržalka, from midnight to 4 am.
+keywords        Bratislava, public transport, trams, night lines
+authors         Zuzana Kováčová
+og:type         article
+og:title        Bratislava opens its first night tram line
+og:description  Line N1 runs every 20 minutes, from midnight to 4 am.
+og:url          https://citydaily.example/2026/11/night-tram
+og:site_name    City Daily
+og:image        https://citydaily.example/img/night-tram-1200.jpg
+sections        City, Transport
+published       2026-11-20T05:30:00+00:00
+modified        2026-11-20T08:15:00+00:00
+
+== OgParser (the same HTML, from getBody())
+title           Bratislava opens its first night tram line | City Daily
+description     Line N1 runs every 20 minutes from Račianske mýto to Petržalka, from midnight to 4 am.
+keywords        Bratislava, public transport, trams, night lines
+authors         Zuzana Kováčová
+og:type         article
+og:title        Bratislava opens its first night tram line
+og:description  Line N1 runs every 20 minutes, from midnight to 4 am.
+og:url          https://citydaily.example/2026/11/night-tram
+og:site_name    City Daily
+og:image        https://citydaily.example/img/night-tram-1200.jpg
+sections        City
+published       2026-11-20T05:30:00+00:00
+modified        2026-11-20T08:15:00+00:00

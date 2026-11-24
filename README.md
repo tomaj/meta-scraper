@@ -1,10 +1,12 @@
+<img src="docs/public/logo.svg" alt="" width="72" height="72" align="left">
+
 # Meta Scraper
 
 **Extracts title, description, Open Graph and schema.org JSON-LD metadata from HTML pages.**
 
 **Documentation: https://tomaj.github.io/meta-scraper/**
 
-[Getting started](https://tomaj.github.io/meta-scraper/guide/getting-started) · [Parsers](https://tomaj.github.io/meta-scraper/guide/parsers) · [API reference](https://tomaj.github.io/meta-scraper/api/reference) · [Changelog](https://tomaj.github.io/meta-scraper/changelog)
+[Getting started](https://tomaj.github.io/meta-scraper/guide/getting-started) · [Parsers](https://tomaj.github.io/meta-scraper/guide/parsers) · [Examples](https://tomaj.github.io/meta-scraper/examples/) · [API reference](https://tomaj.github.io/meta-scraper/api/reference) · [Changelog](https://tomaj.github.io/meta-scraper/changelog)
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/meta-scraper.svg)](https://packagist.org/packages/tomaj/meta-scraper)
 [![CI](https://github.com/tomaj/meta-scraper/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tomaj/meta-scraper/actions/workflows/ci.yml?query=branch%3Amaster)
@@ -46,7 +48,7 @@ $scraper = new Scraper();
 $meta = $scraper->parse($html, [new SchemaParser(), new OgParser()]);
 
 // or download the page with Guzzle and parse it
-$meta = $scraper->parseUrl('https://example.com/article', [new SchemaParser(), new OgParser()]);
+$meta = $scraper->parseUrl($url, [new SchemaParser(), new OgParser()]);
 
 echo $meta->getTitle();
 echo $meta->getOgImage();

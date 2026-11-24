@@ -1,6 +1,6 @@
 # Upgrading from meta-scraper 4.x to 5.0
 
-This file lists the changes in 5.0 that may need work in your application. The full list of changes is in [CHANGELOG.md](CHANGELOG.md).
+This file lists the changes in 5.0 that may need work in your application. The full list of changes is in [CHANGELOG.md](https://github.com/tomaj/meta-scraper/blob/master/CHANGELOG.md).
 
 Checklist:
 
@@ -20,6 +20,7 @@ Checklist:
 
 Before, a failed download let the Guzzle exception escape. Now every failure (connection error, timeout, TLS error, too many redirects, 4xx/5xx response) is a `Tomaj\Scraper\Exception\FetchException`. The Guzzle exception is its previous exception. All exceptions of the package implement `Tomaj\Scraper\Exception\ScraperException`.
 
+<!-- snippet: skip -->
 ```php
 // 4.x
 try {
@@ -43,6 +44,7 @@ try {
 
 If you extended a class, compose it instead, or implement `ParserInterface`:
 
+<!-- snippet: skip -->
 ```php
 // 4.x
 class MyParser extends OgParser
@@ -75,6 +77,7 @@ If you changed the default Guzzle options by overriding `Scraper::$guzzleOptions
 
 `new Scraper(array $guzzleOptions = [])` still works and the options are still merged over the defaults (5 second connect timeout, `Tomaj\Scraper` User-Agent). The options array is now typed for static analysis: `connect_timeout`, `timeout`, `read_timeout`, `headers`, `proxy`, `allow_redirects`, `verify`, `http_errors`, `decode_content`, `force_ip_resolve` and `version`. Other Guzzle options still reach Guzzle at runtime, but PHPStan and Psalm report them. For those, pass your own client as the second argument; the defaults are not applied to it, and the options array becomes request options:
 
+<!-- snippet: skip -->
 ```php
 // 4.x
 $scraper = new Scraper(['handler' => $stack, 'cookies' => true]);

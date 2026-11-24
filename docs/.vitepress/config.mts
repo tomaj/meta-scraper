@@ -1,65 +1,50 @@
 import { defineConfig } from 'vitepress'
+import { nav, sidebar } from '../site-nav'
+import { seoHead, siteUrl } from './seo'
 
-const description = 'PHP library that extracts title, description, Open Graph and schema.org JSON-LD metadata from HTML pages'
-const siteUrl = 'https://tomaj.github.io/meta-scraper/'
+const base = process.env.DOCS_BASE || '/meta-scraper/'
+const description = 'PHP library that reads the title, description, Open Graph tags and schema.org JSON-LD of any HTML page into one object'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  srcExclude: ['public/**', 'scripts/**', 'snippets/**', 'README.md'],
   title: 'Meta Scraper',
   description,
-  base: '/meta-scraper/',
+  lang: 'en',
+  base,
   cleanUrls: false,
   lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/meta-scraper/favicon.svg' }],
+    ['link', { rel: 'icon', href: `${base}favicon.ico`, sizes: '48x48' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon-32.png` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${base}favicon-16.png` }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: `${base}apple-touch-icon.png` }],
+    ['link', { rel: 'manifest', href: `${base}site.webmanifest` }],
     ['meta', { name: 'theme-color', content: '#0f766e' }],
-    ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'Meta Scraper - PHP page metadata parser' }],
-    ['meta', { property: 'og:description', content: description }],
-    ['meta', { property: 'og:url', content: siteUrl }],
-    ['meta', { name: 'twitter:card', content: 'summary' }],
   ],
 
   sitemap: {
     hostname: siteUrl,
   },
 
+  transformHead({ pageData, siteConfig }) {
+    return seoHead(pageData, siteConfig.srcDir, description)
+  },
+
+  markdown: {
+    languageAlias: { neon: 'yaml' },
+  },
+
   themeConfig: {
-    logo: '/logo.svg',
+    logo: { light: '/logo.svg', dark: '/logo-dark.svg', alt: 'Meta Scraper' },
+    siteTitle: 'Meta Scraper',
 
-    nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/reference' },
-      {
-        text: '5.x (next)',
-        items: [
-          { text: 'Changelog', link: '/changelog' },
-          { text: 'Upgrade 4.x → 5.0', link: 'https://github.com/tomaj/meta-scraper/blob/master/UPGRADE-5.0.md' },
-          { text: 'Releases', link: 'https://github.com/tomaj/meta-scraper/releases' },
-        ],
-      },
-    ],
+    nav,
+    sidebar,
 
-    sidebar: [
-      {
-        text: 'Guide',
-        items: [
-          { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Parsers', link: '/guide/parsers' },
-          { text: 'Fetching Pages', link: '/guide/fetching' },
-        ],
-      },
-      {
-        text: 'Reference',
-        items: [
-          { text: 'API Reference', link: '/api/reference' },
-          { text: 'FAQ', link: '/faq' },
-          { text: 'Changelog', link: '/changelog' },
-          { text: 'Contributing', link: '/contributing' },
-        ],
-      },
-    ],
+    outline: { level: [2, 3] },
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/tomaj/meta-scraper' },
@@ -70,12 +55,17 @@ export default defineConfig({
       text: 'Edit this page on GitHub',
     },
 
+    lastUpdated: {
+      text: 'Last updated',
+      formatOptions: { dateStyle: 'medium' },
+    },
+
     search: {
       provider: 'local',
     },
 
     footer: {
-      message: 'Released under the MIT License.',
+      message: 'Released under the <a href="https://github.com/tomaj/meta-scraper/blob/master/LICENSE.md">MIT License</a>.',
       copyright: 'Copyright © 2015-2026 Tomas Majer',
     },
   },

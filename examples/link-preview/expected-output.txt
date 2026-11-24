@@ -1,0 +1,22 @@
+{fixture}/article.html
+  <a class="card" href="http://127.0.0.1:8406/article.html"><img src="http://127.0.0.1:8406/img/halusky.jpg" alt=""><strong>Bryndzové halušky</strong><p>Potato dumplings with sheep cheese and bacon, the Slovak national dish.</p><small>Kitchen Notes</small></a>
+{fixture}/plain.html
+  <a class="card" href="http://127.0.0.1:8406/plain.html"><strong>Opening hours</strong><small>127.0.0.1</small></a>
+{fixture}/hostile.html
+  <a class="card" href="http://127.0.0.1:8406/hostile.html"><strong>&lt;script&gt;alert(document.cookie)&lt;/script&gt;Free prize</strong><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore…</p><small>&quot; onmouseover=&quot;alert(1)</small></a>
+{fixture}/to-metadata
+  blocked: 169.254.169.254 is a private or reserved address (169.254.169.254)
+{fixture}/gone.html
+  no preview: the page cannot be downloaded
+http://169.254.169.254/latest/meta-data/
+  blocked: 169.254.169.254 is a private or reserved address (169.254.169.254)
+http://localhost:6379/
+  blocked: localhost is a private or reserved address (127.0.0.1)
+http://10.0.0.5/admin
+  blocked: 10.0.0.5 is a private or reserved address (10.0.0.5)
+http://[::1]:8080/
+  blocked: ::1 is a private or reserved address (::1)
+file:///etc/passwd
+  blocked: scheme "file" is not allowed
+gopher://127.0.0.1:25/
+  blocked: scheme "gopher" is not allowed

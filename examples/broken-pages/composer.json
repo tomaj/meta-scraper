@@ -1,0 +1,12 @@
+{
+    "name": "acme/broken-pages",
+    "description": "Runs the tomaj/meta-scraper parsers over broken, unusual and non-UTF-8 pages with tomaj/meta-scraper",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "ext-dom": "*",
+        "ext-iconv": "*",
+        "tomaj/meta-scraper": "^5.0"
+    }
+}
