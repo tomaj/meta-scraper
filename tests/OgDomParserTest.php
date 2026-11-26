@@ -241,6 +241,24 @@ final class OgDomParserTest extends TestCase
         self::assertSame('Žltý kôň', new OgDomParser()->parse($this->fixture('xml-declaration.html'))->getTitle());
     }
 
+    public function testMetaCharsetWinsOverAnXmlDeclaration(): void
+    {
+        // "Žltý kôň" in windows-1250; a browser ignores the XML declaration
+        $html = '<?xml version="1.0" encoding="utf-8"?><html><head><meta charset="windows-1250">'
+            . "<title>\x8Elt\xFD k\xF4\xF2</title></head></html>";
+
+        self::assertSame('Žltý kôň', new OgDomParser()->parse($html)->getTitle());
+    }
+
+    public function testCharsetTextInAnotherAttributeIsNotADeclaration(): void
+    {
+        $html = '<html><head><meta name="description" content="' . str_repeat('x', 1100) . '">'
+            . '<meta name="keywords" content="charset=utf-8"><meta charset="windows-1250">'
+            . "<title>\x8Elt\xFD k\xF4\xF2</title></head></html>";
+
+        self::assertSame('Žltý kôň', new OgDomParser()->parse($html)->getTitle());
+    }
+
     public function testUnknownCharsetIsReadAsUtf8WithReplacementCharacters(): void
     {
         self::assertSame("\u{FFFD}lt\u{FFFD}", new OgDomParser()->parse($this->fixture('unknown-charset.html'))->getTitle());

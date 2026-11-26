@@ -99,20 +99,24 @@ final class OgDomParser implements ParserInterface
 
     /**
      * The HTML5 parser only looks for a declaration in the first 1024 bytes (a browser reloads the page when it
-     * finds one later) and ignores an XML declaration. For a page that is not valid UTF-8, the first declared
-     * charset anywhere in the page is used instead of decoding it as UTF-8.
+     * finds one later) and ignores an XML declaration. For a page that is not valid UTF-8, the first <meta>
+     * charset declaration anywhere in the page is used instead of decoding it as UTF-8, or, without one, the
+     * encoding of an XML declaration (a browser ignores it, so a <meta> declaration wins).
      */
     private function declaredCharset(string $content): ?string
     {
         if (preg_match('//u', $content) === 1) {
             return null;
         }
-        if (preg_match('/<meta\b[^>]*?\bcharset\s*=\s*["\']?\s*([\w.:-]+)|<\?xml\b[^>]*?\bencoding\s*=\s*["\']([\w.:-]+)/i', $content, $matches) !== 1) {
-            return null;
+        // <meta charset="…"> or a "charset=…" parameter in <meta http-equiv="Content-Type" content="…">
+        if (preg_match('/<meta\b[^>]*?[\s;]charset\s*=\s*["\']?\s*([\w.:-]+)/i', $content, $matches) === 1) {
+            return $matches[1];
+        }
+        if (preg_match('/<\?xml\b[^>]*?\bencoding\s*=\s*["\']([\w.:-]+)/i', $content, $matches) === 1) {
+            return $matches[1];
         }
 
-        // group 1 holds a <meta> charset, group 2 an XML encoding
-        return $matches[2] ?? $matches[1];
+        return null;
     }
 
     /**

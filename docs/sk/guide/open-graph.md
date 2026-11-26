@@ -50,7 +50,7 @@ $parser = new OgDomParser(); // throws MissingExtensionException without ext-dom
 - **Hodnoty atribútov nerozlišujú veľkosť písmen:** `property="OG:Title"` je `og:title`.
 - **Opakované tagy:** každý tag `author` a `article:section` sa pridá do zoznamu; pri ostatných poliach platí **posledný** tag na stránke.
 - **Entity** dekóduje práve raz HTML parser, s úplným zoznamom HTML5 (`&hellip;` sa zmení na `…`, `&ccaron;` na `č`). Dvakrát escapované `&amp;amp;` zostane doslovným textom `&amp;`, rovnako ako v prehliadači.
-- **Kódovanie:** kódovanie sa určí z BOM alebo z deklarácie `<meta charset="windows-1250">` / `<meta http-equiv="Content-Type" content="text/html; charset=…">` v prvých 1024 bajtoch, rovnako ako v prehliadači. Stránka bez deklarácie sa číta ako UTF-8. Keď stránka nie je platné UTF-8 a jej deklarácia príde neskôr alebo je to XML deklarácia (`<?xml encoding="…"?>`), použije sa táto deklarácia. Hodnoty sú vždy platné UTF-8: bajty, ktoré v danom kódovaní nie sú platné, sa zmenia na U+FFFD. Hlavička `Content-Type` odpovede sa nepoužíva: `parse()` vidí len HTML.
+- **Kódovanie:** kódovanie sa určí z BOM alebo z deklarácie `<meta charset="windows-1250">` / `<meta http-equiv="Content-Type" content="text/html; charset=…">` v prvých 1024 bajtoch, rovnako ako v prehliadači. Stránka bez deklarácie sa číta ako UTF-8. Keď stránka nie je platné UTF-8 a jej deklarácia príde neskôr, použije sa prvá deklarácia `<meta>` kdekoľvek v stránke; ak žiadna nie je, použije sa XML deklarácia (`<?xml encoding="…"?>`). Hodnoty sú vždy platné UTF-8: bajty, ktoré v danom kódovaní nie sú platné, sa zmenia na U+FFFD. Hlavička `Content-Type` odpovede sa nepoužíva: `parse()` vidí len HTML.
 - **Prázdny vstup:** `parse('')` vráti prázdny `Meta`.
 
 ## OgParser
