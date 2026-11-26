@@ -42,8 +42,8 @@ Hodnoty zapísané ako odkaz, teda objekt, ktorý obsahuje len `@id`, napríklad
 | `about` | `getTags()` | objekt s `@id`/`name` alebo ich zoznam; samotné reťazce sa preskočia |
 | `image` | `getOgImage()` | reťazec s URL, objekt s `url`, a ak ho nemá, s `contentUrl` (`ImageObject`, prípadne odkaz) alebo ich zoznam: prvá položka s URL |
 | `url` | `getOgUrl()` | reťazec |
-| `datePublished` | `getPublishedTime()` | dátum, ktorému rozumie `strtotime()` |
-| `dateModified` | `getModifiedTime()` | dátum, ktorému rozumie `strtotime()` |
+| `datePublished` | `getPublishedTime()` | absolútny dátum, posun sa zachová ([Dátumy](./meta.md#dates)) |
+| `dateModified` | `getModifiedTime()` | absolútny dátum, posun sa zachová |
 
 Podrobnosti:
 
@@ -92,7 +92,7 @@ author: Eva (https://news.example/#eva)
 author: Guest Writer (no @id)
 sections: World, Europe
 tag: EU (https://news.example/t/eu)
-published: 2026-01-15T09:00:00+00:00
+published: 2026-01-15T10:00:00+01:00
 description: NULL
 ```
 

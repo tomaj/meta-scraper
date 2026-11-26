@@ -34,7 +34,7 @@ Napíšte si parser: jedna trieda s jednou metódou. Pozrite [Vlastný parser](.
 
 ## V akom časovom pásme sú dátumy?
 
-V UTC. Reťazce sa čítajú cez `strtotime()` a ukladajú ako objekty `DateTime` v UTC; na zobrazenie ich preveďte. Pozrite [Dátumy](./guide/meta.md#dates).
+V posune, ktorý zapísala stránka: `2026-11-20T06:30:00+01:00` sa vráti ako `DateTimeImmutable` s `+01:00`. Dátum bez posunu je v predvolenom časovom pásme PHP. Na zobrazenie ho preveďte cez `setTimezone()`. Pozrite [Dátumy](./guide/meta.md#dates).
 
 ## Ako nastavím timeout alebo User-Agent?
 

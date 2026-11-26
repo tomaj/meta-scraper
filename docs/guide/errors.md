@@ -113,7 +113,7 @@ The parsers return what they could read and leave the rest `null`:
 | unclosed tags, upper-case tags, unquoted attributes | `OgDomParser` reads them; `OgParser` may miss them |
 | invalid JSON in a JSON-LD block | the block is skipped, other blocks are used |
 | a JSON-LD value of an unexpected type | ignored (`null`) |
-| a date `strtotime()` cannot parse | ignored (`null`) |
+| a date that is not absolute (`not a date`, `yesterday noon`, `2026-02-30`) | ignored (`null`) |
 | a page in another charset | `OgDomParser` decodes a declared charset, the other parsers return the raw bytes |
 
 ```php

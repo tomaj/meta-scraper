@@ -78,7 +78,7 @@ def hero(t: dict[str, str]) -> Template:
     <text x="394" y="396" fill="$muted">{t['authors']}</text>
     <text x="394" y="411" fill="$ink" font-weight="600">Zuzana Kováčová</text>
     <text x="394" y="432" fill="$muted">{t['published']}</text>
-    <text x="394" y="447" fill="$ink" font-weight="600">2026-11-20 05:30 UTC</text>
+    <text x="394" y="447" fill="$ink" font-weight="600">2026-11-20 06:30 +01:00</text>
   </g>
 </svg>
 """)

@@ -1,5 +1,5 @@
 ---
-description: Upgrade from meta-scraper 4.x to 5.0 - PHP 8.4, FetchException, final classes, typed Scraper options, OgDomParser requirements and parser output changes.
+description: Upgrade from meta-scraper 4.x to 5.0 - PHP 8.4, FetchException, final classes, typed Scraper options, OgDomParser requirements, immutable times with the page's offset and parser output changes.
 ---
 
 <!--@include: ../UPGRADE-5.0.md-->

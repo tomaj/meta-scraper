@@ -78,8 +78,8 @@ Do not pass a URL that a user typed to `parseUrl()` without protection against s
 | `getOgUrl()` | `?string` | `og:url`, JSON-LD `url` |
 | `getOgSiteName()` | `?string` | `og:site_name` |
 | `getOgImage()` | `?string` | `og:image`, JSON-LD `image.url` |
-| `getPublishedTime()` | `?DateTime` (UTC) | `article:published_time`, JSON-LD `datePublished` |
-| `getModifiedTime()` | `?DateTime` (UTC) | `article:modified_time`, JSON-LD `dateModified` |
+| `getPublishedTime()` | `?DateTimeImmutable` (the page's offset) | `article:published_time`, JSON-LD `datePublished` |
+| `getModifiedTime()` | `?DateTimeImmutable` (the page's offset) | `article:modified_time`, JSON-LD `dateModified` |
 
 [The Meta object](./meta.md) describes every field; the [API reference](../api/reference.md) lists every class and method.
 

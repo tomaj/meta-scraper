@@ -22,8 +22,8 @@ description: Výsledný objekt Meta knižnice meta-scraper - každé pole s typo
 | Kanonická URL | `getOgUrl()` | `?string` | `setOgUrl(string)` | Og*, Schema (`url`) |
 | Názov webu | `getOgSiteName()` | `?string` | `setOgSiteName(string)` | Og* |
 | URL obrázka | `getOgImage()` | `?string` | `setOgImage(string)` | Og*, Schema (`image.url`) |
-| Publikované | `getPublishedTime()` | `?DateTime` | `setPublishedTime(DateTime\|string)` | Og*, Schema |
-| Upravené | `getModifiedTime()` | `?DateTime` | `setModifiedTime(DateTime\|string)` | Og*, Schema |
+| Publikované | `getPublishedTime()` | `?DateTimeImmutable` | `setPublishedTime(DateTimeInterface\|string)` | Og*, Schema |
+| Upravené | `getModifiedTime()` | `?DateTimeImmutable` | `setModifiedTime(DateTimeInterface\|string)` | Og*, Schema |
 
 „Og\*“ znamená `OgParser` a `OgDomParser`; presné tagy sú na stránkach [Meta tagy a Open Graph](./open-graph.md) a [schema.org JSON-LD](./json-ld.md).
 
@@ -52,35 +52,30 @@ Obe hodnoty môžu byť `null`: autor v JSON-LD môže mať len `@id` a hodnota 
 
 ## Dátumy {#dates}
 
-`setPublishedTime()` a `setModifiedTime()` prijímajú `DateTime` (uloží sa tak, ako je) alebo reťazec:
+`setPublishedTime()` a `setModifiedTime()` prijímajú ľubovoľný `DateTimeInterface` (uloží sa kópia, takže neskoršia zmena vášho objektu `Meta` nezmení) alebo reťazec. Gettery vracajú `DateTimeImmutable`.
 
-- reťazec sa spracuje cez `strtotime()` a uloží ako `DateTime` v **UTC**, takže z `2026-11-20T06:30:00+01:00` sa stane `2026-11-20T05:30:00+00:00`;
-- reťazec, ktorý `strtotime()` nevie spracovať, sa ignoruje: pole si ponechá predchádzajúcu hodnotu;
-- `strtotime()` rozumie aj relatívnym výrazom ako `yesterday noon`, ktoré sa vyhodnotia voči aktuálnemu času.
+- Reťazec sa spracuje cez `new DateTimeImmutable()` a zachová **posun, ktorý zapísala stránka**: `2026-11-20T06:30:00+01:00` zostane `+01:00`, `…Z` je `+00:00`. Na zobrazenie ho preveďte cez `setTimezone()`.
+- Prijímajú sa len **absolútne** dátumy: ISO 8601 / RFC 3339 (so sekundami aj bez nich, so zlomkami sekundy a s posunom), RFC 2822 (`Fri, 20 Nov 2026 06:30:00 +0100`, deň v týždni musí sedieť s dátumom), `2026-11-20 06:30`, samotný dátum (`2026-11-20`, polnoc). Reťazec bez posunu alebo časového pásma je v predvolenom časovom pásme PHP (`date_default_timezone_get()`).
+- Všetko ostatné sa ignoruje a pole si ponechá predchádzajúcu hodnotu: text, relatívne výrazy závislé od aktuálneho času (`yesterday noon`, `+1 week`, `now`, `2026-11-20 +1 day`), čas bez dátumu, samotný rok, Unix timestamp (`@1763616600`), neplatné dátumy (`2026-02-30`) a deň v týždni, ktorý nesedí s dátumom.
 
 ```php
 $meta = new Meta()
     ->setPublishedTime('2026-11-20T06:30:00+01:00')
-    ->setModifiedTime('not a date');
+    ->setModifiedTime('yesterday noon');
 
 echo $meta->getPublishedTime()?->format(DATE_ATOM), "\n";
 var_dump($meta->getModifiedTime());
 
-// show it in your time zone, without changing the object stored in $meta
-$published = $meta->getPublishedTime();
-if ($published !== null) {
-    echo DateTimeImmutable::createFromMutable($published)->setTimezone(new DateTimeZone('Europe/Bratislava'))->format('j. n. Y H:i'), "\n";
-}
+// show it in your time zone: setTimezone() returns a new object, $meta is not changed
+echo $meta->getPublishedTime()?->setTimezone(new DateTimeZone('UTC'))->format('j. n. Y H:i e'), "\n";
 ```
 
 <!-- snippet: output -->
 ```text
-2026-11-20T05:30:00+00:00
+2026-11-20T06:30:00+01:00
 NULL
-20. 11. 2026 06:30
+20. 11. 2026 05:30 UTC
 ```
-
-Gettery vracajú priamo uložený meniteľný objekt `DateTime`: zavolanie `setTimezone()` na ňom zmení aj `Meta`. Najprv ho preveďte na `DateTimeImmutable` (ako vyššie) alebo ho naklonujte.
 
 ## merge()
 

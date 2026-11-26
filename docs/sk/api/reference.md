@@ -90,8 +90,8 @@ Meniteľný objekt s výsledkom. Každý setter a metóda `add…` vracia `$this
 | `getOgUrl()` / `setOgUrl(string $ogUrl)` | `?string` / `Meta` | |
 | `getOgSiteName()` / `setOgSiteName(string $ogSiteName)` | `?string` / `Meta` | |
 | `getOgImage()` / `setOgImage(string $ogImage)` | `?string` / `Meta` | |
-| `getPublishedTime()` / `setPublishedTime(DateTime\|string $publishedTime)` | `?DateTime` / `Meta` | reťazec sa cez `strtotime()` prevedie na `DateTime` v UTC; reťazec, ktorý sa nedá prečítať, sa ignoruje |
-| `getModifiedTime()` / `setModifiedTime(DateTime\|string $modifiedTime)` | `?DateTime` / `Meta` | ako vyššie |
+| `getPublishedTime()` / `setPublishedTime(DateTimeInterface\|string $publishedTime)` | `?DateTimeImmutable` / `Meta` | reťazec sa spracuje aj s posunom; reťazec, ktorý nie je absolútny dátum, sa ignoruje; `DateTimeInterface` sa skopíruje ([Dátumy](../guide/meta.md#dates)) |
+| `getModifiedTime()` / `setModifiedTime(DateTimeInterface\|string $modifiedTime)` | `?DateTimeImmutable` / `Meta` | ako vyššie |
 | `merge(Meta $meta)` | `Meta` (`$this`) | skopíruje každú hodnotu z `$meta` do polí `$this`, ktoré sú prázdne (`null`, `''`, `'0'`, `[]`); zoznamy sa skopírujú celé |
 
 Konštruktor nemá argumenty; každé pole začína ako `null` alebo `[]`.

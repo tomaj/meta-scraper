@@ -9,6 +9,7 @@ Checklist:
 - Classes are `final`, value objects are `readonly`, `protected` members are gone: [Final classes](#classes-are-final).
 - `Scraper` options are typed; options outside the documented list go into your own Guzzle client: [Scraper options](#scraper-options-and-your-own-guzzle-client).
 - `OgDomParser` throws without `ext-dom`: [OgDomParser](#ogdomparser-requires-ext-dom-and-ext-libxml).
+- Published and modified times are `DateTimeImmutable` with the page's offset; relative dates are ignored: [Times](#published-and-modified-times).
 - Parsers return different (correct) values for some pages: [Parser output](#parser-output-changes).
 
 ## Requirements
@@ -96,6 +97,26 @@ The client is created once in the constructor instead of on every `parseUrl()` c
 ## OgDomParser requires ext-dom and ext-libxml
 
 Without `ext-dom` or `ext-libxml`, `new OgDomParser()` used to succeed and then fail inside `parse()` (or find nothing). It now throws `Tomaj\Scraper\Exception\MissingExtensionException` (a `LogicException`). Use `OgParser` where the extensions are not available.
+
+## Published and modified times
+
+`Meta::getPublishedTime()` and `getModifiedTime()` return `?DateTimeImmutable` instead of `?DateTime` ([#36](https://github.com/tomaj/meta-scraper/issues/36)). The setters accept any `DateTimeInterface` (stored as a copy) or a string.
+
+- **Immutable.** `modify()`, `setTimezone()` and friends return a new object and no longer change the `Meta`. Code that called them for their side effect must use the return value. Code that typed a variable or parameter as `DateTime` must accept `DateTimeImmutable` (or `DateTimeInterface`).
+- **The page's offset is kept.** 4.x converted every string to UTC: `2018-12-15T19:00:26+02:00` came back as `2018-12-15T17:00:26+00:00`. Now it comes back with `+02:00`; the instant is the same, so comparisons and timestamps do not change, but `format()` shows the page's local time. Call `setTimezone()` for the zone you display.
+- **Only absolute dates.** 4.x used `strtotime()`, which also accepted relative expressions (`yesterday noon`, `+1 week`, `now`) and resolved them against the server's clock. Those, a time without a date, a Unix timestamp (`@1763616600`), an invalid date (`2026-02-30`) and an RFC 2822 date whose weekday does not match are now ignored (the field stays as it was). A string without an offset is still in the default time zone.
+
+<!-- snippet: skip -->
+```php
+// 4.x
+$published = $meta->getPublishedTime();          // DateTime in UTC
+$published->setTimezone(new DateTimeZone('Europe/Bratislava')); // also changed $meta
+echo $published->format('j. n. Y H:i');
+
+// 5.0
+$published = $meta->getPublishedTime();          // DateTimeImmutable with the page's offset
+echo $published?->setTimezone(new DateTimeZone('Europe/Bratislava'))->format('j. n. Y H:i');
+```
 
 ## Parser output changes
 

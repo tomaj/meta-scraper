@@ -29,4 +29,4 @@ A news page as WordPress with Yoast SEO renders it: one JSON-LD block with a `@g
 
 ## What CI checks
 
-The selected node, both resolved references, the UTC dates, sections and tags with their `@id`, and the merged result of both parser orders.
+The selected node, both resolved references, the dates with their offset, sections and tags with their `@id`, and the merged result of both parser orders.

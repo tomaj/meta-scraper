@@ -42,9 +42,9 @@ final class SchemaParserTest extends TestCase
 
         self::assertEquals([new Author('495', 'Tomáš Vasilko')], $meta->getAuthors());
 
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-15T19:00:26+00:00')), $meta->getPublishedTime());
+        self::assertEquals(new \DateTimeImmutable('2018-12-15T19:00:26+00:00'), $meta->getPublishedTime());
 
-        self::assertEquals(new \DateTime('@' . strtotime('2018-12-17T00:28:43+00:00')), $meta->getModifiedTime());
+        self::assertEquals(new \DateTimeImmutable('2018-12-17T00:28:43+00:00'), $meta->getModifiedTime());
     }
 
     public function testSchemaParserSections(): void
@@ -154,7 +154,7 @@ final class SchemaParserTest extends TestCase
         $meta = new SchemaParser()->parse($html);
 
         self::assertSame('Multiline', $meta->getTitle());
-        self::assertSame('2024-05-01T08:00:00+00:00', $meta->getPublishedTime()?->format(DATE_ATOM));
+        self::assertSame('2024-05-01T10:00:00+02:00', $meta->getPublishedTime()?->format(DATE_ATOM));
     }
 
     public function testArticleFromLaterBlockWins(): void

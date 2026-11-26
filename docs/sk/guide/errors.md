@@ -113,7 +113,7 @@ Parsery vrátia, čo sa im podarilo prečítať, a zvyšok nechajú `null`:
 | neuzavreté tagy, tagy veľkými písmenami, atribúty bez úvodzoviek | `OgDomParser` ich prečíta; `OgParser` ich môže prehliadnuť |
 | neplatný JSON v bloku JSON-LD | blok sa preskočí, ostatné bloky sa použijú |
 | hodnota JSON-LD neočakávaného typu | ignoruje sa (`null`) |
-| dátum, ktorý `strtotime()` nevie spracovať | ignoruje sa (`null`) |
+| dátum, ktorý nie je absolútny (`not a date`, `yesterday noon`, `2026-02-30`) | ignoruje sa (`null`) |
 | stránka v inom kódovaní | `OgDomParser` dekóduje deklarované kódovanie, ostatné parsery vrátia surové bajty |
 
 ```php

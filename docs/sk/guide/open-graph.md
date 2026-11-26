@@ -21,8 +21,8 @@ description: OgParser a OgDomParser čítajú titulok, popis, kľúčové slová
 | `<meta property="og:site_name" content="…">` | `getOgSiteName()` |
 | `<meta property="og:image" content="…">` | `getOgImage()` |
 | `<meta property="article:section" content="…">` | `getSections()`: `Section` s `id()` `null` |
-| `<meta property="article:published_time" content="…">` | `getPublishedTime()`, spracované cez `strtotime()` |
-| `<meta property="article:modified_time" content="…">` | `getModifiedTime()`, spracované cez `strtotime()` |
+| `<meta property="article:published_time" content="…">` | `getPublishedTime()`, absolútny dátum s posunom ([Dátumy](./meta.md#dates)) |
+| `<meta property="article:modified_time" content="…">` | `getModifiedTime()`, absolútny dátum s posunom ([Dátumy](./meta.md#dates)) |
 
 Tagy `name` musia používať `name`, Open Graph tagy musia používať `property` (tak to určuje protokol Open Graph): `<meta name="og:title">` sa nečíta. Tagy, ktoré v tabuľke nie sú, vrátane `twitter:*`, `og:image:width`, `og:locale` a `article:tag`, sa ignorujú; prečítate ich [vlastným parserom](./custom-parser.md).
 

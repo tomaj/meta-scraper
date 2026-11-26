@@ -46,5 +46,5 @@ An empty parser list is allowed: you get an empty `Meta` (`parseUrl($url, [])` i
 
 - **Run JavaScript.** Metadata that a page adds in the browser is not in the HTML the server returns.
 - **Resolve relative URLs.** An `og:image` of `/img/a.jpg` is returned as `/img/a.jpg`; resolve it against the page URL yourself (the [link preview example](../examples/link-preview.md) does).
-- **Validate values.** URLs, types and dates are returned as the page wrote them (dates are parsed with `strtotime()`, see [The Meta object](./meta.md#dates)).
+- **Validate values.** URLs, types and dates are returned as the page wrote them (dates keep the page's offset and must be absolute, see [The Meta object](./meta.md#dates)).
 - **Throw on bad input.** Malformed HTML or JSON gives the values that could be read; see [Error handling](./errors.md).

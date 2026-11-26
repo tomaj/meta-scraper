@@ -22,7 +22,7 @@ A news article with the usual tags: `<title>`, description, keywords, author, Op
 
 ## What to notice
 
-- **Times are UTC.** `2026-11-20T06:30:00+01:00` becomes `2026-11-20T05:30:00+00:00`: `Meta` stores dates parsed with `strtotime()` as UTC `DateTime` objects. See [Dates](../guide/meta.md#dates).
+- **Times keep the page's offset.** `2026-11-20T06:30:00+01:00` comes back as a `DateTimeImmutable` with `+01:00`. See [Dates](../guide/meta.md#dates).
 - **Sections:** the page has two `article:section` tags. `OgDomParser` returns both, `OgParser` only the first. Everything else is the same for this well-formed page.
 - **Non-ASCII text** (`Račianske mýto`, `Kováčová`) comes through unchanged: the page is UTF-8 and declares it.
 - **`twitter:card` is ignored**: no built-in parser reads Twitter tags. The [Twitter card example](./twitter-card.md) adds a parser for them.
@@ -30,4 +30,4 @@ A news article with the usual tags: `<title>`, description, keywords, author, Op
 
 ## What CI checks
 
-The output must match `expected-output.txt` exactly: every field read by `OgDomParser` and `OgParser`, the UTC conversion of both dates and the difference in sections.
+The output must match `expected-output.txt` exactly: every field read by `OgDomParser` and `OgParser`, both dates with their offset and the difference in sections.
