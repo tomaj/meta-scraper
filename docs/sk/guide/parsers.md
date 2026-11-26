@@ -9,7 +9,7 @@ Parser implementuje `Tomaj\Scraper\Parser\ParserInterface`: dostane HTML ako re�
 | | `OgParser` | `OgDomParser` | `SchemaParser` |
 | --- | --- | --- | --- |
 | Číta | `<title>`, meta tagy, Open Graph | `<title>`, meta tagy, Open Graph | schema.org JSON-LD |
-| Ako | regulárne výrazy | PHP DOM (`DOMDocument`) | regulárny výraz na bloky `<script>`, `json_decode()` |
+| Ako | regulárne výrazy | HTML5 parser z PHP 8.4 (`Dom\HTMLDocument`) | regulárny výraz na bloky `<script>`, `json_decode()` |
 | Potrebuje | nič | `ext-dom`, `ext-libxml` | `ext-json` (vždy zapnuté) |
 | Poradie atribútov | `name`/`property` musí byť pred `content` | ľubovoľné | ľubovoľné |
 | Opakované tagy (`article:section`) | len prvý | všetky | zoznamy v JSON |

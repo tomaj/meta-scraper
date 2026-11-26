@@ -9,7 +9,7 @@ A parser implements `Tomaj\Scraper\Parser\ParserInterface`: it gets the HTML as 
 | | `OgParser` | `OgDomParser` | `SchemaParser` |
 | --- | --- | --- | --- |
 | Reads | `<title>`, meta tags, Open Graph | `<title>`, meta tags, Open Graph | schema.org JSON-LD |
-| How | regular expressions | PHP DOM (`DOMDocument`) | regular expression for the `<script>` blocks, `json_decode()` |
+| How | regular expressions | HTML5 parser of PHP 8.4 (`Dom\HTMLDocument`) | regular expression for the `<script>` blocks, `json_decode()` |
 | Needs | nothing | `ext-dom`, `ext-libxml` | `ext-json` (always on) |
 | Attribute order | `name`/`property` must come before `content` | any | any |
 | Repeated tags (`article:section`) | first one only | all of them | lists in JSON |

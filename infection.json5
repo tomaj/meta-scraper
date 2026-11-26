@@ -27,16 +27,7 @@
         // parsing '' without the early return also gives an empty Meta; the return only skips the DOM work
         "ReturnRemoval": {
             "ignore": [
-                "Tomaj\\Scraper\\Parser\\OgDomParser::parse",
-                // a declared charset also wins over the UTF-8 prefix in the libxml versions the tests run on;
-                // the check keeps such documents untouched for libxml versions where it does not
-                "Tomaj\\Scraper\\Parser\\OgDomParser::withEncoding"
-            ]
-        },
-        // same reason: an upper-case <META CHARSET> that is not detected is still honoured by libxml
-        "PregMatchRemoveFlags": {
-            "ignore": [
-                "Tomaj\\Scraper\\Parser\\OgDomParser::withEncoding"
+                "Tomaj\\Scraper\\Parser\\OgDomParser::parse"
             ]
         }
     },

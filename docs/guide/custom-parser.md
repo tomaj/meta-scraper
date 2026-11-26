@@ -38,7 +38,7 @@ Output:
 
 ## A complete one: Twitter cards
 
-The [Twitter card example](../examples/twitter-card.md) has a DOM-based parser that reads `twitter:title`, `twitter:description` and `twitter:image` (also written as `property="twitter:…"`), handles UTF-8 pages without a charset declaration and restores the libxml error setting:
+The [Twitter card example](../examples/twitter-card.md) has a parser built on PHP 8.4's HTML5 parser (`Dom\HTMLDocument`, like `OgDomParser`) that reads `twitter:title`, `twitter:description` and `twitter:image` (also written as `property="twitter:…"`):
 
 <<< @/../examples/twitter-card/src/TwitterCardParser.php
 
