@@ -110,6 +110,7 @@ Ide o opravy chýb, ale menia to, čo parsery vracajú:
 - `SchemaParser` číta štandardné JSON-LD (`<script type="application/ld+json">` bez `id="schema"`, JSON na viacerých riadkoch, viac blokov, `@graph`, odkazy `{"@id": …}`). Stránky, pri ktorých `SchemaParser` predtým vrátil prázdny výsledok, teraz môžu vrátiť titulok, autorov, dátumy a ďalšie. Keď `SchemaParser` beží prvý, jeho hodnoty majú prednosť pred hodnotami z Open Graph, takže `getTitle()` teraz môže byť titulok článku namiesto `<title>` ([#23](https://github.com/tomaj/meta-scraper/issues/23)). Stránky s blokom `id="schema"` ho naďalej používajú.
 - `OgDomParser` po parsovaní obnoví pôvodné nastavenie `libxml_use_internal_errors()`; 4.x nechávala interné chyby zapnuté po zvyšok behu procesu.
 - `OgParser` vráti `null` pre tag, ktorý nevie prečítať (`content` pred `name`/`property`, chýbajúci `content`), a prázdny reťazec pre `content=""`. 4.x namiesto toho vrátila obsah neskoršieho tagu alebo kus značkovania. Hodnoty s úvodzovkou druhého typu (`content="Don't"`) sa na nej už neorežú ([#29](https://github.com/tomaj/meta-scraper/issues/29)).
+- `OgParser` dekóduje každú HTML entitu (`&eacute;`, `&hellip;`, `&nbsp;`, `&#8211;` …), nielen `&amp;`, `&lt;`, `&gt;`, `&quot;` a `&#039;`. Kód, ktorý hodnoty dekódoval ešte raz, teraz môže dekódovať text, ktorý stránka myslela doslovne; `&nbsp;` sa zmení na U+00A0, nie na obyčajnú medzeru ([#35](https://github.com/tomaj/meta-scraper/issues/35)).
 
 ## Pozrite aj
 

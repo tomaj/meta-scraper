@@ -63,7 +63,7 @@ $parser = new OgParser(); // no requirements
 - **Attribute order matters:** the `name` or `property` attribute must come before `content` in the same tag. Single and double quotes both work (a value may contain the other kind of quote and `>`); unquoted values do not.
 - **One tag at a time:** every expression stays inside one `<meta>` tag. A tag that cannot be read, such as `<meta content="…" property="og:title">` (content first) or a tag without `content`, gives `null`, never the value of another tag. An empty `content=""` gives an empty string.
 - **First match only:** for every tag, including `author` and `article:section`, only the first occurrence is read.
-- **Entities:** only `&amp;`, `&lt;`, `&gt;`, `&quot;` and `&#039;` are decoded (`htmlspecialchars_decode()`); other entities such as `&hellip;` stay as they are.
+- **Entities:** every named and numeric HTML5 entity is decoded once with `html_entity_decode()` (`&eacute;` becomes `é`, `&hellip;` `…`, `&#8211;` `–`, `&nbsp;` a no-break space U+00A0), in the title and in every `content`. A double-escaped `&amp;amp;` becomes the literal text `&amp;`. Unknown entities and entities without the closing `;` stay as they are.
 - **Character set:** the bytes are returned as they are; convert pages that are not UTF-8 before parsing ([Fetching pages](./fetching.md#character-sets)).
 
 ::: tip Content first
@@ -88,6 +88,6 @@ foreach ([new OgParser(), new OgDomParser()] as $parser) {
 
 <!-- snippet: output -->
 ```text
-OgParser | A & B &hellip; | First | Ann
+OgParser | A & B … | First | Ann
 OgDomParser | A & B … | Second | Ann, Bob
 ```

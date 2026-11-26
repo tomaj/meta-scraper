@@ -63,7 +63,7 @@ $parser = new OgParser(); // no requirements
 - **Na poradí atribútov záleží:** atribút `name` alebo `property` musí byť v tom istom tagu pred `content`. Fungujú jednoduché aj dvojité úvodzovky (hodnota môže obsahovať úvodzovky druhého typu aj `>`), hodnoty bez úvodzoviek nie.
 - **Vždy len jeden tag:** každý výraz zostane vnútri jedného tagu `<meta>`. Tag, ktorý sa nedá prečítať, napríklad `<meta content="…" property="og:title">` (content na začiatku) alebo tag bez `content`, dá `null`, nikdy nie hodnotu iného tagu. Prázdny `content=""` dá prázdny reťazec.
 - **Len prvá zhoda:** pri každom tagu, vrátane `author` a `article:section`, sa číta len prvý výskyt.
-- **Entity:** dekódujú sa len `&amp;`, `&lt;`, `&gt;`, `&quot;` a `&#039;` (`htmlspecialchars_decode()`); ostatné entity, napríklad `&hellip;`, zostanú tak, ako sú.
+- **Entity:** každá pomenovaná aj číselná entita HTML5 sa raz dekóduje cez `html_entity_decode()` (`&eacute;` sa zmení na `é`, `&hellip;` na `…`, `&#8211;` na `–`, `&nbsp;` na nezlomiteľnú medzeru U+00A0), v titulku aj v každom `content`. Dvakrát escapované `&amp;amp;` sa zmení na doslovný text `&amp;`. Neznáme entity a entity bez koncovej `;` zostanú tak, ako sú.
 - **Kódovanie:** bajty sa vrátia tak, ako sú; stránky, ktoré nie sú v UTF-8, pred spracovaním preveďte ([Sťahovanie stránok](./fetching.md#character-sets)).
 
 ::: tip Content na začiatku
@@ -88,6 +88,6 @@ foreach ([new OgParser(), new OgDomParser()] as $parser) {
 
 <!-- snippet: output -->
 ```text
-OgParser | A & B &hellip; | First | Ann
+OgParser | A & B … | First | Ann
 OgDomParser | A & B … | Second | Ann, Bob
 ```

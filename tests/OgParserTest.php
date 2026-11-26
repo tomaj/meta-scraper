@@ -269,6 +269,33 @@ final class OgParserTest extends TestCase
         self::assertSame('Also read', $meta->getDescription());
     }
 
+    public function testNamedAndNumericEntitiesAreDecodedInEveryField(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('entities.html'));
+
+        self::assertSame('Café … – „Šťastie“', $meta->getTitle());
+        self::assertSame("Príliš\u{00A0}žluťoučký kôň", $meta->getDescription());
+        self::assertSame('café, čaj, <tag>', $meta->getKeywords());
+        self::assertEquals([new Author(null, 'Ján Štefánik')], $meta->getAuthors());
+        // decoded once: a double-escaped &amp;amp; is the literal text &amp;
+        self::assertSame('Tom &amp; Jerry …', $meta->getOgTitle());
+        self::assertSame('Quotes: "double" \'single\' \'numeric\' \'hex\'', $meta->getOgDescription());
+        self::assertSame("article\u{200B}", $meta->getOgType());
+        self::assertSame('https://example.com/?a=1&b=2&c=3', $meta->getOgUrl());
+        self::assertSame('© Denník €', $meta->getOgSiteName());
+        self::assertSame('https://example.com/café.jpg?w=1&h=2', $meta->getOgImage());
+        self::assertEquals([new Section(null, 'Ekonomika & financie')], $meta->getSections());
+        self::assertSame('2024-11-21T08:00:00+00:00', $meta->getPublishedTime()?->format(DATE_ATOM));
+        self::assertSame('2024-11-21T09:30:00+00:00', $meta->getModifiedTime()?->format(DATE_ATOM));
+    }
+
+    public function testUnknownEntitiesAndNonUtf8BytesAreLeftAsTheyAre(): void
+    {
+        $meta = new OgParser()->parse("<title>&bogus; &eacute &#0; \x8eltý</title>");
+
+        self::assertSame("&bogus; &eacute &#0; \x8eltý", $meta->getTitle());
+    }
+
     private function fixture(string $name): string
     {
         return (string) file_get_contents(__DIR__ . '/fixtures/og/' . $name);
