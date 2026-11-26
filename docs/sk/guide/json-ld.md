@@ -40,7 +40,7 @@ Hodnoty zapísané ako odkaz, teda objekt, ktorý obsahuje len `@id`, napríklad
 | `articleTerms` | `getSections()` | zoznam objektov s `"@type": "Category"` a `@id`/`name`; ostatné objekty sa preskočia |
 | `articleSection` | `getSections()`, len keď nie je zoznam `articleTerms` | reťazec alebo zoznam reťazcov |
 | `about` | `getTags()` | objekt s `@id`/`name` alebo ich zoznam; samotné reťazce sa preskočia |
-| `image` | `getOgImage()` | objekt s `url` (`ImageObject`, prípadne odkaz) |
+| `image` | `getOgImage()` | reťazec s URL, objekt s `url` (`ImageObject`, prípadne odkaz) alebo ich zoznam: prvá položka s URL |
 | `url` | `getOgUrl()` | reťazec |
 | `datePublished` | `getPublishedTime()` | dátum, ktorému rozumie `strtotime()` |
 | `dateModified` | `getModifiedTime()` | dátum, ktorému rozumie `strtotime()` |
@@ -49,7 +49,7 @@ Podrobnosti:
 
 - Kde sa očakáva text, použijú sa reťazce a celé čísla (`"@id": 42` sa zmení na `"42"`); ostatné typy (booleovské hodnoty, desatinné čísla, objekty) sa ignorujú. Hodnoty sa nikdy neorezávajú ani nedekódujú: JSON má vlastné escapovanie.
 - Na titulok sa nepoužíva `name` uzla, len `headline`. Uzol `WebPage` má zvyčajne `name` a nemá `headline`, takže jeho titulok zostane `null` a môže ho vyplniť neskorší parser.
-- `image` zadaný ako samotný reťazec s URL (`"image": "https://…/a.jpg"`) alebo ako zoznam obrázkov sa nečíta. Zaraďte `OgDomParser` za `SchemaParser` a medzeru vyplní `og:image`.
+- `image` môže byť reťazec s URL (`"image": "https://…/a.jpg"`), `ImageObject` alebo odkaz naň, prípadne zoznam ľubovoľných z nich (`"image": ["https://…/1x1.jpg", "https://…/16x9.jpg"]`, tvar, ktorý pre články odporúča Google). Zo zoznamu sa použije prvá položka, ktorá dá neprázdny reťazec s URL; prázdne reťazce, čísla, odkazy na neexistujúce uzly a objekty bez reťazca v `url` (napríklad `ImageObject` len s `contentUrl`) sa preskočia.
 - Objekty `Author`, `Section` a `Tag` dostanú ako `id()` hodnotu `@id` uzla; pri autoroch zadaných reťazcom a pri `articleSection` je `null`.
 - `og:type`, `og:site_name`, `og:title`, `og:description` a kľúčové slová nemajú v JSON-LD zdroj a zostanú `null`.
 
