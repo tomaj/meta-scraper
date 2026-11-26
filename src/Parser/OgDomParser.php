@@ -112,7 +112,8 @@ final class OgDomParser implements ParserInterface
         if (preg_match('/<meta\b[^>]*?[\s;]charset\s*=\s*["\']?\s*([\w.:-]+)/i', $content, $matches) === 1) {
             return $matches[1];
         }
-        if (preg_match('/<\?xml\b[^>]*?\bencoding\s*=\s*["\']([\w.:-]+)/i', $content, $matches) === 1) {
+        // an XML declaration is case-sensitive
+        if (preg_match('/<\?xml\b[^>]*?\bencoding\s*=\s*["\']([\w.:-]+)/', $content, $matches) === 1) {
             return $matches[1];
         }
 
