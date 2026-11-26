@@ -43,7 +43,7 @@ final class MetaTest extends TestCase
 
         self::assertEquals([new Section(null, 'Svet'), new Section(null, 'Veda')], $meta->getSections());
 
-        self::assertSame('Veľa pohybu a&nbsp;málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG', $meta->getOgTitle());
+        self::assertSame("Veľa pohybu a\u{00A0}málo mäsa. Päť miest, kde ľudia žijú najdlhšie, ohrozuje westernizácia OG", $meta->getOgTitle());
 
         self::assertSame('https://img.projektn.sk/wp-static/2018/12/XkJ05Z9kQFZoy6hlKrEcj8U3Aevn1wfu-6r8OMz0Ah4.jpg', $meta->getOgImage());
 

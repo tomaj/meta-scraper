@@ -29,7 +29,7 @@ final class OgParser implements ParserInterface
         $meta = new Meta();
 
         if (preg_match('/<title\b[^>]*>(.*?)<\/title\s*>/is', $content, $matches) === 1) {
-            $meta->setTitle(htmlspecialchars_decode($matches[1]));
+            $meta->setTitle($this->decode($matches[1]));
         }
 
         $value = $this->metaContent($content, 'name', 'description');
@@ -111,6 +111,14 @@ final class OgParser implements ParserInterface
         }
 
         // group 2 holds a double-quoted value, group 3 a single-quoted one
-        return htmlspecialchars_decode($matches[3] ?? $matches[2]);
+        return $this->decode($matches[3] ?? $matches[2]);
+    }
+
+    /**
+     * Decodes every named and numeric HTML entity (&eacute;, &hellip;, &nbsp;, &#8211;, &#x27;) once.
+     */
+    private function decode(string $value): string
+    {
+        return html_entity_decode($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 }
