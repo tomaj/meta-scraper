@@ -42,8 +42,8 @@ Values written as a reference, an object with nothing but an `@id` such as `{"@i
 | `about` | `getTags()` | an object with `@id`/`name` or a list of them; plain strings are skipped |
 | `image` | `getOgImage()` | a URL string, an object with a `url` or, without one, a `contentUrl` (an `ImageObject`, possibly a reference), or a list of those: the first entry with a URL |
 | `url` | `getOgUrl()` | string |
-| `datePublished` | `getPublishedTime()` | a date string `strtotime()` understands |
-| `dateModified` | `getModifiedTime()` | a date string `strtotime()` understands |
+| `datePublished` | `getPublishedTime()` | an absolute date string, offset kept ([Dates](./meta.md#dates)) |
+| `dateModified` | `getModifiedTime()` | an absolute date string, offset kept |
 
 Details:
 
@@ -92,7 +92,7 @@ author: Eva (https://news.example/#eva)
 author: Guest Writer (no @id)
 sections: World, Europe
 tag: EU (https://news.example/t/eu)
-published: 2026-01-15T09:00:00+00:00
+published: 2026-01-15T10:00:00+01:00
 description: NULL
 ```
 

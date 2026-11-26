@@ -29,4 +29,4 @@ Spravodajská stránka tak, ako ju vykreslí WordPress s Yoast SEO: jeden blok J
 
 ## Čo kontroluje CI
 
-Vybraný uzol, oba vyriešené odkazy, dátumy v UTC, sekcie a tagy s ich `@id` a zlúčený výsledok pri oboch poradiach parserov.
+Vybraný uzol, oba vyriešené odkazy, dátumy s posunom, sekcie a tagy s ich `@id` a zlúčený výsledok pri oboch poradiach parserov.

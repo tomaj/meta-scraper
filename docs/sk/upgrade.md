@@ -1,5 +1,5 @@
 ---
-description: Prechod z meta-scraper 4.x na 5.0 - PHP 8.4, FetchException, finálne triedy, typované options pre Scraper, požiadavky OgDomParser a zmeny vo výstupe parserov.
+description: Prechod z meta-scraper 4.x na 5.0 - PHP 8.4, FetchException, finálne triedy, typované options pre Scraper, požiadavky OgDomParser, nemenné časy s posunom zo stránky a zmeny vo výstupe parserov.
 ---
 
 # Prechod zo 4.x na 5.0
@@ -13,6 +13,7 @@ Kontrolný zoznam:
 - Triedy sú `final`, hodnotové objekty `readonly`, `protected` členy zmizli: [Finálne triedy](#classes-are-final).
 - Nastavenia (options) pre `Scraper` sú typované; nastavenia mimo zdokumentovaného zoznamu patria do vášho vlastného Guzzle klienta: [Nastavenia Scrapera](#scraper-options-and-your-own-guzzle-client).
 - `OgDomParser` bez `ext-dom` vyhodí výnimku: [OgDomParser](#ogdomparser-requires-ext-dom-and-ext-libxml).
+- Čas publikovania a úpravy je `DateTimeImmutable` s posunom zo stránky; relatívne dátumy sa ignorujú: [Časy](#published-and-modified-times).
 - Parsery pri niektorých stránkach vracajú iné (správne) hodnoty: [Výstup parserov](#parser-output-changes).
 
 ## Požiadavky {#requirements}
@@ -100,6 +101,26 @@ Klient sa vytvorí raz v konštruktore, nie pri každom volaní `parseUrl()`.
 ## OgDomParser vyžaduje ext-dom a ext-libxml {#ogdomparser-requires-ext-dom-and-ext-libxml}
 
 Bez `ext-dom` alebo `ext-libxml` sa `new OgDomParser()` predtým vytvoril a zlyhal až v `parse()` (alebo nič nenašiel). Teraz vyhodí `Tomaj\Scraper\Exception\MissingExtensionException` (`LogicException`). Tam, kde rozšírenia nie sú k dispozícii, použite `OgParser`.
+
+## Čas publikovania a úpravy {#published-and-modified-times}
+
+`Meta::getPublishedTime()` a `getModifiedTime()` vracajú `?DateTimeImmutable` namiesto `?DateTime` ([#36](https://github.com/tomaj/meta-scraper/issues/36)). Settery prijímajú ľubovoľný `DateTimeInterface` (uloží sa kópia) alebo reťazec.
+
+- **Nemenný objekt.** `modify()`, `setTimezone()` a podobné metódy vrátia nový objekt a `Meta` už nemenia. Kód, ktorý ich volal kvôli vedľajšiemu účinku, musí použiť návratovú hodnotu. Kód, ktorý mal premennú alebo parameter typovaný ako `DateTime`, musí prijať `DateTimeImmutable` (alebo `DateTimeInterface`).
+- **Posun zo stránky sa zachová.** 4.x prevádzala každý reťazec do UTC: z `2018-12-15T19:00:26+02:00` sa stalo `2018-12-15T17:00:26+00:00`. Teraz sa vráti s `+02:00`; okamih je ten istý, takže porovnania a timestampy sa nemenia, ale `format()` ukáže miestny čas stránky. Na zobrazenie zavolajte `setTimezone()` s vaším časovým pásmom.
+- **Len absolútne dátumy.** 4.x používala `strtotime()`, ktoré prijímalo aj relatívne výrazy (`yesterday noon`, `+1 week`, `now`) a vyhodnotilo ich voči hodinám servera. Tie, čas bez dátumu, Unix timestamp (`@1763616600`), neplatný dátum (`2026-02-30`) a dátum RFC 2822, ktorého deň v týždni nesedí, sa teraz ignorujú (pole zostane, aké bolo). Reťazec bez posunu je naďalej v predvolenom časovom pásme.
+
+<!-- snippet: skip -->
+```php
+// 4.x
+$published = $meta->getPublishedTime();          // DateTime in UTC
+$published->setTimezone(new DateTimeZone('Europe/Bratislava')); // also changed $meta
+echo $published->format('j. n. Y H:i');
+
+// 5.0
+$published = $meta->getPublishedTime();          // DateTimeImmutable with the page's offset
+echo $published?->setTimezone(new DateTimeZone('Europe/Bratislava'))->format('j. n. Y H:i');
+```
 
 ## Zmeny vo výstupe parserov {#parser-output-changes}
 

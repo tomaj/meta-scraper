@@ -78,8 +78,8 @@ URL, ktorú zadal používateľ, neodovzdávajte do `parseUrl()` bez ochrany pro
 | `getOgUrl()` | `?string` | `og:url`, JSON-LD `url` |
 | `getOgSiteName()` | `?string` | `og:site_name` |
 | `getOgImage()` | `?string` | `og:image`, JSON-LD `image.url` |
-| `getPublishedTime()` | `?DateTime` (UTC) | `article:published_time`, JSON-LD `datePublished` |
-| `getModifiedTime()` | `?DateTime` (UTC) | `article:modified_time`, JSON-LD `dateModified` |
+| `getPublishedTime()` | `?DateTimeImmutable` (posun zo stránky) | `article:published_time`, JSON-LD `datePublished` |
+| `getModifiedTime()` | `?DateTimeImmutable` (posun zo stránky) | `article:modified_time`, JSON-LD `dateModified` |
 
 Každé pole opisuje stránka [Objekt Meta](./meta.md); [referencia API](../api/reference.md) obsahuje všetky triedy a metódy.
 

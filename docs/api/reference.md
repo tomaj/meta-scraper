@@ -90,8 +90,8 @@ A mutable result object. Every setter and adder returns `$this` (`Meta`).
 | `getOgUrl()` / `setOgUrl(string $ogUrl)` | `?string` / `Meta` | |
 | `getOgSiteName()` / `setOgSiteName(string $ogSiteName)` | `?string` / `Meta` | |
 | `getOgImage()` / `setOgImage(string $ogImage)` | `?string` / `Meta` | |
-| `getPublishedTime()` / `setPublishedTime(DateTime\|string $publishedTime)` | `?DateTime` / `Meta` | a string is parsed with `strtotime()` into a UTC `DateTime`; an unparsable string is ignored |
-| `getModifiedTime()` / `setModifiedTime(DateTime\|string $modifiedTime)` | `?DateTime` / `Meta` | as above |
+| `getPublishedTime()` / `setPublishedTime(DateTimeInterface\|string $publishedTime)` | `?DateTimeImmutable` / `Meta` | a string is parsed with its offset; a string that is not an absolute date is ignored; a `DateTimeInterface` is copied ([Dates](../guide/meta.md#dates)) |
+| `getModifiedTime()` / `setModifiedTime(DateTimeInterface\|string $modifiedTime)` | `?DateTimeImmutable` / `Meta` | as above |
 | `merge(Meta $meta)` | `Meta` (`$this`) | copies each value of `$meta` into fields of `$this` that are empty (`null`, `''`, `'0'`, `[]`); lists are copied whole |
 
 The constructor takes no arguments; every field starts as `null` or `[]`.

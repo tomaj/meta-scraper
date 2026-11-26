@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tomaj\Scraper;
 
-use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 final class Meta
 {
@@ -35,9 +36,9 @@ final class Meta
     /** @var list<Tag> */
     private array $tags = [];
 
-    private ?DateTime $publishedTime = null;
+    private ?DateTimeImmutable $publishedTime = null;
 
-    private ?DateTime $modifiedTime = null;
+    private ?DateTimeImmutable $modifiedTime = null;
 
     public function setTitle(string $title): Meta
     {
@@ -190,38 +191,31 @@ final class Meta
         return $this->sections;
     }
 
-    public function setPublishedTime(DateTime|string $publishedTime): Meta
+    /**
+     * A string is parsed with the offset the page wrote; a string that is not an absolute date is ignored
+     * and the field keeps its previous value. A DateTime is copied, so changing it later does not change the Meta.
+     */
+    public function setPublishedTime(DateTimeInterface|string $publishedTime): Meta
     {
-        if ($publishedTime instanceof DateTime) {
-            $this->publishedTime = $publishedTime;
-        } else {
-            $time = strtotime($publishedTime);
-            if ($time !== false) {
-                $this->publishedTime = new DateTime('@' . $time);
-            }
-        }
+        $this->publishedTime = $this->toTime($publishedTime) ?? $this->publishedTime;
         return $this;
     }
 
-    public function getPublishedTime(): ?DateTime
+    public function getPublishedTime(): ?DateTimeImmutable
     {
         return $this->publishedTime;
     }
 
-    public function setModifiedTime(DateTime|string $modifiedTime): Meta
+    /**
+     * Same rules as setPublishedTime().
+     */
+    public function setModifiedTime(DateTimeInterface|string $modifiedTime): Meta
     {
-        if ($modifiedTime instanceof DateTime) {
-            $this->modifiedTime = $modifiedTime;
-        } else {
-            $time = strtotime($modifiedTime);
-            if ($time !== false) {
-                $this->modifiedTime = new DateTime('@' . $time);
-            }
-        }
+        $this->modifiedTime = $this->toTime($modifiedTime) ?? $this->modifiedTime;
         return $this;
     }
 
-    public function getModifiedTime(): ?DateTime
+    public function getModifiedTime(): ?DateTimeImmutable
     {
         return $this->modifiedTime;
     }
@@ -309,8 +303,41 @@ final class Meta
      *
      * @phpstan-assert-if-false !null $value
      */
-    private function isEmpty(string|DateTime|null $value): bool
+    private function isEmpty(string|DateTimeImmutable|null $value): bool
     {
         return in_array($value, [null, '', '0'], true);
+    }
+
+    /**
+     * Only absolute dates are accepted: a date with an optional time and offset in any format PHP understands
+     * (ISO 8601, RFC 3339, RFC 2822 with a matching weekday, "2026-11-20 06:30"). Relative expressions such as
+     * "yesterday noon" or "+1 week", a time without a date, invalid dates (2026-02-30) and text are rejected,
+     * because they would depend on the current time. A string without an offset is in the default time zone.
+     */
+    private function toTime(DateTimeInterface|string $value): ?DateTimeImmutable
+    {
+        if ($value instanceof DateTimeInterface) {
+            return DateTimeImmutable::createFromInterface($value);
+        }
+
+        // a weekday name ("Fri, 20 Nov 2026") is the only relative part allowed; it is checked below
+        $parsed = date_parse($value);
+        $relative = is_array($parsed['relative'] ?? null) ? $parsed['relative'] : [];
+        unset($relative['weekday']);
+        if (array_filter($relative, static fn(mixed $part): bool => $part !== 0) !== []) {
+            return null;
+        }
+
+        try {
+            $time = new DateTimeImmutable($value);
+        } catch (\Exception) {
+            return null;
+        }
+
+        // the date written in the string must come out unchanged: this rejects a time without a date (today),
+        // an invalid date that overflows (2026-02-30) and a weekday that does not match (moved to the next one)
+        $written = array_map(static fn(mixed $part): string => is_int($part) ? (string) $part : '', [$parsed['year'], $parsed['month'], $parsed['day']]);
+
+        return $time->format('Y-n-j') === implode('-', $written) ? $time : null;
     }
 }

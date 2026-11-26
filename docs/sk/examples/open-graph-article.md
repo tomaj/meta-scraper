@@ -22,7 +22,7 @@ Spravodajský článok s bežnými tagmi: `<title>`, description, keywords, auth
 
 ## Čo si všimnúť
 
-- **Časy sú v UTC.** Z `2026-11-20T06:30:00+01:00` sa stane `2026-11-20T05:30:00+00:00`: `Meta` ukladá dátumy prečítané cez `strtotime()` ako objekty `DateTime` v UTC. Pozrite [Dátumy](../guide/meta.md#dates).
+- **Časy si zachovajú posun zo stránky.** `2026-11-20T06:30:00+01:00` sa vráti ako `DateTimeImmutable` s `+01:00`. Pozrite [Dátumy](../guide/meta.md#dates).
 - **Sekcie:** stránka má dva tagy `article:section`. `OgDomParser` vráti oba, `OgParser` len prvý. Všetko ostatné je pri tejto správne zapísanej stránke rovnaké.
 - **Text s diakritikou** (`Račianske mýto`, `Kováčová`) prejde nezmenený: stránka je v UTF-8 a deklaruje to.
 - **`twitter:card` sa ignoruje**: tagy Twitteru nečíta žiadny vstavaný parser. [Príklad s Twitter kartami](./twitter-card.md) pre ne pridáva parser.
@@ -30,4 +30,4 @@ Spravodajský článok s bežnými tagmi: `<title>`, description, keywords, auth
 
 ## Čo kontroluje CI
 
-Výstup sa musí presne zhodovať s `expected-output.txt`: každé pole prečítané parsermi `OgDomParser` a `OgParser`, prevod oboch dátumov do UTC a rozdiel v sekciách.
+Výstup sa musí presne zhodovať s `expected-output.txt`: každé pole prečítané parsermi `OgDomParser` a `OgParser`, oba dátumy s ich posunom a rozdiel v sekciách.

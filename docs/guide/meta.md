@@ -22,8 +22,8 @@ description: The Meta result object of meta-scraper - every field with its type 
 | Canonical URL | `getOgUrl()` | `?string` | `setOgUrl(string)` | Og*, Schema (`url`) |
 | Site name | `getOgSiteName()` | `?string` | `setOgSiteName(string)` | Og* |
 | Image URL | `getOgImage()` | `?string` | `setOgImage(string)` | Og*, Schema (`image.url`) |
-| Published | `getPublishedTime()` | `?DateTime` | `setPublishedTime(DateTime\|string)` | Og*, Schema |
-| Modified | `getModifiedTime()` | `?DateTime` | `setModifiedTime(DateTime\|string)` | Og*, Schema |
+| Published | `getPublishedTime()` | `?DateTimeImmutable` | `setPublishedTime(DateTimeInterface\|string)` | Og*, Schema |
+| Modified | `getModifiedTime()` | `?DateTimeImmutable` | `setModifiedTime(DateTimeInterface\|string)` | Og*, Schema |
 
 "Og\*" is `OgParser` and `OgDomParser`; the exact tags are on [Meta tags and Open Graph](./open-graph.md) and [schema.org JSON-LD](./json-ld.md).
 
@@ -52,35 +52,30 @@ Both values are nullable: a JSON-LD author may have only an `@id`, or a value of
 
 ## Dates
 
-`setPublishedTime()` and `setModifiedTime()` accept a `DateTime` (stored as it is) or a string:
+`setPublishedTime()` and `setModifiedTime()` accept any `DateTimeInterface` (a copy is stored, so changing your object later does not change the `Meta`) or a string. The getters return a `DateTimeImmutable`.
 
-- the string is parsed with `strtotime()` and stored as a `DateTime` in **UTC**, so `2026-11-20T06:30:00+01:00` becomes `2026-11-20T05:30:00+00:00`;
-- a string `strtotime()` cannot parse is ignored: the field keeps its previous value;
-- `strtotime()` also understands relative expressions such as `yesterday noon`, which are resolved against the current time.
+- A string is parsed with `new DateTimeImmutable()` and keeps the **offset the page wrote**: `2026-11-20T06:30:00+01:00` stays `+01:00`, `…Z` is `+00:00`. Convert it with `setTimezone()` for display.
+- Only **absolute** dates are accepted: ISO 8601 / RFC 3339 (with or without seconds, fractions and offset), RFC 2822 (`Fri, 20 Nov 2026 06:30:00 +0100`, the weekday must match the date), `2026-11-20 06:30`, a date alone (`2026-11-20`, midnight). A string without an offset or time zone is in PHP's default time zone (`date_default_timezone_get()`).
+- Anything else is ignored and the field keeps its previous value: text, relative expressions that depend on the current time (`yesterday noon`, `+1 week`, `now`, `2026-11-20 +1 day`), a time without a date, a year alone, a Unix timestamp (`@1763616600`), invalid dates (`2026-02-30`) and a weekday that does not match the date.
 
 ```php
 $meta = new Meta()
     ->setPublishedTime('2026-11-20T06:30:00+01:00')
-    ->setModifiedTime('not a date');
+    ->setModifiedTime('yesterday noon');
 
 echo $meta->getPublishedTime()?->format(DATE_ATOM), "\n";
 var_dump($meta->getModifiedTime());
 
-// show it in your time zone, without changing the object stored in $meta
-$published = $meta->getPublishedTime();
-if ($published !== null) {
-    echo DateTimeImmutable::createFromMutable($published)->setTimezone(new DateTimeZone('Europe/Bratislava'))->format('j. n. Y H:i'), "\n";
-}
+// show it in your time zone: setTimezone() returns a new object, $meta is not changed
+echo $meta->getPublishedTime()?->setTimezone(new DateTimeZone('UTC'))->format('j. n. Y H:i e'), "\n";
 ```
 
 <!-- snippet: output -->
 ```text
-2026-11-20T05:30:00+00:00
+2026-11-20T06:30:00+01:00
 NULL
-20. 11. 2026 06:30
+20. 11. 2026 05:30 UTC
 ```
-
-The getters return the stored, mutable `DateTime` object itself: calling `setTimezone()` on it changes the `Meta`. Convert it to a `DateTimeImmutable` (as above) or clone it first.
 
 ## merge()
 

@@ -3,8 +3,8 @@ title        Rail strike: what changes for commuters on Monday
 description  Trains between Žilina and Košice stop for 24 hours from 6 am on Monday.
 url          https://morningpost.example/2026/11/rail-strike/
 image        https://morningpost.example/img/strike-1600.jpg
-published    2026-11-22T16:05:00+00:00
-modified     2026-11-23T06:40:00+00:00
+published    2026-11-22T17:05:00+01:00
+modified     2026-11-23T07:40:00+01:00
 author       Peter Novák (https://morningpost.example/#/schema/person/peter)
 author       Eva Horváthová (no @id)
 section      Slovakia

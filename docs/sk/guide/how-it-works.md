@@ -46,5 +46,5 @@ Prázdny zoznam parserov je povolený: dostanete prázdny `Meta` (`parseUrl($url
 
 - **Nespúšťajú JavaScript.** Metadáta, ktoré stránka pridá až v prehliadači, v HTML zo servera nie sú.
 - **Nedopĺňajú relatívne URL.** `og:image` s hodnotou `/img/a.jpg` sa vráti ako `/img/a.jpg`; voči URL stránky si ju doplňte sami (robí to [príklad náhľadu odkazu](../examples/link-preview.md)).
-- **Nevalidujú hodnoty.** URL, typy a dátumy sa vracajú tak, ako ich stránka zapísala (dátumy sa spracujú cez `strtotime()`, pozrite si [Objekt Meta](./meta.md#dates)).
+- **Nevalidujú hodnoty.** URL, typy a dátumy sa vracajú tak, ako ich stránka zapísala (dátumy si zachovajú posun zo stránky a musia byť absolútne, pozrite si [Objekt Meta](./meta.md#dates)).
 - **Nevyhadzujú výnimky pri zlom vstupe.** Poškodené HTML alebo JSON dá tie hodnoty, ktoré sa dali prečítať; pozrite si [Spracovanie chýb](./errors.md).

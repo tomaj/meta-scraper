@@ -21,8 +21,8 @@ description: OgParser and OgDomParser read the title, description, keywords, aut
 | `<meta property="og:site_name" content="…">` | `getOgSiteName()` |
 | `<meta property="og:image" content="…">` | `getOgImage()` |
 | `<meta property="article:section" content="…">` | `getSections()`: a `Section` with `id()` `null` |
-| `<meta property="article:published_time" content="…">` | `getPublishedTime()`, parsed with `strtotime()` |
-| `<meta property="article:modified_time" content="…">` | `getModifiedTime()`, parsed with `strtotime()` |
+| `<meta property="article:published_time" content="…">` | `getPublishedTime()`, an absolute date with its offset ([Dates](./meta.md#dates)) |
+| `<meta property="article:modified_time" content="…">` | `getModifiedTime()`, an absolute date with its offset ([Dates](./meta.md#dates)) |
 
 The `name` tags must use `name`, the Open Graph tags must use `property` (that is what the Open Graph protocol specifies): `<meta name="og:title">` is not read. Tags that are not in the table, including `twitter:*`, `og:image:width`, `og:locale` and `article:tag`, are ignored; read them with [your own parser](./custom-parser.md).
 

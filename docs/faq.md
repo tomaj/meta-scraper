@@ -34,7 +34,7 @@ Write a parser: one class with one method. See [Writing a parser](./guide/custom
 
 ## Which time zone are the dates in?
 
-UTC. Strings are parsed with `strtotime()` and stored as UTC `DateTime` objects; convert them for display. See [Dates](./guide/meta.md#dates).
+In the offset the page wrote: `2026-11-20T06:30:00+01:00` comes back as a `DateTimeImmutable` with `+01:00`. A date without an offset is in PHP's default time zone. Convert them with `setTimezone()` for display. See [Dates](./guide/meta.md#dates).
 
 ## How do I set a timeout or a User-Agent?
 

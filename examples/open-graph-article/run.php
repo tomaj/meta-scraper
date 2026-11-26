@@ -32,7 +32,7 @@ function show(Meta $meta): void
     printf("%-15s %s\n", 'og:site_name', $meta->getOgSiteName());
     printf("%-15s %s\n", 'og:image', $meta->getOgImage());
     printf("%-15s %s\n", 'sections', $names($meta->getSections()));
-    // times are DateTime objects in UTC
+    // times are DateTimeImmutable objects with the offset the page wrote
     printf("%-15s %s\n", 'published', $meta->getPublishedTime()?->format(DATE_ATOM));
     printf("%-15s %s\n", 'modified', $meta->getModifiedTime()?->format(DATE_ATOM));
 }
