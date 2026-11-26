@@ -38,7 +38,7 @@ Výstup:
 
 ## Úplný parser: Twitter karty
 
-[Príklad s Twitter kartami](../examples/twitter-card.md) obsahuje parser postavený na DOM, ktorý číta `twitter:title`, `twitter:description` a `twitter:image` (aj v zápise `property="twitter:…"`), zvládne stránky v UTF-8 bez deklarácie kódovania a obnoví nastavenie chýb libxml:
+[Príklad s Twitter kartami](../examples/twitter-card.md) obsahuje parser postavený na HTML5 parseri z PHP 8.4 (`Dom\HTMLDocument`, rovnako ako `OgDomParser`), ktorý číta `twitter:title`, `twitter:description` a `twitter:image` (aj v zápise `property="twitter:…"`):
 
 <<< @/../examples/twitter-card/src/TwitterCardParser.php
 

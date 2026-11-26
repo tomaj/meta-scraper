@@ -26,17 +26,14 @@ final class TwitterCardParser implements ParserInterface
             return $meta;
         }
 
-        $dom = new \DOMDocument();
-        $previous = libxml_use_internal_errors(true);
-        // without a charset declaration libxml would read the page as ISO-8859-1
-        $dom->loadHTML('<?xml encoding="UTF-8">' . $content);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previous);
+        // the HTML5 parser of PHP 8.4: UTF-8 unless the page declares another charset,
+        // LIBXML_NOERROR keeps parse errors of real-world markup from becoming warnings
+        $dom = \Dom\HTMLDocument::createFromString($content, LIBXML_NOERROR);
 
-        foreach ($dom->getElementsByTagName('meta') as $tag) {
+        foreach ($dom->querySelectorAll('meta[name], meta[property]') as $tag) {
             // cards are written with name="twitter:…", some sites use property="twitter:…"
-            $name = strtolower($tag->getAttribute('name') ?: $tag->getAttribute('property'));
-            $value = $tag->getAttribute('content');
+            $name = strtolower(($tag->getAttribute('name') ?: $tag->getAttribute('property')) ?? '');
+            $value = $tag->getAttribute('content') ?? '';
             if ($value === '') {
                 continue;
             }

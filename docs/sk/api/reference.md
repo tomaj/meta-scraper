@@ -133,7 +133,7 @@ Kontrakt: pri každom volaní vráťte nový `Meta`, pri poškodenom vstupe nevy
 `Tomaj\Scraper\Parser\OgDomParser implements ParserInterface`.
 
 - `__construct()`: vyhodí `Exception\MissingExtensionException`, keď nie je načítané `ext-dom` alebo `ext-libxml`.
-- `parse(string $content): Meta`: tie isté tagy ako `OgParser`, cez `DOMDocument`; atribúty v ľubovoľnom poradí, hodnoty atribútov bez ohľadu na veľkosť písmen, všetky tagy `author` a `article:section`, z ostatných tagov posledný výskyt; deklarované kódovanie sa dekóduje, inak sa predpokladá UTF-8. Pozrite [OgDomParser](../guide/open-graph.md#ogdomparser).
+- `parse(string $content): Meta`: tie isté tagy ako `OgParser`, cez HTML5 parser `Dom\HTMLDocument`; atribúty v ľubovoľnom poradí, hodnoty atribútov bez ohľadu na veľkosť písmen, všetky tagy `author` a `article:section`, z ostatných tagov posledný výskyt; entity sa dekódujú raz; deklarované kódovanie sa dekóduje, inak sa predpokladá UTF-8. Pozrite [OgDomParser](../guide/open-graph.md#ogdomparser).
 
 ## SchemaParser
 

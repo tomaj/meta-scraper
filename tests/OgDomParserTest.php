@@ -213,4 +213,104 @@ final class OgDomParserTest extends TestCase
             libxml_use_internal_errors($previous);
         }
     }
+
+    public function testUtf8PageWithoutCharsetIsReadAsUtf8(): void
+    {
+        $meta = new OgDomParser()->parse($this->fixture('utf8-no-charset.html'));
+
+        self::assertSame('Ľudovít Štúr – životopis', $meta->getTitle());
+        self::assertSame('Jazykovedec, básnik a politik.', $meta->getDescription());
+        self::assertSame('Ťažký „úvod“', $meta->getOgTitle());
+    }
+
+    public function testWindows1250PageWithMetaCharsetIsDecoded(): void
+    {
+        $meta = new OgDomParser()->parse($this->fixture('windows-1250.html'));
+
+        self::assertSame('Žltý kôň úpel ďábelské ódy', $meta->getTitle());
+        self::assertSame('Stránka v kódovaní windows-1250', $meta->getDescription());
+    }
+
+    public function testCharsetDeclaredAfterTheFirst1024BytesIsUsedForAPageThatIsNotUtf8(): void
+    {
+        self::assertSame('Žltý kôň', new OgDomParser()->parse($this->fixture('late-charset.html'))->getTitle());
+    }
+
+    public function testXmlDeclarationEncodingIsUsedForAPageThatIsNotUtf8(): void
+    {
+        self::assertSame('Žltý kôň', new OgDomParser()->parse($this->fixture('xml-declaration.html'))->getTitle());
+    }
+
+    public function testUnknownCharsetIsReadAsUtf8WithReplacementCharacters(): void
+    {
+        self::assertSame("\u{FFFD}lt\u{FFFD}", new OgDomParser()->parse($this->fixture('unknown-charset.html'))->getTitle());
+    }
+
+    public function testLateDeclarationDoesNotOverrideAValidUtf8Page(): void
+    {
+        $html = '<!-- ' . str_repeat('x', 1100) . ' --><meta charset="windows-1250"><title>Žltý kôň</title>';
+
+        self::assertSame('Žltý kôň', new OgDomParser()->parse($html)->getTitle());
+    }
+
+    public function testEntitiesAreDecodedExactlyOnce(): void
+    {
+        $meta = new OgDomParser()->parse($this->fixture('entities.html'));
+
+        self::assertSame('Tom &amp; Jerry … café čaj', $meta->getTitle());
+        self::assertSame('Tom &amp; Jerry …', $meta->getOgTitle());
+        self::assertSame('<b> is not a tag', $meta->getOgSiteName());
+        self::assertSame("čšž – „quoted“\u{00A0}end", $meta->getDescription());
+    }
+
+    public function testBothParsersDecodeEntitiesTheSameWay(): void
+    {
+        $html = $this->fixture('entities.html');
+        $dom = new OgDomParser()->parse($html);
+        $regex = new OgParser()->parse($html);
+
+        self::assertSame($regex->getTitle(), $dom->getTitle());
+        self::assertSame($regex->getOgTitle(), $dom->getOgTitle());
+        self::assertSame($regex->getOgSiteName(), $dom->getOgSiteName());
+        self::assertSame($regex->getDescription(), $dom->getDescription());
+    }
+
+    public function testHtml5PageParsesWithoutWarnings(): void
+    {
+        $warnings = [];
+        set_error_handler(static function (int $level, string $message) use (&$warnings): bool {
+            $warnings[] = $message;
+            return true;
+        });
+        try {
+            $meta = new OgDomParser()->parse($this->fixture('html5-elements.html'));
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame([], $warnings);
+        self::assertSame('HTML5 page', $meta->getTitle());
+        self::assertSame('HTML5 elements', $meta->getOgTitle());
+    }
+
+    public function testSvgTitleIsNotThePageTitle(): void
+    {
+        $meta = new OgDomParser()->parse($this->fixture('svg-title-only.html'));
+
+        self::assertNull($meta->getTitle());
+        self::assertSame('No HTML title', $meta->getOgTitle());
+    }
+
+    public function testEmptyAttributesAndTagsWithoutContentAreHandled(): void
+    {
+        $meta = new OgDomParser()->parse('<meta property="og:title"><meta content="Only content"><meta name="" content="x"><meta property="og:url" content="">');
+
+        self::assertNull($meta->getOgTitle());
+        self::assertSame('', $meta->getOgUrl());
+    }
+
+    private function fixture(string $name): string
+    {
+        return (string) file_get_contents(__DIR__ . '/fixtures/dom/' . $name);
+    }
 }

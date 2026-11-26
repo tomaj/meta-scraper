@@ -4,7 +4,7 @@ description: OgParser a OgDomParser čítajú titulok, popis, kľúčové slová
 
 # Meta tagy a Open Graph
 
-`OgParser` a `OgDomParser` čítajú tie isté tagy do tých istých polí `Meta`. `OgParser` používa regulárne výrazy a nepotrebuje žiadne rozšírenie; `OgDomParser` spracuje dokument rozšírením DOM a je presnejší.
+`OgParser` a `OgDomParser` čítajú tie isté tagy do tých istých polí `Meta`. `OgParser` používa regulárne výrazy a nepotrebuje žiadne rozšírenie; `OgDomParser` spracuje dokument HTML5 parserom z PHP 8.4 (`Dom\HTMLDocument`) a je presnejší.
 
 ## Čítané tagy {#tags-that-are-read}
 
@@ -45,12 +45,12 @@ PHP | 2024-11-21T08:00:00+00:00
 $parser = new OgDomParser(); // throws MissingExtensionException without ext-dom or ext-libxml
 ```
 
-- **Akékoľvek značkovanie.** Dokument spracuje HTML parser knižnice libxml, takže na poradí atribútov, spôsobe úvodzoviek, veľkých písmenách v tagoch ani chýbajúcich uzatváracích tagoch nezáleží. Varovania libxml o chybnom značkovaní sa potlačia a vymažú; vaše nastavenie `libxml_use_internal_errors()` sa potom obnoví.
-- **Titulok:** text prvého elementu `<title>`.
+- **Akékoľvek značkovanie.** Dokument spracuje `Dom\HTMLDocument`, HTML5 parser z PHP 8.4, ktorý dodržiava špecifikáciu, rovnako ako prehliadač: na poradí atribútov, spôsobe úvodzoviek, veľkých písmenách v tagoch, elementoch HTML5 (`<header>`, `<main>`, vlastné elementy) ani na chýbajúcich či zle vnorených uzatváracích tagoch nezáleží. Chyby parsovania sa nehlásia (`LIBXML_NOERROR`) a parser vaše nastavenie `libxml_use_internal_errors()` nemení.
+- **Titulok:** text prvého HTML elementu `<title>` tak, ako je (bez orezania medzier). `<title>` vnútri vloženého `<svg>` nie je titulok stránky.
 - **Hodnoty atribútov nerozlišujú veľkosť písmen:** `property="OG:Title"` je `og:title`.
 - **Opakované tagy:** každý tag `author` a `article:section` sa pridá do zoznamu; pri ostatných poliach platí **posledný** tag na stránke.
-- **Entity** dekóduje HTML parser (`&hellip;` sa zmení na `…`) a potom ešte raz `htmlspecialchars_decode()`, takže dvakrát escapované `&amp;lt;` sa zmení na `<`.
-- **Kódovanie:** dokument, ktorý deklaruje svoje kódovanie (`<meta charset="windows-1250">` alebo `<meta http-equiv="Content-Type" content="text/html; charset=…">`, prípadne XML deklarácia s `encoding`), sa z neho dekóduje. Dokument bez deklarácie sa číta ako UTF-8. Hlavička `Content-Type` odpovede sa nepoužíva: `parse()` vidí len HTML.
+- **Entity** dekóduje práve raz HTML parser, s úplným zoznamom HTML5 (`&hellip;` sa zmení na `…`, `&ccaron;` na `č`). Dvakrát escapované `&amp;amp;` zostane doslovným textom `&amp;`, rovnako ako v prehliadači.
+- **Kódovanie:** kódovanie sa určí z BOM alebo z deklarácie `<meta charset="windows-1250">` / `<meta http-equiv="Content-Type" content="text/html; charset=…">` v prvých 1024 bajtoch, rovnako ako v prehliadači. Stránka bez deklarácie sa číta ako UTF-8. Keď stránka nie je platné UTF-8 a jej deklarácia príde neskôr alebo je to XML deklarácia (`<?xml encoding="…"?>`), použije sa táto deklarácia. Hodnoty sú vždy platné UTF-8: bajty, ktoré v danom kódovaní nie sú platné, sa zmenia na U+FFFD. Hlavička `Content-Type` odpovede sa nepoužíva: `parse()` vidí len HTML.
 - **Prázdny vstup:** `parse('')` vráti prázdny `Meta`.
 
 ## OgParser

@@ -133,7 +133,7 @@ Contract: return a new `Meta` on every call, do not throw on malformed input, do
 `Tomaj\Scraper\Parser\OgDomParser implements ParserInterface`.
 
 - `__construct()`: throws `Exception\MissingExtensionException` when `ext-dom` or `ext-libxml` is not loaded.
-- `parse(string $content): Meta`: the same tags as `OgParser`, with `DOMDocument`; any attribute order, case-insensitive attribute values, all `author` and `article:section` tags, the last occurrence of the other tags; declared charsets decoded, UTF-8 otherwise. See [OgDomParser](../guide/open-graph.md#ogdomparser).
+- `parse(string $content): Meta`: the same tags as `OgParser`, with the HTML5 parser `Dom\HTMLDocument`; any attribute order, case-insensitive attribute values, all `author` and `article:section` tags, the last occurrence of the other tags; entities decoded once; declared charsets decoded, UTF-8 otherwise. See [OgDomParser](../guide/open-graph.md#ogdomparser).
 
 ## SchemaParser
 

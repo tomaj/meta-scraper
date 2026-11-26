@@ -4,7 +4,7 @@ description: OgParser and OgDomParser read the title, description, keywords, aut
 
 # Meta tags and Open Graph
 
-`OgParser` and `OgDomParser` read the same tags into the same `Meta` fields. `OgParser` uses regular expressions and needs no extension; `OgDomParser` parses the document with PHP's DOM extension and is more accurate.
+`OgParser` and `OgDomParser` read the same tags into the same `Meta` fields. `OgParser` uses regular expressions and needs no extension; `OgDomParser` parses the document with the HTML5 parser of PHP 8.4 (`Dom\HTMLDocument`) and is more accurate.
 
 ## Tags that are read
 
@@ -45,12 +45,12 @@ PHP | 2024-11-21T08:00:00+00:00
 $parser = new OgDomParser(); // throws MissingExtensionException without ext-dom or ext-libxml
 ```
 
-- **Any markup.** The document is parsed by libxml's HTML parser, so attribute order, quoting style, upper-case tags and missing closing tags do not matter. libxml warnings about bad markup are suppressed and cleared; your `libxml_use_internal_errors()` setting is restored afterwards.
-- **Title:** the text of the first `<title>` element.
+- **Any markup.** The document is parsed by `Dom\HTMLDocument`, the spec-compliant HTML5 parser of PHP 8.4, the same way a browser parses it: attribute order, quoting style, upper-case tags, HTML5 elements (`<header>`, `<main>`, custom elements) and missing or misnested closing tags do not matter. Parse errors are not reported (`LIBXML_NOERROR`), and the parser does not touch your `libxml_use_internal_errors()` setting.
+- **Title:** the text of the first HTML `<title>` element, as it is (not trimmed). A `<title>` inside an inline `<svg>` is not the page title.
 - **Attribute values are case-insensitive:** `property="OG:Title"` is `og:title`.
 - **Repeated tags:** every `author` and `article:section` tag is added to the list; for the other fields the **last** tag on the page wins.
-- **Entities** are decoded by the HTML parser (`&hellip;` becomes `…`) and then once more with `htmlspecialchars_decode()`, so a double-escaped `&amp;lt;` becomes `<`.
-- **Character set:** a document that declares its charset (`<meta charset="windows-1250">` or `<meta http-equiv="Content-Type" content="text/html; charset=…">`, or an XML declaration with `encoding`) is decoded from it. A document without a declaration is read as UTF-8. The `Content-Type` header of the response is not used: `parse()` only sees the HTML.
+- **Entities** are decoded exactly once, by the HTML parser, with the full HTML5 list (`&hellip;` becomes `…`, `&ccaron;` `č`). A double-escaped `&amp;amp;` stays the literal text `&amp;`, like in a browser.
+- **Character set:** the charset comes from a byte order mark or from a `<meta charset="windows-1250">` / `<meta http-equiv="Content-Type" content="text/html; charset=…">` declaration in the first 1024 bytes, like in a browser. A page without a declaration is read as UTF-8. When a page is not valid UTF-8 and its declaration comes later, or is an XML declaration (`<?xml encoding="…"?>`), that declaration is used. The values are always valid UTF-8: bytes that are not valid in the charset become U+FFFD. The `Content-Type` header of the response is not used: `parse()` only sees the HTML.
 - **Empty input:** `parse('')` returns an empty `Meta`.
 
 ## OgParser
