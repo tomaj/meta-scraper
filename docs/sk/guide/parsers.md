@@ -28,7 +28,7 @@ Poradie rozhoduje, ktorá hodnota platí, keď dva parsery nájdu to isté pole 
 | Bez `ext-dom` alebo rýchlosť pred presnosťou pri korektných stránkach | `[new SchemaParser(), new OgParser()]` |
 | Stránky len s Twitter kartami alebo iným značkovaním | na koniec pridajte [vlastný parser](./custom-parser.md) |
 
-Na meta tagy je lepšou voľbou `OgDomParser` vždy, keď je `ext-dom` k dispozícii: `OgParser` sa spolieha na poradie atribútov a keď stránka zapíše `content` pred `property`, môže vrátiť hodnotu **iného** tagu (pozrite si [príklad s poškodenými stránkami](../examples/broken-pages.md)). `OgParser` zostáva pre prostredia bez `ext-dom` a kvôli spätnej kompatibilite.
+Na meta tagy je lepšou voľbou `OgDomParser` vždy, keď je `ext-dom` k dispozícii: `OgParser` sa spolieha na poradie atribútov a v tagoch, ktoré majú `content` pred `property`, nič nenájde (pozrite si [príklad s poškodenými stránkami](../examples/broken-pages.md)). `OgParser` zostáva pre prostredia bez `ext-dom` a kvôli spätnej kompatibilite.
 
 ## Vytváranie parserov
 

@@ -8,69 +8,109 @@ use Tomaj\Scraper\Author;
 use Tomaj\Scraper\Meta;
 use Tomaj\Scraper\Section;
 
+/**
+ * Reads the title, meta and Open Graph tags with regular expressions; needs no extension.
+ *
+ * Every expression stays inside one tag: a tag whose content cannot be read gives no value instead of
+ * the value of a later tag.
+ */
 final class OgParser implements ParserInterface
 {
+    /**
+     * Anything inside a tag up to its closing ">". As in the HTML tokenizer, a quote starts a value only after
+     * "="; such a value (which may contain ">") is skipped whole and possessively, while a stray quote elsewhere
+     * is an ordinary character, so a malformed tag cannot make the expression run on into the rest of the page.
+     */
+    private const string IN_TAG = '(?:[^>=\s]++|\s|=\s*+(?:"[^"]*+"|\'[^\']*+\')?+)*?';
+
     #[\Override]
     public function parse(string $content): Meta
     {
         $meta = new Meta();
 
-        $matches = [];
-
-        if (preg_match('/<title.*>(.+)<\/title\>/Uis', $content, $matches) === 1) {
+        if (preg_match('/<title\b[^>]*>(.*?)<\/title\s*>/is', $content, $matches) === 1) {
             $meta->setTitle(htmlspecialchars_decode($matches[1]));
         }
 
-        if (preg_match('/<meta.*name=[\"\']{1}description[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setDescription(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'name', 'description');
+        if ($value !== null) {
+            $meta->setDescription($value);
         }
 
-        if (preg_match('/<meta.*name=[\"\']{1}keywords[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setKeywords(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'name', 'keywords');
+        if ($value !== null) {
+            $meta->setKeywords($value);
         }
 
-        if (preg_match('/<meta.*name=[\"\']{1}author[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->addAuthor(new Author(null, htmlspecialchars_decode($matches[1])));
+        $value = $this->metaContent($content, 'name', 'author');
+        if ($value !== null) {
+            $meta->addAuthor(new Author(null, $value));
         }
 
-        // maybe in future - optimalize to one preg_match for all og:*
-
-        if (preg_match('/<meta.*property=[\"\']{1}og:title[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgTitle(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:title');
+        if ($value !== null) {
+            $meta->setOgTitle($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}article:section[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->addSection(new Section(null, htmlspecialchars_decode($matches[1])));
+        $value = $this->metaContent($content, 'property', 'article:section');
+        if ($value !== null) {
+            $meta->addSection(new Section(null, $value));
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}article:published_time[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setPublishedTime(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'article:published_time');
+        if ($value !== null) {
+            $meta->setPublishedTime($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}article:modified_time[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setModifiedTime(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'article:modified_time');
+        if ($value !== null) {
+            $meta->setModifiedTime($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}og:description[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgDescription(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:description');
+        if ($value !== null) {
+            $meta->setOgDescription($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}og:type[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgType(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:type');
+        if ($value !== null) {
+            $meta->setOgType($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}og:url[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgUrl(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:url');
+        if ($value !== null) {
+            $meta->setOgUrl($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}og:site_name[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgSiteName(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:site_name');
+        if ($value !== null) {
+            $meta->setOgSiteName($value);
         }
 
-        if (preg_match('/<meta.*property=[\"\']{1}og:image[\"\']{1}.*content=[\"\']{1}(.+)[\"\']{1}/Uis', $content, $matches) === 1) {
-            $meta->setOgImage(htmlspecialchars_decode($matches[1]));
+        $value = $this->metaContent($content, 'property', 'og:image');
+        if ($value !== null) {
+            $meta->setOgImage($value);
         }
 
         return $meta;
+    }
+
+    /**
+     * The content of the first <meta> tag whose $attribute is $value and which has a quoted content
+     * attribute after it, within the same tag.
+     *
+     * @param 'name'|'property' $attribute
+     */
+    private function metaContent(string $content, string $attribute, string $value): ?string
+    {
+        $pattern = '/<meta\b' . self::IN_TAG . '\s' . $attribute . '\s*=\s*(["\'])' . preg_quote($value, '/') . '\1'
+            . self::IN_TAG . '\scontent\s*=\s*(?:"([^"]*)"|\'([^\']*)\')/i';
+
+        if (preg_match($pattern, $content, $matches) !== 1) {
+            return null;
+        }
+
+        // group 2 holds a double-quoted value, group 3 a single-quoted one
+        return htmlspecialchars_decode($matches[3] ?? $matches[2]);
     }
 }

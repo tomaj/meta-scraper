@@ -126,7 +126,7 @@ Contract: return a new `Meta` on every call, do not throw on malformed input, do
 
 ## OgParser
 
-`Tomaj\Scraper\Parser\OgParser implements ParserInterface`. Constructor without arguments. `parse()` reads `<title>`, the `description`, `keywords` and `author` meta tags and the Open Graph / `article:` properties with regular expressions; first occurrence of each tag. See [OgParser](../guide/open-graph.md#ogparser).
+`Tomaj\Scraper\Parser\OgParser implements ParserInterface`. Constructor without arguments. `parse()` reads `<title>`, the `description`, `keywords` and `author` meta tags and the Open Graph / `article:` properties with regular expressions; first occurrence of each tag, `null` for a tag whose `content` comes before `name`/`property`. See [OgParser](../guide/open-graph.md#ogparser).
 
 ## OgDomParser
 

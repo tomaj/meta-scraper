@@ -60,13 +60,14 @@ $parser = new OgParser(); // no requirements
 ```
 
 - **Regular expressions:** one expression per tag, case-insensitive, over the whole string. It works on any string, including fragments such as only the `<head>`.
-- **Attribute order matters:** the `name` or `property` attribute must come before `content`. Single and double quotes both work; unquoted values do not.
+- **Attribute order matters:** the `name` or `property` attribute must come before `content` in the same tag. Single and double quotes both work (a value may contain the other kind of quote and `>`); unquoted values do not.
+- **One tag at a time:** every expression stays inside one `<meta>` tag. A tag that cannot be read, such as `<meta content="…" property="og:title">` (content first) or a tag without `content`, gives `null`, never the value of another tag. An empty `content=""` gives an empty string.
 - **First match only:** for every tag, including `author` and `article:section`, only the first occurrence is read.
 - **Entities:** only `&amp;`, `&lt;`, `&gt;`, `&quot;` and `&#039;` are decoded (`htmlspecialchars_decode()`); other entities such as `&hellip;` stay as they are.
 - **Character set:** the bytes are returned as they are; convert pages that are not UTF-8 before parsing ([Fetching pages](./fetching.md#character-sets)).
 
-::: warning Values from the wrong tag
-Because an expression can match across tags, a tag written as `<meta content="…" property="og:title">` (content first) or with an empty `content=""` can make `OgParser` return the content of a **later** tag, or a piece of markup, instead of `null`. The [broken pages example](../examples/broken-pages.md) shows it. Use `OgDomParser` for pages you do not control.
+::: tip Content first
+`OgParser` does not read tags written as `<meta content="…" property="og:title">`; `OgDomParser` does. The [broken pages example](../examples/broken-pages.md) compares the two. Use `OgDomParser` for pages you do not control.
 :::
 
 ## The two side by side

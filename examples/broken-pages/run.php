@@ -28,9 +28,9 @@ $show = static function (string $label, Meta $meta, array $fields): void {
     }
 };
 
-echo "== reversed.html: content before property\n";
+echo "== reversed.html: content before property, an empty content\n";
 $scraper->parseUrl($base . '/reversed.html', []);
-$fields = ['title', 'ogTitle', 'ogUrl', 'ogSiteName'];
+$fields = ['title', 'ogTitle', 'ogUrl', 'ogSiteName', 'ogDescription', 'description'];
 $show('OgParser', $scraper->parse($scraper->getBody(), [new OgParser()]), $fields);
 $show('OgDomParser', $scraper->parse($scraper->getBody(), [new OgDomParser()]), $fields);
 

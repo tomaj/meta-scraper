@@ -126,7 +126,7 @@ Kontrakt: pri každom volaní vráťte nový `Meta`, pri poškodenom vstupe nevy
 
 ## OgParser
 
-`Tomaj\Scraper\Parser\OgParser implements ParserInterface`. Konštruktor bez argumentov. `parse()` číta regulárnymi výrazmi `<title>`, meta tagy `description`, `keywords` a `author` a vlastnosti Open Graph / `article:`; z každého tagu prvý výskyt. Pozrite [OgParser](../guide/open-graph.md#ogparser).
+`Tomaj\Scraper\Parser\OgParser implements ParserInterface`. Konštruktor bez argumentov. `parse()` číta regulárnymi výrazmi `<title>`, meta tagy `description`, `keywords` a `author` a vlastnosti Open Graph / `article:`; z každého tagu prvý výskyt, `null` pre tag, ktorý má `content` pred `name`/`property`. Pozrite [OgParser](../guide/open-graph.md#ogparser).
 
 ## OgDomParser
 
