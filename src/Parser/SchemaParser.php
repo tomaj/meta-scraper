@@ -84,8 +84,7 @@ final class SchemaParser implements ParserInterface
             $meta->setDescription($description);
         }
 
-        $image = $this->resolve($schema['image'] ?? null, $nodes);
-        $imageUrl = is_array($image) ? $this->stringOrNull($image['url'] ?? null) : null;
+        $imageUrl = $this->imageUrl($schema['image'] ?? null, $nodes);
         if ($imageUrl !== null) {
             $meta->setOgImage($imageUrl);
         }
@@ -148,6 +147,26 @@ final class SchemaParser implements ParserInterface
             foreach ($objects as $object) {
                 if (array_intersect($this->typesOf($object), $types) !== []) {
                     return [$object, $nodes];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The image may be a URL, an ImageObject (or a reference to one) with a "url" or, without one, a
+     * "contentUrl", or a list of those: the first entry that gives a URL wins.
+     *
+     * @param array<string, array<mixed>> $nodes
+     */
+    private function imageUrl(mixed $image, array $nodes): ?string
+    {
+        foreach ($this->listOf($image) as $entry) {
+            $entry = $this->resolve($entry, $nodes);
+            foreach (is_array($entry) ? [$entry['url'] ?? null, $entry['contentUrl'] ?? null] : [$entry] as $url) {
+                if (is_string($url) && $url !== '') {
+                    return $url;
                 }
             }
         }

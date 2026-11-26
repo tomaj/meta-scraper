@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tomaj\Scraper\Test;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tomaj\Scraper\Author;
 use Tomaj\Scraper\Meta;
@@ -104,7 +105,7 @@ final class SchemaParserTest extends TestCase
         self::assertNull($meta->getDescription());
         self::assertEquals([new Section(null, 'S'), new Section(null, '7')], $meta->getSections());
         self::assertSame([], $meta->getTags());
-        self::assertNull($meta->getOgImage());
+        self::assertSame('https://i/y.jpg', $meta->getOgImage());
         self::assertNull($meta->getOgUrl());
     }
 
@@ -330,5 +331,29 @@ final class SchemaParserTest extends TestCase
         self::assertNull($meta->getDescription());
         self::assertNull($meta->getOgImage());
         self::assertNull($meta->getPublishedTime());
+    }
+
+    /**
+     * @return iterable<string, array{string, ?string}>
+     */
+    public static function imageForms(): iterable
+    {
+        yield 'a URL string' => ['image-string.html', 'https://news.example/a.jpg'];
+        yield 'a list of URL strings: the first one' => ['image-list-of-strings.html', 'https://news.example/1x1/a.jpg'];
+        yield 'a list of ImageObjects: the first one' => ['image-list-of-objects.html', 'https://blog.example/first.jpg'];
+        yield 'a list of references: the first one that resolves' => ['image-list-of-references.html', 'https://news.example/primary.jpg'];
+        yield 'entries without a URL are skipped' => ['image-unusable-entries-first.html', 'https://news.example/usable.jpg'];
+        yield 'an ImageObject without a url: its contentUrl' => ['image-content-url.html', 'https://news.example/content-url.jpg'];
+        yield 'an ImageObject with both: its url' => ['image-url-and-content-url.html', 'https://news.example/url.jpg'];
+        yield 'no entry with a URL' => ['image-unusable-only.html', null];
+    }
+
+    #[DataProvider('imageForms')]
+    public function testImageForms(string $fixture, ?string $expected): void
+    {
+        $meta = new SchemaParser()->parse((string) file_get_contents(__DIR__ . '/fixtures/schema/' . $fixture));
+
+        self::assertNotNull($meta->getTitle());
+        self::assertSame($expected, $meta->getOgImage());
     }
 }
