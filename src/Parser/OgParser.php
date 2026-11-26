@@ -17,9 +17,11 @@ use Tomaj\Scraper\Section;
 final class OgParser implements ParserInterface
 {
     /**
-     * Anything inside a tag up to its closing ">": quoted values (which may contain ">") are skipped whole.
+     * Anything inside a tag up to its closing ">". As in the HTML tokenizer, a quote starts a value only after
+     * "="; such a value (which may contain ">") is skipped whole and possessively, while a stray quote elsewhere
+     * is an ordinary character, so a malformed tag cannot make the expression run on into the rest of the page.
      */
-    private const string IN_TAG = '(?:[^>"\']|"[^"]*"|\'[^\']*\')*?';
+    private const string IN_TAG = '(?:[^>=\s]++|\s|=\s*+(?:"[^"]*+"|\'[^\']*+\')?+)*?';
 
     #[\Override]
     public function parse(string $content): Meta

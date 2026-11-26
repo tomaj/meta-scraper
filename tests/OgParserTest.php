@@ -256,6 +256,19 @@ final class OgParserTest extends TestCase
         self::assertSame('Second', new OgParser()->parse('<titlex>no</titlex><title>Second</title>')->getTitle());
     }
 
+    public function testStrayQuoteInAnEarlierTagDoesNotHideLaterTags(): void
+    {
+        // a quote only starts a value after "=", as in the HTML tokenizer; otherwise the expression ran on
+        // through the rest of a large page and PCRE gave up, so every field came back null
+        $body = '<body>' . str_repeat('<div class="c" id="d"><a href="/x">link</a></div>', 20000) . '</body></html>';
+        $meta = new OgParser()->parse($this->fixture('stray-quote.html') . $body);
+
+        self::assertSame(\PREG_NO_ERROR, preg_last_error());
+        self::assertSame('first', $meta->getKeywords());
+        self::assertSame('Read after a stray quote', $meta->getOgTitle());
+        self::assertSame('Also read', $meta->getDescription());
+    }
+
     private function fixture(string $name): string
     {
         return (string) file_get_contents(__DIR__ . '/fixtures/og/' . $name);
