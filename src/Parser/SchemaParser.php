@@ -155,8 +155,8 @@ final class SchemaParser implements ParserInterface
     }
 
     /**
-     * The image may be a URL, an ImageObject (or a reference to one) with a "url", or a list of those:
-     * the first entry that gives a URL wins.
+     * The image may be a URL, an ImageObject (or a reference to one) with a "url" or, without one, a
+     * "contentUrl", or a list of those: the first entry that gives a URL wins.
      *
      * @param array<string, array<mixed>> $nodes
      */
@@ -164,9 +164,10 @@ final class SchemaParser implements ParserInterface
     {
         foreach ($this->listOf($image) as $entry) {
             $entry = $this->resolve($entry, $nodes);
-            $url = is_array($entry) ? $entry['url'] ?? null : $entry;
-            if (is_string($url) && $url !== '') {
-                return $url;
+            foreach (is_array($entry) ? [$entry['url'] ?? null, $entry['contentUrl'] ?? null] : [$entry] as $url) {
+                if (is_string($url) && $url !== '') {
+                    return $url;
+                }
             }
         }
 

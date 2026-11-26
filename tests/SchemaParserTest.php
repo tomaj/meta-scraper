@@ -343,6 +343,8 @@ final class SchemaParserTest extends TestCase
         yield 'a list of ImageObjects: the first one' => ['image-list-of-objects.html', 'https://blog.example/first.jpg'];
         yield 'a list of references: the first one that resolves' => ['image-list-of-references.html', 'https://news.example/primary.jpg'];
         yield 'entries without a URL are skipped' => ['image-unusable-entries-first.html', 'https://news.example/usable.jpg'];
+        yield 'an ImageObject without a url: its contentUrl' => ['image-content-url.html', 'https://news.example/content-url.jpg'];
+        yield 'an ImageObject with both: its url' => ['image-url-and-content-url.html', 'https://news.example/url.jpg'];
         yield 'no entry with a URL' => ['image-unusable-only.html', null];
     }
 

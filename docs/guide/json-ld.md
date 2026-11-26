@@ -40,7 +40,7 @@ Values written as a reference, an object with nothing but an `@id` such as `{"@i
 | `articleTerms` | `getSections()` | list of objects with `"@type": "Category"` and `@id`/`name`; other objects are skipped |
 | `articleSection` | `getSections()`, only when there is no `articleTerms` list | a string or a list of strings |
 | `about` | `getTags()` | an object with `@id`/`name` or a list of them; plain strings are skipped |
-| `image` | `getOgImage()` | a URL string, an object with a `url` (an `ImageObject`, possibly a reference), or a list of those: the first entry with a URL |
+| `image` | `getOgImage()` | a URL string, an object with a `url` or, without one, a `contentUrl` (an `ImageObject`, possibly a reference), or a list of those: the first entry with a URL |
 | `url` | `getOgUrl()` | string |
 | `datePublished` | `getPublishedTime()` | a date string `strtotime()` understands |
 | `dateModified` | `getModifiedTime()` | a date string `strtotime()` understands |
@@ -49,7 +49,7 @@ Details:
 
 - Where a text is expected, strings and integers are used (`"@id": 42` becomes `"42"`); other types (booleans, numbers with a fraction, objects) are ignored. Values are never trimmed or decoded: JSON already has its own escaping.
 - The node's `name` is not used for the title, only `headline`. A `WebPage` node usually has a `name` and no `headline`, so its title stays `null` and a later parser can fill it.
-- `image` may be a URL string (`"image": "https://…/a.jpg"`), an `ImageObject` or a reference to one, or a list of any of these (`"image": ["https://…/1x1.jpg", "https://…/16x9.jpg"]`, the form Google recommends for articles). From a list, the first entry that gives a non-empty URL string is used; empty strings, numbers, references to missing nodes and objects without a string `url` (such as an `ImageObject` with only `contentUrl`) are skipped.
+- `image` may be a URL string (`"image": "https://…/a.jpg"`), an `ImageObject` or a reference to one, or a list of any of these (`"image": ["https://…/1x1.jpg", "https://…/16x9.jpg"]`, the form Google recommends for articles). From a list, the first entry that gives a non-empty URL string is used; an `ImageObject` gives its `url`, or its `contentUrl` when it has no `url`. Empty strings, numbers, references to missing nodes and objects with neither a string `url` nor a string `contentUrl` are skipped.
 - `Author`, `Section` and `Tag` objects get the node's `@id` as `id()`; for authors given as strings and for `articleSection` it is `null`.
 - `og:type`, `og:site_name`, `og:title`, `og:description` and the keywords have no JSON-LD source and stay `null`.
 
