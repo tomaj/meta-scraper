@@ -28,7 +28,7 @@ The order decides which value wins when two parsers find the same field ([Combin
 | No `ext-dom`, or speed over accuracy on well-formed pages | `[new SchemaParser(), new OgParser()]` |
 | Pages with only Twitter cards or other markup | add [your own parser](./custom-parser.md) at the end |
 
-`OgDomParser` is the better choice for meta tags whenever `ext-dom` is available: `OgParser` relies on the attribute order and, when a page writes `content` before `property`, can return the value of a **different** tag (see the [broken pages example](../examples/broken-pages.md)). `OgParser` stays for environments without `ext-dom` and for compatibility.
+`OgDomParser` is the better choice for meta tags whenever `ext-dom` is available: `OgParser` relies on the attribute order and finds nothing in tags that write `content` before `property` (see the [broken pages example](../examples/broken-pages.md)). `OgParser` stays for environments without `ext-dom` and for compatibility.
 
 ## Creating parsers
 

@@ -1,5 +1,5 @@
 ---
-description: What meta-scraper's parsers return for broken and unusual pages - reversed attributes, unquoted tags, invalid JSON-LD, missing or legacy charsets and empty bodies.
+description: What meta-scraper's parsers return for broken and unusual pages - reversed attributes, empty content, unquoted tags, invalid JSON-LD, missing or legacy charsets and empty bodies.
 ---
 
 # Example: broken pages
@@ -34,7 +34,7 @@ Real pages are not always well-formed. This example runs the parsers over six fi
 
 ## What to notice
 
-- **`reversed.html`: `OgParser` returns wrong values.** With `content` before `property`, its expressions match across tags: `og:title` becomes the URL of the next tag and `og:url` the site name. `OgDomParser` reads all three correctly. This is why `OgDomParser` is the recommended parser for pages you do not control; see [Choosing a parser](../guide/parsers.md).
+- **`reversed.html`: `OgParser` skips content-first tags.** With `content` before `property`, `OgParser` cannot read the tag and returns `null` for `og:title` and `og:url`; it never takes the value of a neighbouring tag. `OgDomParser` reads all three. This is why `OgDomParser` is the recommended parser for pages you do not control; see [Choosing a parser](../guide/parsers.md). Both parsers return an empty string for the empty `og:description`, and `Meta::merge()` treats an empty string as missing, so it comes out as `null`.
 - **`unquoted.html`:** upper-case tags and unquoted attribute values are fine for `OgDomParser`; `OgParser` needs quotes and finds only the title.
 - **`invalid-json-ld.html`:** the block with a trailing comma is skipped and the next block is used. The author given as a plain string is read; `"datePublished": "not a date"` is ignored.
 - **`no-charset.html`:** both parsers return correct UTF-8: `OgParser` passes the bytes through, `OgDomParser` reads undeclared documents as UTF-8.
@@ -43,4 +43,4 @@ Real pages are not always well-formed. This example runs the parsers over six fi
 
 ## What CI checks
 
-Each value above, including the wrong `OgParser` values on `reversed.html`, so a change in the parsers' behaviour on broken input shows up as a failing example.
+Each value above, including the `null` values of `OgParser` on `reversed.html`, so a change in the parsers' behaviour on broken input shows up as a failing example.

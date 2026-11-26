@@ -1,5 +1,5 @@
 ---
-description: Čo vracajú parsery meta-scraper pri poškodených a nezvyčajných stránkach - prehodené atribúty, tagy bez úvodzoviek, neplatné JSON-LD, chýbajúce alebo staré kódovanie a prázdne telo.
+description: Čo vracajú parsery meta-scraper pri poškodených a nezvyčajných stránkach - prehodené atribúty, prázdny content, tagy bez úvodzoviek, neplatné JSON-LD, chýbajúce alebo staré kódovanie a prázdne telo.
 ---
 
 # Príklad: poškodené stránky
@@ -34,7 +34,7 @@ Skutočné stránky nie sú vždy správne zapísané. Tento príklad pustí par
 
 ## Čo si všimnúť
 
-- **`reversed.html`: `OgParser` vracia nesprávne hodnoty.** Keď je `content` pred `property`, jeho regulárne výrazy zachytia text naprieč tagmi: z `og:title` sa stane URL nasledujúceho tagu a z `og:url` názov webu. `OgDomParser` prečíta všetky tri správne. Preto je `OgDomParser` odporúčaný parser pre stránky, ktoré nemáte pod kontrolou; pozrite [Výber parsera](../guide/parsers.md).
+- **`reversed.html`: `OgParser` vynechá tagy s `content` na začiatku.** Keď je `content` pred `property`, `OgParser` tag neprečíta a pre `og:title` aj `og:url` vráti `null`; hodnotu susedného tagu nikdy nevezme. `OgDomParser` prečíta všetky tri. Preto je `OgDomParser` odporúčaný parser pre stránky, ktoré nemáte pod kontrolou; pozrite [Výber parsera](../guide/parsers.md). Pre prázdny `og:description` oba parsery vrátia prázdny reťazec a `Meta::merge()` berie prázdny reťazec ako chýbajúcu hodnotu, preto je výsledok `null`.
 - **`unquoted.html`:** tagy veľkými písmenami a hodnoty atribútov bez úvodzoviek `OgDomParser` nevadia; `OgParser` potrebuje úvodzovky a nájde len titulok.
 - **`invalid-json-ld.html`:** blok s čiarkou na konci sa preskočí a použije sa ďalší blok. Autor zadaný ako obyčajný reťazec sa prečíta; `"datePublished": "not a date"` sa ignoruje.
 - **`no-charset.html`:** oba parsery vrátia správne UTF-8: `OgParser` bajty len odovzdá ďalej, `OgDomParser` číta dokumenty bez deklarácie ako UTF-8.
@@ -43,4 +43,4 @@ Skutočné stránky nie sú vždy správne zapísané. Tento príklad pustí par
 
 ## Čo kontroluje CI
 
-Každú hodnotu vyššie vrátane nesprávnych hodnôt z `OgParser` pri `reversed.html`, takže zmena správania parserov na poškodenom vstupe sa prejaví ako zlyhaný príklad.
+Každú hodnotu vyššie vrátane hodnôt `null` z `OgParser` pri `reversed.html`, takže zmena správania parserov na poškodenom vstupe sa prejaví ako zlyhaný príklad.

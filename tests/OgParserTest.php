@@ -197,4 +197,67 @@ final class OgParserTest extends TestCase
 
         self::assertSame("First\nline", $meta->getTitle());
     }
+
+    public function testContentFirstTagsGiveNullInsteadOfTheNextTagsValue(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('content-first.html'));
+
+        self::assertSame('Attributes in any order', $meta->getTitle());
+        self::assertNull($meta->getOgTitle());
+        self::assertNull($meta->getOgUrl());
+        self::assertNull($meta->getDescription());
+        self::assertSame('Shop', $meta->getOgSiteName());
+        self::assertSame('shop, products', $meta->getKeywords());
+    }
+
+    public function testEmptyContentGivesAnEmptyStringInsteadOfMarkup(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('empty-content.html'));
+
+        self::assertSame('', $meta->getTitle());
+        self::assertSame('', $meta->getDescription());
+        self::assertSame('first, second', $meta->getKeywords());
+        self::assertSame('', $meta->getOgTitle());
+        self::assertSame('product', $meta->getOgType());
+    }
+
+    public function testTagWithoutContentGivesNullInsteadOfTheNextTagsValue(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('missing-content.html'));
+
+        self::assertNull($meta->getOgImage());
+        self::assertSame([], $meta->getAuthors());
+        self::assertSame('https://shop.example/p/42', $meta->getOgUrl());
+        self::assertSame('The real description', $meta->getDescription());
+    }
+
+    public function testQuotesAndGreaterThanInsideValues(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('quotes-in-values.html'));
+
+        self::assertSame("Don't panic", $meta->getTitle());
+        self::assertSame("Don't panic", $meta->getOgTitle());
+        self::assertSame('Say "hello" > goodbye', $meta->getOgDescription());
+        self::assertSame('After an attribute with >', $meta->getDescription());
+        self::assertSame('Guide', $meta->getOgSiteName());
+    }
+
+    public function testAttributeNamesMustMatchExactly(): void
+    {
+        $meta = new OgParser()->parse($this->fixture('prefixed-attributes.html'));
+
+        self::assertSame('From property', $meta->getOgTitle());
+        self::assertSame('From name', $meta->getDescription());
+    }
+
+    public function testTitleDoesNotRunIntoTheNextTitle(): void
+    {
+        self::assertSame('', new OgParser()->parse('<title></title><p>body</p><title>Second</title>')->getTitle());
+        self::assertSame('Second', new OgParser()->parse('<titlex>no</titlex><title>Second</title>')->getTitle());
+    }
+
+    private function fixture(string $name): string
+    {
+        return (string) file_get_contents(__DIR__ . '/fixtures/og/' . $name);
+    }
 }

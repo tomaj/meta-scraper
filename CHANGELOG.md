@@ -36,6 +36,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ### Fixed
 - `OgDomParser` returned the same `Meta` object from every `parse()` call, so data of one page leaked into the next and `parse('')` returned the previous page ([#21](https://github.com/tomaj/meta-scraper/issues/21)).
 - `OgDomParser` garbled UTF-8 text on pages without a charset declaration; such documents are now read as UTF-8, declared charsets still apply ([#22](https://github.com/tomaj/meta-scraper/issues/22)).
+- `OgParser` returned the value of a later tag, or a piece of markup, for a tag written with `content` before `name`/`property`, without `content` or with an empty `content=""`; each expression now stays inside one tag, so such a tag gives `null` (or an empty string for empty content). Values containing the other quote character (`content="Don't"`) or `>` are read whole, `data-property`/`data-name` attributes are no longer mistaken for `property`/`name`, and an empty `<title></title>` no longer runs into the next `<title>` ([#29](https://github.com/tomaj/meta-scraper/issues/29)).
 
 ## [4.3.0] - 2020-11-23
 

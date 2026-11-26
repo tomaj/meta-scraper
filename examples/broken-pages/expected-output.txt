@@ -1,14 +1,18 @@
-== reversed.html: content before property
+== reversed.html: content before property, an empty content
 OgParser
   title         Attributes in any order
-  ogTitle       https://shop.example/p/42
-  ogUrl         Shop
+  ogTitle       (null)
+  ogUrl         (null)
   ogSiteName    Shop
+  ogDescription (null)
+  description   Empty og:description above
 OgDomParser
   title         Attributes in any order
   ogTitle       Written content first
   ogUrl         https://shop.example/p/42
   ogSiteName    Shop
+  ogDescription (null)
+  description   Empty og:description above
 
 == unquoted.html: upper case tags, unquoted attributes, no closing tags
 OgParser
